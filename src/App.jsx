@@ -141,7 +141,7 @@ const [pomodoroSessions, setPomodoroSessions] = useState(0)
       })
       processedText = processedText.replace(/(^\w|\.\s+\w|\n\n\w)/g, (match) => match.toUpperCase())
 
-      setNoteText(prev => prev + (prev ? ' : ') + processedText)
+      setNoteText(prev => prev + (prev? ':') + processedText)
       setMessage('')
     }
 
