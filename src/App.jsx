@@ -48,8 +48,12 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState('all')
 
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [stopwatchTime, setStopwatchTime] = useState(0)
-  const [stopwatchRunning, setStopwatchRunning] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const [pomodoroTime, setPomodoroTime] = useState(25 * 60)
+  const [pomodoroRunning, setPomodoroRunning] = useState(false)
+  const [isBreak, setIsBreak] = useState(false)
+  const [pomodoroSessions, setPomodoroSessions] = useState(0)
 
   const [showExport, setShowExport] = useState(false)
   const [selectedNotes, setSelectedNotes] = useState([])
@@ -82,13 +86,25 @@ export default function App() {
 
   useEffect(() => {
     let interval
-    if (stopwatchRunning) {
+    if (pomodoroRunning) {
       interval = setInterval(() => {
-        setStopwatchTime(prev => prev + 1)
+        setPomodoroTime(prev => {
+          if (prev <= 1) {
+            if (isBreak) {
+              setIsBreak(false)
+              setPomodoroSessions(prev => prev + 1)
+              return 25 * 60
+            } else {
+              setIsBreak(true)
+              return 5 * 60
+            }
+          }
+          return prev - 1
+        })
       }, 1000)
     }
     return () => clearInterval(interval)
-  }, [stopwatchRunning])
+  }, [pomodoroRunning, isBreak])
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -139,12 +155,12 @@ export default function App() {
       setIsListening(false)
     } else {
       navigator.mediaDevices.getUserMedia({ audio: true })
-     .then(() => {
+ .then(() => {
           recognitionRef.current.start()
           setIsListening(true)
           setMessage('🎤 Say comma, full stop, new line for punctuation')
         })
-     .catch((err) => {
+ .catch((err) => {
           console.error(err)
           setMessage('Microphone permission denied. Tap the lock icon in Brave/Chrome > Site settings > Microphone > Allow')
           setIsListening(false)
@@ -174,11 +190,11 @@ export default function App() {
     if (!user) return
     setLoading(true)
     const { data, error } = await supabase
-   .from('notes')
-   .select('*')
-   .eq('user_id', user.id)
-   .eq('date', selectedDate)
-   .order('created_at', { ascending: false })
+.from('notes')
+.select('*')
+.eq('user_id', user.id)
+.eq('date', selectedDate)
+.order('created_at', { ascending: false })
     setLoading(false)
     if (error) {
       console.error('Fetch error:', error)
@@ -191,10 +207,10 @@ export default function App() {
   async function fetchTasks() {
     if (!user) return
     const { data, error } = await supabase
-   .from('tasks')
-   .select('*')
-   .eq('user_id', user.id)
-   .order('created_at', { ascending: false })
+.from('tasks')
+.select('*')
+.eq('user_id', user.id)
+.order('created_at', { ascending: false })
     if (error) {
       console.error('Fetch tasks error:', error)
     } else {
@@ -237,14 +253,14 @@ export default function App() {
 
     if (editingNote) {
       const { error } = await supabase
-     .from('notes')
-     .update({
+ .from('notes')
+ .update({
           title: title.trim(),
           content: noteText.trim(),
           priority
         })
-     .eq('id', editingNote.id)
-     .eq('user_id', user.id)
+ .eq('id', editingNote.id)
+ .eq('user_id', user.id)
 
       if (error) setMessage('Error: ' + error.message)
       else {
@@ -253,13 +269,13 @@ export default function App() {
         setTitle('')
         setNoteText('')
         setPriority('medium')
+        await fetchNotes()
         setViewMode('list')
-        fetchNotes()
       }
     } else {
       const { error } = await supabase
-     .from('notes')
-     .insert({
+ .from('notes')
+ .insert({
           user_id: user.id,
           date: selectedDate,
           title: title.trim(),
@@ -273,8 +289,8 @@ export default function App() {
         setTitle('')
         setNoteText('')
         setPriority('medium')
+        await fetchNotes()
         setViewMode('list')
-        fetchNotes()
       }
     }
     setLoading(false)
@@ -306,16 +322,37 @@ export default function App() {
 
   async function deleteNote(id) {
     const { error } = await supabase
-   .from('notes')
-   .delete()
-   .eq('id', id)
-   .eq('user_id', user.id)
+.from('notes')
+.delete()
+.eq('id', id)
+.eq('user_id', user.id)
     if (error) {
       setMessage('Delete failed: ' + error.message)
     } else {
       setMessage('🗑️ Note deleted')
+      await fetchNotes()
       setViewMode('list')
-      fetchNotes()
+    }
+  }
+
+  async function shareNote() {
+    if (!editingNote) return
+    const shareText = `${editingNote.title}\n\n${editingNote.content}`
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: editingNote.title,
+          text: shareText
+        })
+        setMessage('✅ Note shared!')
+      } catch (err) {
+        if (err.name!== 'AbortError') {
+          setMessage('Sharing failed')
+        }
+      }
+    } else {
+      navigator.clipboard.writeText(shareText)
+      setMessage('📋 Copied instead')
     }
   }
 
@@ -356,19 +393,19 @@ export default function App() {
   async function toggleTask(id) {
     const task = tasks.find(t => t.id === id)
     const { error } = await supabase
-   .from('tasks')
-   .update({ done:!task.done })
-   .eq('id', id)
-   .eq('user_id', user.id)
+.from('tasks')
+.update({ done:!task.done })
+.eq('id', id)
+.eq('user_id', user.id)
     if (!error) fetchTasks()
   }
 
   async function deleteTask(id) {
     const { error } = await supabase
-   .from('tasks')
-   .delete()
-   .eq('id', id)
-   .eq('user_id', user.id)
+.from('tasks')
+.delete()
+.eq('id', id)
+.eq('user_id', user.id)
     if (!error) {
       setMessage('🗑️ Task deleted')
       fetchTasks()
@@ -386,13 +423,21 @@ export default function App() {
     return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
   }
 
-  const toggleStopwatch = () => {
-    setStopwatchRunning(!stopwatchRunning)
+  const formatNoteTime = (date) => {
+    return new Date(date).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   }
 
-  const resetStopwatch = () => {
-    setStopwatchRunning(false)
-    setStopwatchTime(0)
+  const togglePomodoro = () => {
+    setPomodoroRunning(!pomodoroRunning)
+  }
+
+  const resetPomodoro = () => {
+    setPomodoroRunning(false)
+    setIsBreak(false)
+    setPomodoroTime(25 * 60)
   }
 
   const toggleSelect = (id) => {
@@ -448,7 +493,7 @@ export default function App() {
           new Paragraph({
             children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
           }),
-       ...tasks.map(t => new Paragraph({
+ ...tasks.map(t => new Paragraph({
             children: [
               new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
               new TextRun({ text: t.content }),
@@ -463,10 +508,23 @@ export default function App() {
     setMessage('✅ Word file exported!')
   }
 
-  const filteredTasks = activeCategory === 'all'
- ? tasks.sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
-    : tasks.filter(t => t.category === activeCategory)
-   .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+  const filteredTasks =
+  activeCategory === 'all'
+? [...tasks].sort((a, b) =>
+        (a.time || '23:59')
+    .localeCompare(b.time || '23:59')
+      )
+    : tasks
+   .filter(t => t.category === activeCategory)
+   .sort((a, b) =>
+          (a.time || '23:59')
+      .localeCompare(b.time || '23:59')
+        )
+
+  const filteredNotes = notes.filter(note =>
+    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    note.content.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   const completedTasks = tasks.filter(t => t.done).length
   const totalTasks = tasks.length
@@ -627,7 +685,7 @@ export default function App() {
             <>
               <button onClick={() => navigator.clipboard.writeText(noteText)}>Copy</button>
               <button onClick={() => deleteNote(editingNote.id)}>Delete</button>
-              <button>Share</button>
+              <button onClick={shareNote}>Share</button>
               <select
                 value={fontFamily}
                 onChange={(e) => setFontFamily(e.target.value)}
@@ -686,13 +744,20 @@ export default function App() {
         <div className="card clock-card">
           <div className="clock-time">{currentTime.toLocaleTimeString()}</div>
           <div className="clock-date">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
-          <div className="clock-status">{stopwatchRunning? '🟢 Discypln Active' : '🔴 Paused'}</div>
+          <div className="clock-status">
+            {pomodoroRunning? '🟢 Dscypln Session Active' : '🔴 Paused'}
+          </div>
           <div className="stopwatch">
-            <h4>Focus Timer</h4>
-            <div className="stopwatch-time">{formatTime(stopwatchTime)}</div>
+            <h4>{isBreak? '☕ Break Time' : '🍅 Pomodoro'}</h4>
+            <div className="stopwatch-time">{formatTime(pomodoroTime)}</div>
+            <div style={{ fontSize: '14px', opacity: 0.7, marginBottom: '10px' }}>
+              Sessions Completed: {pomodoroSessions}
+            </div>
             <div className="stopwatch-buttons">
-              <button onClick={toggleStopwatch} className="btn primary">{stopwatchRunning? 'Pause' : 'Start'}</button>
-              <button onClick={resetStopwatch} className="btn">Restart</button>
+              <button onClick={togglePomodoro} className="btn primary">
+                {pomodoroRunning? 'Pause' : 'Start'}
+              </button>
+              <button onClick={resetPomodoro} className="btn">Reset</button>
             </div>
           </div>
         </div>
@@ -732,7 +797,7 @@ export default function App() {
         <span>| {notes.length} Notes |</span>
         <button onClick={openAddNote}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <path d="M14 2H6a2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 0 0 0 2-2V8z" />
             <polyline points="14 2 14 8 20 8" />
             <line x1="12" y1="18" x2="12" y1="12" />
             <line x1="9" y1="15" x2="15" y1="15" />
@@ -740,6 +805,14 @@ export default function App() {
         </button>
       </div>
 
+      <input
+        type="text"
+        placeholder="Search notes..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="input"
+        style={{ marginTop: '12px', marginBottom: '16px' }}
+      />
       {loading && <p className="loading">Loading...</p>}
       {notes.length === 0 &&!loading && <p className="empty">No notes for this date</p>}
 
@@ -759,14 +832,16 @@ export default function App() {
         </div>
       )}
 
-      {notes.map(note => (
+      {filteredNotes.map(note => (
         <div key={note.id} className="note-summary" onClick={() =>!showExport && openEditNote(note)} style={showExport? { cursor: 'default', opacity: selectedNotes.includes(note.id)? 1 : 0.6 } : {}}>
           {showExport && (
             <input type="checkbox" checked={selectedNotes.includes(note.id)} onChange={(e) => { e.stopPropagation(); toggleSelect(note.id) }} style={{ marginRight: '12px' }} />
           )}
           <div style={{ flex: 1 }}>
             <h4>{note.title}</h4>
-            <small>{formatDate(note.date)} • {note.priority} priority</small>
+            <small style={{ display: 'block', marginTop: '6px', lineHeight: '1.7' }}>
+              {formatDate(note.date)} • {formatNoteTime(note.created_at)} • {note.priority} priority
+            </small>
           </div>
         </div>
       ))}
@@ -816,19 +891,18 @@ export default function App() {
       </div>
 
       {filteredTasks.map(t => (
-        <div key={t.id} className={`task-item category-${t.category}`}>
-          <label className="checkbox-wrapper">
-            <input type="checkbox" checked={t.done} onChange={() => toggleTask(t.id)} />
-            <span className="checkmark"></span>
-          </label>
-          <div className="task-content">
-            <span className={t.done? 'done' : ''}>{t.content}</span>
-            <div className="task-meta">
-              {t.time && <span className="task-time">🕐 {t.time}</span>}
-              {t.weekday && <span className="task-tag">{t.weekday}</span>}
-              {t.due_date && taskCategory!== 'daily' && <span className="task-date">{t.due_date}</span>}
-            </div>
-          </div>
+        <div key={t.id} className="task-item">
+          <input
+            type="checkbox"
+            checked={t.done}
+            onChange={() => toggleTask(t.id)}
+          />
+          <span className={t.done? 'done' : ''}>
+            {t.content}
+            {t.time && <small> at {t.time}</small>}
+            {t.weekday && <small> every {t.weekday}</small>}
+            {t.category === 'custom' && t.due_date && <small> on {formatDate(t.due_date)}</small>}
+          </span>
           <button onClick={() => deleteTask(t.id)} className="btn-delete">×</button>
         </div>
       ))}
