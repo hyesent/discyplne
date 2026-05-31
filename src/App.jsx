@@ -30,6 +30,7 @@ export default function App() {
   const [noteText, setNoteText] = useState('')
   const [isListening, setIsListening] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [viewNote, setViewNote] = useState(null)
   const recognitionRef = useRef(null)
   const fileInputRef = useRef(null)
 
@@ -37,7 +38,6 @@ export default function App() {
   const [title, setTitle] = useState('')
   const [priority, setPriority] = useState('medium')
   const [editingNote, setEditingNote] = useState(null)
-  const [viewMode, setViewMode] = useState('list')
 
   const [task, setTask] = useState('')
   const [tasks, setTasks] = useState([])
@@ -63,7 +63,7 @@ export default function App() {
       setUser(session?.user?? null)
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+      setUser(session?.user?? null)
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -100,7 +100,6 @@ export default function App() {
     recognition.continuous = true
     recognition.interimResults = true
     recognition.lang = 'en-US'
-
     recognition.onresult = (event) => {
       let transcript = ''
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -116,11 +115,8 @@ export default function App() {
         processedText = processedText.replace(regex, VOICE_COMMANDS[cmd])
       })
       processedText = processedText.replace(/(^\w|\.\s+\w|\n\n\w)/g, (match) => match.toUpperCase())
-
       setNoteText(prev => prev + (prev? ' ' : '') + processedText)
-      setMessage('')
     }
-
     recognition.onerror = (event) => {
       console.error('Speech error:', event.error)
       if (event.error!== 'no-speech') {
@@ -139,15 +135,13 @@ export default function App() {
       setIsListening(false)
     } else {
       navigator.mediaDevices.getUserMedia({ audio: true })
-     .then(() => {
+   .then(() => {
           recognitionRef.current.start()
           setIsListening(true)
           setMessage('🎤 Say comma, full stop, new line for punctuation')
         })
-     .catch((err) => {
-          console.error(err)
-          setMessage('Microphone permission denied. Tap the lock icon in Brave/Chrome > Site settings > Microphone > Allow')
-          setIsListening(false)
+   .catch(() => {
+          setMessage('Microphone permission denied. Check Brave settings.')
         })
     }
   }
@@ -174,11 +168,11 @@ export default function App() {
     if (!user) return
     setLoading(true)
     const { data, error } = await supabase
-   .from('notes')
-   .select('*')
-   .eq('user_id', user.id)
-   .eq('date', selectedDate)
-   .order('created_at', { ascending: false })
+ .from('notes')
+ .select('*')
+ .eq('user_id', user.id)
+ .eq('date', selectedDate)
+ .order('created_at', { ascending: false })
     setLoading(false)
     if (error) {
       console.error('Fetch error:', error)
@@ -191,10 +185,10 @@ export default function App() {
   async function fetchTasks() {
     if (!user) return
     const { data, error } = await supabase
-   .from('tasks')
-   .select('*')
-   .eq('user_id', user.id)
-   .order('created_at', { ascending: false })
+ .from('tasks')
+ .select('*')
+ .eq('user_id', user.id)
+ .order('created_at', { ascending: false })
     if (error) {
       console.error('Fetch tasks error:', error)
     } else {
@@ -223,8 +217,8 @@ export default function App() {
     setTasks([])
     setTitle('')
     setNoteText('')
+    setViewNote(null)
     setEditingNote(null)
-    setViewMode('list')
   }
 
   async function saveNote() {
@@ -237,14 +231,14 @@ export default function App() {
 
     if (editingNote) {
       const { error } = await supabase
-     .from('notes')
-     .update({
+   .from('notes')
+   .update({
           title: title.trim(),
           content: noteText.trim(),
           priority
         })
-     .eq('id', editingNote.id)
-     .eq('user_id', user.id)
+   .eq('id', editingNote.id)
+   .eq('user_id', user.id)
 
       if (error) setMessage('Error: ' + error.message)
       else {
@@ -253,13 +247,12 @@ export default function App() {
         setTitle('')
         setNoteText('')
         setPriority('medium')
-        setViewMode('list')
         fetchNotes()
       }
     } else {
       const { error } = await supabase
-     .from('notes')
-     .insert({
+   .from('notes')
+   .insert({
           user_id: user.id,
           date: selectedDate,
           title: title.trim(),
@@ -273,49 +266,51 @@ export default function App() {
         setTitle('')
         setNoteText('')
         setPriority('medium')
-        setViewMode('list')
         fetchNotes()
       }
     }
     setLoading(false)
   }
 
-  function openAddNote() {
+  function cancelEdit() {
     setEditingNote(null)
     setTitle('')
     setNoteText('')
     setPriority('medium')
-    setViewMode('add')
-  }
-
-  function openEditNote(note) {
-    setEditingNote(note)
-    setTitle(note.title)
-    setNoteText(note.content)
-    setPriority(note.priority)
-    setViewMode('edit')
-  }
-
-  function goBack() {
-    setViewMode('list')
-    setEditingNote(null)
-    setTitle('')
-    setNoteText('')
-    setPriority('medium')
+    setMessage('')
   }
 
   async function deleteNote(id) {
     const { error } = await supabase
-   .from('notes')
-   .delete()
-   .eq('id', id)
-   .eq('user_id', user.id)
+ .from('notes')
+ .delete()
+ .eq('id', id)
+ .eq('user_id', user.id)
     if (error) {
       setMessage('Delete failed: ' + error.message)
     } else {
       setMessage('🗑️ Note deleted')
-      setViewMode('list')
+      setViewNote(null)
       fetchNotes()
+    }
+  }
+
+  async function shareNote() {
+    if (!navigator.share) {
+      navigator.clipboard.writeText(`${title}\n\n${noteText}`)
+      setMessage('📋 Copied to clipboard - sharing not supported on this device')
+      return
+    }
+    try {
+      await navigator.share({
+        title: title,
+        text: noteText
+      })
+      setMessage('✅ Shared!')
+    } catch (err) {
+      if (err.name!== 'AbortError') {
+        setMessage('Share failed: ' + err.message)
+      }
     }
   }
 
@@ -323,7 +318,7 @@ export default function App() {
     if (!task.trim() ||!user) return
     let dueDate = selectedDate
     if (taskCategory === 'weekly') {
-      const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+      const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
       const targetDay = days.indexOf(taskWeekDay)
       const today = new Date()
       const diff = (targetDay - today.getDay() + 7) % 7
@@ -338,7 +333,7 @@ export default function App() {
       content: task.trim(),
       category: taskCategory,
       weekday: taskCategory === 'weekly'? taskWeekDay : null,
-      time: taskCategory === 'daily'? taskTime : null,
+      time: taskCategory === 'daily'? (taskTime || null) : null,
       due_date: dueDate,
       done: false
     })
@@ -356,19 +351,19 @@ export default function App() {
   async function toggleTask(id) {
     const task = tasks.find(t => t.id === id)
     const { error } = await supabase
-   .from('tasks')
-   .update({ done:!task.done })
-   .eq('id', id)
-   .eq('user_id', user.id)
+ .from('tasks')
+ .update({ done:!task.done })
+ .eq('id', id)
+ .eq('user_id', user.id)
     if (!error) fetchTasks()
   }
 
   async function deleteTask(id) {
     const { error } = await supabase
-   .from('tasks')
-   .delete()
-   .eq('id', id)
-   .eq('user_id', user.id)
+ .from('tasks')
+ .delete()
+ .eq('id', id)
+ .eq('user_id', user.id)
     if (!error) {
       setMessage('🗑️ Task deleted')
       fetchTasks()
@@ -409,7 +404,7 @@ export default function App() {
     }
     const doc = new jsPDF()
     doc.setFontSize(18)
-    doc.text(`Discypln Notes - ${selectedDate}`, 20, 20)
+    doc.text(`Discyplne Notes - ${selectedDate}`, 20, 20)
     let yPos = 40
     notesToExport.forEach((note, idx) => {
       if (yPos > 250) {
@@ -420,18 +415,15 @@ export default function App() {
       doc.text(`${idx + 1}. ${note.title}`, 20, yPos)
       doc.setFontSize(11)
       const splitText = doc.splitTextToSize(note.content, 170)
-      splitText.forEach(line => {
-        if (yPos > 270) {
-          doc.addPage()
-          yPos = 20
-        }
-        doc.text(line, 20, yPos)
-        yPos += 6
-      })
-      doc.text(`Priority: ${note.priority}`, 20, yPos)
-      yPos += 12
+      doc.text(splitText, 20, yPos + 8)
+      doc.text(`Priority: ${note.priority}`, 20, yPos + 8 + splitText.length * 5)
+      yPos += 25 + splitText.length * 5
+      if (yPos > 270) {
+        doc.addPage()
+        yPos = 20
+      }
     })
-    doc.save(`discypln-notes-${selectedDate}.pdf`)
+    doc.save(`discyplne-notes-${selectedDate}.pdf`)
     setMessage('✅ PDF exported!')
     setShowExport(false)
     setSelectedNotes([])
@@ -448,7 +440,7 @@ export default function App() {
           new Paragraph({
             children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
           }),
-       ...tasks.map(t => new Paragraph({
+     ...tasks.map(t => new Paragraph({
             children: [
               new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
               new TextRun({ text: t.content }),
@@ -459,14 +451,14 @@ export default function App() {
       }]
     })
     const blob = await Packer.toBlob(doc)
-    saveAs(blob, `discypln-tasks.docx`)
+    saveAs(blob, `discyplne-tasks.docx`)
     setMessage('✅ Word file exported!')
   }
 
   const filteredTasks = activeCategory === 'all'
- ? tasks.sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
     : tasks.filter(t => t.category === activeCategory)
-   .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+ .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
 
   const completedTasks = tasks.filter(t => t.done).length
   const totalTasks = tasks.length
@@ -511,7 +503,7 @@ export default function App() {
   if (!user) {
     return (
       <div className="auth-container">
-        <h1 className="logo">Discypln</h1>
+        <h1 className="logo">Discyplne</h1>
         <div className="auth-box">
           <h2>Login / Sign Up</h2>
           <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
@@ -527,140 +519,82 @@ export default function App() {
     )
   }
 
-  if (viewMode === 'add' || viewMode === 'edit') {
+  if (editingNote) {
     return (
       <div className="editor-page">
         <header className="editor-header">
-          <button onClick={goBack}>{'<'}</button>
+          <button onClick={cancelEdit}>{'<'}</button>
           <button onClick={saveNote}>Save</button>
         </header>
 
         <div className="editor-body">
-          {viewMode === 'add' &&!priority && (
-            <div className="priority-picker">
-              <h3>Select Priority</h3>
-              <button onClick={() => setPriority('high')}>High</button>
-              <button onClick={() => setPriority('medium')}>Medium</button>
-              <button onClick={() => setPriority('low')}>Low</button>
-            </div>
-          )}
+          <select
+            value={titleFont}
+            onChange={(e) => setTitleFont(e.target.value)}
+            style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px', borderRadius: '6px', marginBottom: '8px', width: '100%' }}
+          >
+            <option value="Inter">Inter - Clean</option>
+            <option value="Georgia">Georgia - Book</option>
+            <option value="Poppins">Poppins - Modern</option>
+            <option value="Merriweather">Merriweather - Readable</option>
+            <option value="'Times New Roman'">Times - Classic</option>
+            <option value="Arial">Arial - Simple</option>
+            <option value="Pacifico">Pacifico - Cursive ✨</option>
+            <option value="Caveat">Caveat - Handwriting</option>
+          </select>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Title"
+            className="title-input"
+            style={{ fontFamily: titleFont.includes(' ')? `'${titleFont}', serif` : titleFont, fontSize: '24px', fontWeight: '600' }}
+          />
 
-          {(viewMode === 'edit' || priority) && (
-            <>
-              {viewMode === 'add' && (
-                <>
-                  <select
-                    value={titleFont}
-                    onChange={(e) => setTitleFont(e.target.value)}
-                    style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px', borderRadius: '6px', marginBottom: '8px', width: '100%' }}
-                  >
-                    <option value="Inter">Inter - Clean</option>
-                    <option value="Georgia">Georgia - Book</option>
-                    <option value="Poppins">Poppins - Modern</option>
-                    <option value="Merriweather">Merriweather - Readable</option>
-                    <option value="'Times New Roman'">Times - Classic</option>
-                    <option value="Arial">Arial - Simple</option>
-                    <option value="Pacifico">Pacifico - Cursive ✨</option>
-                    <option value="Caveat">Caveat - Handwriting</option>
-                  </select>
-                  <input
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Title"
-                    className="title-input"
-                    style={{ fontFamily: titleFont.includes(' ')? `'${titleFont}', serif` : titleFont, fontSize: '24px', fontWeight: '600' }}
-                  />
-                </>
-              )}
-              {viewMode === 'edit' && <h3 className="note-title-display" style={{ fontFamily: titleFont.includes(' ')? `'${titleFont}', serif` : titleFont, fontSize: '24px' }}>{title}</h3>}
-
-              <textarea
-                value={noteText}
-                onChange={(e) => setNoteText(e.target.value)}
-                placeholder="Start typing..."
-                className="content-editor"
-                style={{ fontFamily: fontFamily.includes(' ')? `'${fontFamily}', serif` : fontFamily, fontSize: fontSize + 'px', lineHeight: '1.6' }}
-                autoFocus
-              />
-            </>
-          )}
+          <textarea
+            value={noteText}
+            onChange={(e) => setNoteText(e.target.value)}
+            placeholder="Start typing..."
+            className="content-editor"
+            style={{ fontFamily: fontFamily.includes(' ')? `'${fontFamily}', serif` : fontFamily, fontSize: fontSize + 'px', lineHeight: '1.6' }}
+            autoFocus
+          />
         </div>
 
         <nav className="editor-nav">
-          {viewMode === 'add'? (
-            <>
-              <button onClick={toggleMic}>{isListening? '⏹️' : '🎤'} Voice</button>
-              <button onClick={() => fileInputRef.current.click()}>📷 Scan</button>
-              <select
-                value={fontFamily}
-                onChange={(e) => setFontFamily(e.target.value)}
-                style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px' }}
-              >
-                <option value="Inter">Inter</option>
-                <option value="Georgia">Georgia</option>
-                <option value="'Times New Roman'">Times</option>
-                <option value="'Courier New'">Courier</option>
-                <option value="Arial">Arial</option>
-                <option value="Poppins">Poppins</option>
-                <option value="'Roboto Slab'">Roboto Slab</option>
-                <option value="Montserrat">Montserrat</option>
-                <option value="Lora">Lora</option>
-                <option value="Merriweather">Merriweather</option>
-                <option value="Ubuntu">Ubuntu</option>
-                <option value="Quicksand">Quicksand</option>
-                <option value="Caveat">Caveat</option>
-                <option value="Pacifico">Pacifico</option>
-              </select>
-              <select
-                value={fontSize}
-                onChange={(e) => setFontSize(e.target.value)}
-                style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px', marginLeft: '6px' }}
-              >
-                <option value="14">14px</option>
-                <option value="16">16px</option>
-                <option value="18">18px</option>
-                <option value="20">20px</option>
-                <option value="24">24px</option>
-              </select>
-            </>
-          ) : (
-            <>
-              <button onClick={() => navigator.clipboard.writeText(noteText)}>Copy</button>
-              <button onClick={() => deleteNote(editingNote.id)}>Delete</button>
-              <button>Share</button>
-              <select
-                value={fontFamily}
-                onChange={(e) => setFontFamily(e.target.value)}
-                style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px' }}
-              >
-                <option value="Inter">Inter</option>
-                <option value="Georgia">Georgia</option>
-                <option value="'Times New Roman'">Times</option>
-                <option value="'Courier New'">Courier</option>
-                <option value="Arial">Arial</option>
-                <option value="Poppins">Poppins</option>
-                <option value="'Roboto Slab'">Roboto Slab</option>
-                <option value="Montserrat">Montserrat</option>
-                <option value="Lora">Lora</option>
-                <option value="Merriweather">Merriweather</option>
-                <option value="Ubuntu">Ubuntu</option>
-                <option value="Quicksand">Quicksand</option>
-                <option value="Caveat">Caveat</option>
-                <option value="Pacifico">Pacifico</option>
-              </select>
-              <select
-                value={fontSize}
-                onChange={(e) => setFontSize(e.target.value)}
-                style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px', marginLeft: '6px' }}
-              >
-                <option value="14">14px</option>
-                <option value="16">16px</option>
-                <option value="18">18px</option>
-                <option value="20">20px</option>
-                <option value="24">24px</option>
-              </select>
-            </>
-          )}
+          <button onClick={() => navigator.clipboard.writeText(noteText)}>Copy</button>
+          <button onClick={() => deleteNote(editingNote.id)}>Delete</button>
+          <button onClick={shareNote}>Share</button>
+          <select
+            value={fontFamily}
+            onChange={(e) => setFontFamily(e.target.value)}
+            style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px' }}
+          >
+            <option value="Inter">Inter</option>
+            <option value="Georgia">Georgia</option>
+            <option value="'Times New Roman'">Times</option>
+            <option value="'Courier New'">Courier</option>
+            <option value="Arial">Arial</option>
+            <option value="Poppins">Poppins</option>
+            <option value="'Roboto Slab'">Roboto Slab</option>
+            <option value="Montserrat">Montserrat</option>
+            <option value="Lora">Lora</option>
+            <option value="Merriweather">Merriweather</option>
+            <option value="Ubuntu">Ubuntu</option>
+            <option value="Quicksand">Quicksand</option>
+            <option value="Caveat">Caveat</option>
+            <option value="Pacifico">Pacifico</option>
+          </select>
+          <select
+            value={fontSize}
+            onChange={(e) => setFontSize(e.target.value)}
+            style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px', marginLeft: '6px' }}
+          >
+            <option value="14">14px</option>
+            <option value="16">16px</option>
+            <option value="18">18px</option>
+            <option value="20">20px</option>
+            <option value="24">24px</option>
+          </select>
         </nav>
 
         <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} style={{ display: 'none' }} />
@@ -675,7 +609,7 @@ export default function App() {
         <h1 className="logo">Discypln</h1>
         <button onClick={signOut} className="btn logout">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <path d="M9 21H5a2 0 0 1-2-2V5a2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y1="12" />
           </svg>
@@ -686,7 +620,7 @@ export default function App() {
         <div className="card clock-card">
           <div className="clock-time">{currentTime.toLocaleTimeString()}</div>
           <div className="clock-date">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
-          <div className="clock-status">{stopwatchRunning? '🟢 Discypln Active' : '🔴 Paused'}</div>
+          <div className="clock-status">{stopwatchRunning? '🟢 Discyplne Active' : '🔴 Paused'}</div>
           <div className="stopwatch">
             <h4>Focus Timer</h4>
             <div className="stopwatch-time">{formatTime(stopwatchTime)}</div>
@@ -716,7 +650,6 @@ export default function App() {
               <span className="stat-label">Streak</span>
               <strong className="stat-value">{streak} 🔥</strong>
             </div>
-          </div>
           <div className="heatmap">
             {weekDays.map(day => {
               const dayTasks = tasks.filter(t => (t.due_date || selectedDate) === day)
@@ -730,9 +663,14 @@ export default function App() {
       <div className="notes-header">
         <span>Notes</span>
         <span>| {notes.length} Notes |</span>
-        <button onClick={openAddNote}>
+        <button onClick={() => {
+          setEditingNote(null)
+          setTitle('')
+          setNoteText('')
+          setPriority('medium')
+        }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <path d="M14 2H6a2 0 0-2 2v16a2 0 0 0 2 2h12a2 0 0 0 2-2V8z" />
             <polyline points="14 2 14 8 20 8" />
             <line x1="12" y1="18" x2="12" y1="12" />
             <line x1="9" y1="15" x2="15" y1="15" />
@@ -760,7 +698,7 @@ export default function App() {
       )}
 
       {notes.map(note => (
-        <div key={note.id} className="note-summary" onClick={() =>!showExport && openEditNote(note)} style={showExport? { cursor: 'default', opacity: selectedNotes.includes(note.id)? 1 : 0.6 } : {}}>
+        <div key={note.id} className="note-summary" onClick={() =>!showExport && setEditingNote(note)} style={showExport? { cursor: 'default', opacity: selectedNotes.includes(note.id)? 1 : 0.6 } : {}}>
           {showExport && (
             <input type="checkbox" checked={selectedNotes.includes(note.id)} onChange={(e) => { e.stopPropagation(); toggleSelect(note.id) }} style={{ marginRight: '12px' }} />
           )}
@@ -835,4 +773,4 @@ export default function App() {
       {filteredTasks.length === 0 && <p className="empty">No tasks in {activeCategory}</p>}
     </div>
   )
-}
+                                                   }
