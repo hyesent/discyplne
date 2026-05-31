@@ -474,22 +474,238 @@ body {
   line-height: 1.4;
   text-align: center;
 }
-input[type="time"] {
-  background-color: #1e1e1e; /* match your dark bg */
-  color: white;
-  border: 1px solid #444;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 14px;
+.btn.logout {
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 10px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn.logout:hover {
+  background: #1a1a1a;
+  border-color: #333;
+}
+.btn.logout svg {
+  stroke: var(--text);
 }
 
-/* Make the clock icon white too */
-input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
+/* 2. Notes header - one line: Notes | X Notes | Add Notes */
+.notes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 40px 0 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+.notes-header span:nth-child(2) {
+  font-size: 14px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+.notes-header button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.notes-header button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* 3. Note summary card - title + date • priority format */
+.note-summary h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.note-summary small {
+  font-size: 13px;
+  color: var(--text-dim);
+  opacity: 1;
+}
+
+/* 4. Editor page - full screen Add/Edit Note */
+.editor-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  padding: 0;
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 10;
+}
+.editor-header button:first-child {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+}
+.editor-header button:last-child {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
   cursor: pointer;
 }
+.editor-header button:last-child:hover {
+  opacity: 0.9;
+}
 
-/* Placeholder text when empty */
-input[type="time"]::placeholder {
-  color: #888;
+.editor-body {
+  flex: 1;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Priority picker for Add Note */
+.priority-picker {
+  text-align: center;
+  padding: 40px 20px;
+}
+.priority-picker h3 {
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+  color: var(--text);
+}
+.priority-picker button {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  margin: 12px auto;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.priority-picker button:hover {
+  border-color: #333;
+  transform: translateY(-2px);
+}
+
+/* Editable title + content */
+.title-input {
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1.8rem;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  padding-bottom: 12px;
+  margin-bottom: 8px;
+}
+.title-input:focus {
+  outline: none;
+  border-bottom-color: #3a3a3a;
+}
+
+.note-title-display {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.content-editor {
+  flex: 1;
+  width: 100%;
+  min-height: 60vh;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.6;
+  font-family: 'Inter', sans-serif;
+  resize: none;
+}
+.content-editor:focus {
+  outline: none;
+}
+
+/* 5. Bottom nav for editor */
+.editor-nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 16px 20px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--card);
+}
+.editor-nav button {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s;
+}
+.editor-nav button:hover {
+  color: var(--text);
+}
+
+/* Mobile tweaks */
+@media (max-width: 768px) {
+  .notes-header {
+    font-size: 1.2rem;
+  }
+  .notes-header button {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .editor-header {
+    padding: 16px;
+  }
+  .editor-body {
+    padding: 20px 16px;
+  }
+  .title-input, .note-title-display {
+    font-size: 1.5rem;
+  }
 }
