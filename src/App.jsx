@@ -1018,4 +1018,4 @@ const filteredNotes = notes.filter(note =>
       {filteredTasks.length === 0 && <p className="empty">No tasks in {activeCategory}</p>}
     </div>
   )
-}
+                           }
