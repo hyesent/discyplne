@@ -106,7 +106,6 @@ export default function App() {
         if (event.results[i].isFinal) {
           transcript += event.results[i][0].transcript
         }
-      }
       if (!transcript) return
 
       let processedText = transcript.toLowerCase()
@@ -135,12 +134,12 @@ export default function App() {
       setIsListening(false)
     } else {
       navigator.mediaDevices.getUserMedia({ audio: true })
-   .then(() => {
+  .then(() => {
           recognitionRef.current.start()
           setIsListening(true)
           setMessage('🎤 Say comma, full stop, new line for punctuation')
         })
-   .catch(() => {
+  .catch(() => {
           setMessage('Microphone permission denied. Check Brave settings.')
         })
     }
@@ -168,11 +167,11 @@ export default function App() {
     if (!user) return
     setLoading(true)
     const { data, error } = await supabase
- .from('notes')
- .select('*')
- .eq('user_id', user.id)
- .eq('date', selectedDate)
- .order('created_at', { ascending: false })
+.from('notes')
+.select('*')
+.eq('user_id', user.id)
+.eq('date', selectedDate)
+.order('created_at', { ascending: false })
     setLoading(false)
     if (error) {
       console.error('Fetch error:', error)
@@ -185,10 +184,10 @@ export default function App() {
   async function fetchTasks() {
     if (!user) return
     const { data, error } = await supabase
- .from('tasks')
- .select('*')
- .eq('user_id', user.id)
- .order('created_at', { ascending: false })
+.from('tasks')
+.select('*')
+.eq('user_id', user.id)
+.order('created_at', { ascending: false })
     if (error) {
       console.error('Fetch tasks error:', error)
     } else {
@@ -231,14 +230,14 @@ export default function App() {
 
     if (editingNote) {
       const { error } = await supabase
-   .from('notes')
-   .update({
+  .from('notes')
+  .update({
           title: title.trim(),
           content: noteText.trim(),
           priority
         })
-   .eq('id', editingNote.id)
-   .eq('user_id', user.id)
+  .eq('id', editingNote.id)
+  .eq('user_id', user.id)
 
       if (error) setMessage('Error: ' + error.message)
       else {
@@ -251,8 +250,8 @@ export default function App() {
       }
     } else {
       const { error } = await supabase
-   .from('notes')
-   .insert({
+  .from('notes')
+  .insert({
           user_id: user.id,
           date: selectedDate,
           title: title.trim(),
@@ -282,10 +281,10 @@ export default function App() {
 
   async function deleteNote(id) {
     const { error } = await supabase
- .from('notes')
- .delete()
- .eq('id', id)
- .eq('user_id', user.id)
+.from('notes')
+.delete()
+.eq('id', id)
+.eq('user_id', user.id)
     if (error) {
       setMessage('Delete failed: ' + error.message)
     } else {
@@ -351,19 +350,19 @@ export default function App() {
   async function toggleTask(id) {
     const task = tasks.find(t => t.id === id)
     const { error } = await supabase
- .from('tasks')
- .update({ done:!task.done })
- .eq('id', id)
- .eq('user_id', user.id)
+.from('tasks')
+.update({ done:!task.done })
+.eq('id', id)
+.eq('user_id', user.id)
     if (!error) fetchTasks()
   }
 
   async function deleteTask(id) {
     const { error } = await supabase
- .from('tasks')
- .delete()
- .eq('id', id)
- .eq('user_id', user.id)
+.from('tasks')
+.delete()
+.eq('id', id)
+.eq('user_id', user.id)
     if (!error) {
       setMessage('🗑️ Task deleted')
       fetchTasks()
@@ -440,7 +439,7 @@ export default function App() {
           new Paragraph({
             children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
           }),
-     ...tasks.map(t => new Paragraph({
+    ...tasks.map(t => new Paragraph({
             children: [
               new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
               new TextRun({ text: t.content }),
@@ -458,7 +457,7 @@ export default function App() {
   const filteredTasks = activeCategory === 'all'
 ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
     : tasks.filter(t => t.category === activeCategory)
- .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+.sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
 
   const completedTasks = tasks.filter(t => t.done).length
   const totalTasks = tasks.length
@@ -609,7 +608,7 @@ export default function App() {
         <h1 className="logo">Discypln</h1>
         <button onClick={signOut} className="btn logout">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M9 21H5a2 0 0 1-2-2V5a2 0 0 1 2-2h4" />
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y1="12" />
           </svg>
@@ -669,7 +668,7 @@ export default function App() {
           setNoteText('')
           setPriority('medium')
         }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="18" height="18" viewBox="0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M14 2H6a2 0 0-2 2v16a2 0 0 0 2 2h12a2 0 0 0 2-2V8z" />
             <polyline points="14 2 14 8 20 8" />
             <line x1="12" y1="18" x2="12" y1="12" />
@@ -773,4 +772,4 @@ export default function App() {
       {filteredTasks.length === 0 && <p className="empty">No tasks in {activeCategory}</p>}
     </div>
   )
-                                                   }
+    }
