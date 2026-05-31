@@ -440,7 +440,7 @@ export default function App() {
           new Paragraph({
             children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
           }),
-  ...tasks.map(t => new Paragraph({
+ ...tasks.map(t => new Paragraph({
             children: [
               new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
               new TextRun({ text: t.content }),
@@ -773,4 +773,4 @@ export default function App() {
       {filteredTasks.length === 0 && <p className="empty">No tasks in {activeCategory}</p>}
     </div>
   )
-}
+    }
