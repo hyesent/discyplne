@@ -58,9 +58,9 @@ export default function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user?? null)
     })
-    const { data: { subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user?? null)
-    })}
+    })
     return () => subscription.unsubscribe()
   }, [])
 
@@ -111,9 +111,9 @@ export default function App() {
         const regex = new RegExp(`\\b${cmd}\\b`, 'gi')
         processedText = processedText.replace(regex, VOICE_COMMANDS[cmd])
       })
-      processedText = processedText.replace(/(^\w|\.\s+\w|\n\n\w)/g, (match) => match.toUpperCase()))
+      processedText = processedText.replace(/(^\w|\.\s+\w|\n\n\w)/g, (match) => match.toUpperCase())
 
-      setNoteText(prev => prev + (prev? ' : '') + processedText)
+      setNoteText(prev => prev + (prev? ' ' : '') + processedText)
       setMessage('')
     }
 
@@ -135,12 +135,12 @@ export default function App() {
       setIsListening(false)
     } else {
       navigator.mediaDevices.getUserMedia({ audio: true })
-       .then(() => {
+      .then(() => {
           recognitionRef.current.start()
           setIsListening(true)
           setMessage('🎤 Say comma, full stop, new line for punctuation')
         })
-       .catch((err) => {
+      .catch((err) => {
           console.error(err)
           setMessage('Microphone permission denied. Tap the lock icon in Brave/Chrome > Site settings > Microphone > Allow')
           setIsListening(false)
@@ -170,11 +170,11 @@ export default function App() {
     if (!user) return
     setLoading(true)
     const { data, error } = await supabase
-     .from('notes')
-     .select('*')
-     .eq('user_id', user.id)
-     .eq('date', selectedDate)
-     .order('created_at', { ascending: false })
+    .from('notes')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('date', selectedDate)
+    .order('created_at', { ascending: false })
     setLoading(false)
     if (error) {
       console.error('Fetch error:', error)
@@ -187,10 +187,10 @@ export default function App() {
   async function fetchTasks() {
     if (!user) return
     const { data, error } = await supabase
-     .from('tasks')
-     .select('*')
-     .eq('user_id', user.id)
-     .order('created_at', { ascending: false })
+    .from('tasks')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
     if (error) {
       console.error('Fetch tasks error:', error)
     } else {
@@ -233,14 +233,14 @@ export default function App() {
 
     if (editingNote) {
       const { error } = await supabase
-       .from('notes')
-       .update({
+      .from('notes')
+      .update({
           title: title.trim(),
           content: noteText.trim(),
           priority
         })
-       .eq('id', editingNote.id)
-       .eq('user_id', user.id)
+      .eq('id', editingNote.id)
+      .eq('user_id', user.id)
 
       if (error) setMessage('Error: ' + error.message)
       else {
@@ -254,8 +254,8 @@ export default function App() {
       }
     } else {
       const { error } = await supabase
-       .from('notes')
-       .insert({
+      .from('notes')
+      .insert({
           user_id: user.id,
           date: selectedDate,
           title: title.trim(),
@@ -302,10 +302,10 @@ export default function App() {
 
   async function deleteNote(id) {
     const { error } = await supabase
-     .from('notes')
-     .delete()
-     .eq('id', id)
-     .eq('user_id', user.id)
+    .from('notes')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
     if (error) {
       setMessage('Delete failed: ' + error.message)
     } else {
@@ -352,19 +352,19 @@ export default function App() {
   async function toggleTask(id) {
     const task = tasks.find(t => t.id === id)
     const { error } = await supabase
-     .from('tasks')
-     .update({ done:!task.done })
-     .eq('id', id)
-     .eq('user_id', user.id)
+    .from('tasks')
+    .update({ done:!task.done })
+    .eq('id', id)
+    .eq('user_id', user.id)
     if (!error) fetchTasks()
   }
 
   async function deleteTask(id) {
     const { error } = await supabase
-     .from('tasks')
-     .delete()
-     .eq('id', id)
-     .eq('user_id', user.id)
+    .from('tasks')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
     if (!error) {
       setMessage('🗑️ Task deleted')
       fetchTasks()
@@ -447,7 +447,7 @@ export default function App() {
           new Paragraph({
             children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
           }),
-         ...tasks.map(t => new Paragraph({
+        ...tasks.map(t => new Paragraph({
             children: [
               new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
               new TextRun({ text: t.content }),
@@ -463,9 +463,9 @@ export default function App() {
   }
 
   const filteredTasks = activeCategory === 'all'
-   ? tasks.sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+  ? tasks.sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
     : tasks.filter(t => t.category === activeCategory)
-     .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+    .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
 
   const completedTasks = tasks.filter(t => t.done).length
   const totalTasks = tasks.length
@@ -483,8 +483,8 @@ export default function App() {
   }
 
   const weekDays = getWeekDays()
-  const weeklyCompleted = tasks.filter(t => t.done && weekDays.includes(t.due_date || selectedDate)).length
-  const weeklyTotal = tasks.filter(t => weekDays.includes(t.due_date || selectedDate)).length
+  const weeklyCompleted = tasks.filter(t => t.done && t.due_date && weekDays.includes(t.due_date)).length
+  const weeklyTotal = tasks.filter(t => t.due_date && weekDays.includes(t.due_date)).length
 
   const getStreak = () => {
     let streak = 0
@@ -758,4 +758,4 @@ export default function App() {
       {filteredTasks.length === 0 && <p className="empty">No tasks in {activeCategory}</p>}
     </div>
   )
-}
+    }
