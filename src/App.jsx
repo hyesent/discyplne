@@ -135,12 +135,12 @@ export default function App() {
       setIsListening(false)
     } else {
       navigator.mediaDevices.getUserMedia({ audio: true })
- .then(() => {
+.then(() => {
           recognitionRef.current.start()
           setIsListening(true)
           setMessage('🎤 Say comma, full stop, new line for punctuation')
         })
- .catch(() => {
+.catch(() => {
           setMessage('Microphone permission denied. Check Brave settings.')
         })
     }
@@ -231,14 +231,14 @@ export default function App() {
 
     if (editingNote) {
       const { error } = await supabase
- .from('notes')
- .update({
+.from('notes')
+.update({
           title: title.trim(),
           content: noteText.trim(),
           priority
         })
- .eq('id', editingNote.id)
- .eq('user_id', user.id)
+.eq('id', editingNote.id)
+.eq('user_id', user.id)
 
       if (error) setMessage('Error: ' + error.message)
       else {
@@ -251,8 +251,8 @@ export default function App() {
       }
     } else {
       const { error } = await supabase
- .from('notes')
- .insert({
+.from('notes')
+.insert({
           user_id: user.id,
           date: selectedDate,
           title: title.trim(),
@@ -440,7 +440,7 @@ export default function App() {
           new Paragraph({
             children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
           }),
-   ...tasks.map(t => new Paragraph({
+  ...tasks.map(t => new Paragraph({
             children: [
               new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
               new TextRun({ text: t.content }),
@@ -567,7 +567,7 @@ export default function App() {
           <select
             value={fontFamily}
             onChange={(e) => setFontFamily(e.target.value)}
-            style={{ background: '#1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px' }}
+            style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px' }}
           >
             <option value="Inter">Inter</option>
             <option value="Georgia">Georgia</option>
@@ -587,7 +587,7 @@ export default function App() {
           <select
             value={fontSize}
             onChange={(e) => setFontSize(e.target.value)}
-            style={{ background: '#1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px', marginLeft: '6px' }}
+            style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px', marginLeft: '6px' }}
           >
             <option value="14">14px</option>
             <option value="16">16px</option>
@@ -608,7 +608,7 @@ export default function App() {
       <header className="header">
         <h1 className="logo">Discypln</h1>
         <button onClick={signOut} className="btn logout">
-          <svg width="24" height="24" viewBox="0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y1="12" />
@@ -773,4 +773,4 @@ export default function App() {
       {filteredTasks.length === 0 && <p className="empty">No tasks in {activeCategory}</p>}
     </div>
   )
-  }
+}
