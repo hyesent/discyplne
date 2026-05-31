@@ -111,7 +111,7 @@ export default function App() {
         const regex = new RegExp(`\\b${cmd}\\b`, 'gi')
         processedText = processedText.replace(regex, VOICE_COMMANDS[cmd])
       })
-      processedText = processedText.replace(/(^\w|\.\s+\w|\n\n\w)/g, (match) => match.toUpperCase())
+      processedText = processedText.replace(/(^\w|\.\s+\w|\n\n\w)/g, (match) => match.toUpperCase()))
 
       setNoteText(prev => prev + (prev? ' : '') + processedText)
       setMessage('')
