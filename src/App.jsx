@@ -48,8 +48,13 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState('all')
 
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [stopwatchTime, setStopwatchTime] = useState(0)
-  const [stopwatchRunning, setStopwatchRunning] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+const [pomodoroTime, setPomodoroTime] = useState(25 * 60)
+const [pomodoroRunning, setPomodoroRunning] = useState(false)
+const [isBreak, setIsBreak] = useState(false)
+const [pomodoroSessions, setPomodoroSessions] = useState(0)
+
 
   const [showExport, setShowExport] = useState(false)
   const [selectedNotes, setSelectedNotes] = useState([])
@@ -81,14 +86,33 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    let interval
-    if (stopwatchRunning) {
-      interval = setInterval(() => {
-        setStopwatchTime(prev => prev + 1)
-      }, 1000)
-    }
-    return () => clearInterval(interval)
-  }, [stopwatchRunning])
+  let interval
+
+  if (pomodoroRunning) {
+    interval = setInterval(() => {
+      setPomodoroTime(prev => {
+        if (prev <= 1) {
+
+          if (isBreak) {
+            setIsBreak(false)
+            setPomodoroSessions(prev => prev + 1)
+            return 25 * 60
+          } else {
+            setIsBreak(true)
+            return 5 * 60
+          }
+
+        }
+
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  return () => clearInterval(interval)
+}, [pomodoroRunning, isBreak])
+
+
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -408,15 +432,59 @@ export default function App() {
     const d = new Date(date)
     return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
   }
+const formatNoteTime = (date) => {
+  return new Date(date).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+      }
+  const togglePomodoro = () => {
+  setPomodoroRunning(!pomodoroRunning)
+}
 
-  const toggleStopwatch = () => {
-    setStopwatchRunning(!stopwatchRunning)
+const resetPomodoro = () => {
+  setPomodoroRunning(false)
+  setIsBreak(false)
+  setPomodoroTime(25 * 60)
+}
+
+const shareNote = async () => {
+
+  if (!editingNote) return
+
+  const shareText = `
+${editingNote.title}
+
+${editingNote.content}
+`
+
+  if (navigator.share) {
+
+    try {
+
+      await navigator.share({
+        title: editingNote.title,
+        text: shareText
+      })
+
+      setMessage('✅ Note shared!')
+
+    } catch (err) {
+
+      if (err.name !== 'AbortError') {
+        setMessage('Sharing failed')
+      }
+
+    }
+
+  } else {
+
+    navigator.clipboard.writeText(shareText)
+    setMessage('📋 Copied instead')
+
   }
 
-  const resetStopwatch = () => {
-    setStopwatchRunning(false)
-    setStopwatchTime(0)
-  }
+    }
 
   const toggleSelect = (id) => {
     setSelectedNotes(prev =>
@@ -486,11 +554,22 @@ export default function App() {
     setMessage('✅ Word file exported!')
   }
 
-  const filteredTasks = activeCategory === 'all'
-? tasks.sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
-    : tasks.filter(t => t.category === activeCategory)
-  .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
-
+  const filteredTasks =
+  activeCategory === 'all'
+    ? [...tasks].sort((a, b) =>
+        (a.time || '23:59')
+          .localeCompare(b.time || '23:59')
+      )
+    : tasks
+        .filter(t => t.category === activeCategory)
+        .sort((a, b) =>
+          (a.time || '23:59')
+            .localeCompare(b.time || '23:59')
+        )
+const filteredNotes = notes.filter(note =>
+  note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  note.content.toLowerCase().includes(searchQuery.toLowerCase())
+)
   const completedTasks = tasks.filter(t => t.done).length
   const totalTasks = tasks.length
   const disciplineScore = totalTasks > 0? Math.round((completedTasks / totalTasks) * 100) : 0
@@ -709,16 +788,50 @@ export default function App() {
         <div className="card clock-card">
           <div className="clock-time">{currentTime.toLocaleTimeString()}</div>
           <div className="clock-date">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
-          <div className="clock-status">{stopwatchRunning? '🟢 Discypln Active' : '🔴 Paused'}</div>
+          <div className="clock-status">
+  {pomodoroRunning
+    ? '🟢 Dscypln Session Active'
+    : '🔴 Paused'}
+</div>
           <div className="stopwatch">
-            <h4>Focus Timer</h4>
-            <div className="stopwatch-time">{formatTime(stopwatchTime)}</div>
-            <div className="stopwatch-buttons">
-              <button onClick={toggleStopwatch} className="btn primary">{stopwatchRunning? 'Pause' : 'Start'}</button>
-              <button onClick={resetStopwatch} className="btn">Restart</button>
-            </div>
-          </div>
-        </div>
+
+  <h4>
+    {isBreak ? '☕ Break Time' : '🍅 Pomodoro'}
+  </h4>
+
+  <div className="stopwatch-time">
+    {formatTime(pomodoroTime)}
+  </div>
+
+  <div
+    style={{
+      fontSize: '14px',
+      opacity: 0.7,
+      marginBottom: '10px'
+    }}
+  >
+    Sessions Completed: {pomodoroSessions}
+  </div>
+
+  <div className="stopwatch-buttons">
+
+    <button
+      onClick={togglePomodoro}
+      className="btn primary"
+    >
+      {pomodoroRunning ? 'Pause' : 'Start'}
+    </button>
+
+    <button
+      onClick={resetPomodoro}
+      className="btn"
+    >
+      Reset
+    </button>
+
+  </div>
+
+</div>
 
         <div className="card stats-card">
           <h3>Your Progress</h3>
@@ -762,7 +875,18 @@ export default function App() {
           </svg> Add Notes
         </button>
       </div>
-
+        
+<input
+  type="text"
+  placeholder="Search notes..."
+  value={searchQuery}
+  onChange={(e) => setSearchQuery(e.target.value)}
+  className="input"
+  style={{
+    marginTop: '12px',
+    marginBottom: '16px'
+  }}
+/>
       {loading && <p className="loading">Loading...</p>}
       {notes.length === 0 &&!loading && <p className="empty">No notes for this date</p>}
 
@@ -782,7 +906,7 @@ export default function App() {
         </div>
       )}
 
-      {notes.map(note => (
+      
         <div key={note.id} className="note-summary" onClick={() =>!showExport && openEditNote(note)} style={showExport? { cursor: 'default', opacity: selectedNotes.includes(note.id)? 1 : 0.6 } : {}}>
           {showExport && (
             <input type="checkbox" checked={selectedNotes.includes(note.id)} onChange={(e) => { e.stopPropagation(); toggleSelect(note.id) }} style={{ marginRight: '12px' }} />
@@ -839,21 +963,57 @@ export default function App() {
       </div>
 
       {filteredTasks.map(t => (
-        <div key={t.id} className={`task-item category-${t.category}`}>
-          <label className="checkbox-wrapper">
-            <input type="checkbox" checked={t.done} onChange={() => toggleTask(t.id)} />
-            <span className="checkmark"></span>
-          </label>
-          <div className="task-content">
-            <span className={t.done? 'done' : ''}>{t.content}</span>
-            <div className="task-meta">
-              {t.time && <span className="task-time">🕐 {t.time}</span>}
-              {t.weekday && <span className="task-tag">{t.weekday}</span>}
-              {t.due_date && taskCategory!== 'daily' && <span className="task-date">{t.due_date}</span>}
-            </div>
-          </div>
-          <button onClick={() => deleteTask(t.id)} className="btn-delete">×</button>
-        </div>
+        <div
+  key={note.id}
+  className="note-summary"
+  onClick={() =>
+    !showExport && openEditNote(note)
+  }
+  style={
+    showExport
+      ? {
+          cursor: 'default',
+          opacity: selectedNotes.includes(note.id)
+            ? 1
+            : 0.6
+        }
+      : {}
+  }
+>
+
+  {showExport && (
+    <input
+      type="checkbox"
+      checked={selectedNotes.includes(note.id)}
+      onChange={(e) => {
+        e.stopPropagation()
+        toggleSelect(note.id)
+      }}
+      style={{ marginRight: '12px' }}
+    />
+  )}
+
+  <div style={{ flex: 1 }}>
+
+    <h4>{note.title}</h4>
+
+    <small
+      style={{
+        display: 'block',
+        marginTop: '6px',
+        lineHeight: '1.7'
+      }}
+    >
+      {formatDate(note.date)}
+      {' • '}
+      {formatNoteTime(note.created_at)}
+      {' • '}
+      {note.priority} priority
+    </small>
+
+  </div>
+
+</div>
       ))}
       {filteredTasks.length === 0 && <p className="empty">No tasks in {activeCategory}</p>}
     </div>
