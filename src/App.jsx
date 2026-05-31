@@ -61,7 +61,7 @@ export default function App() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
+      setUser(session?.user?? null)
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user?? null)
@@ -118,7 +118,7 @@ export default function App() {
       })
       processedText = processedText.replace(/(^\w|\.\s+\w|\n\n\w)/g, (match) => match.toUpperCase())
 
-      setNoteText(prev => prev + (prev? ' : '') + processedText)
+      setNoteText(prev => prev + (prev? ' ' : '') + processedText)
       setMessage('')
     }
 
@@ -140,12 +140,12 @@ export default function App() {
       setIsListening(false)
     } else {
       navigator.mediaDevices.getUserMedia({ audio: true })
-       .then(() => {
+      .then(() => {
           recognitionRef.current.start()
           setIsListening(true)
           setMessage('🎤 Say comma, full stop, new line for punctuation')
         })
-       .catch((err) => {
+      .catch((err) => {
           console.error(err)
           setMessage('Microphone permission denied. Tap the lock icon in Brave/Chrome > Site settings > Microphone > Allow')
           setIsListening(false)
@@ -175,11 +175,11 @@ export default function App() {
     if (!user) return
     setLoading(true)
     const { data, error } = await supabase
-     .from('notes')
-     .select('*')
-     .eq('user_id', user.id)
-     .eq('date', selectedDate)
-     .order('created_at', { ascending: false })
+    .from('notes')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('date', selectedDate)
+    .order('created_at', { ascending: false })
     setLoading(false)
     if (error) {
       console.error('Fetch error:', error)
@@ -192,10 +192,10 @@ export default function App() {
   async function fetchTasks() {
     if (!user) return
     const { data, error } = await supabase
-     .from('tasks')
-     .select('*')
-     .eq('user_id', user.id)
-     .order('created_at', { ascending: false })
+    .from('tasks')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
     if (error) {
       console.error('Fetch tasks error:', error)
     } else {
@@ -238,14 +238,14 @@ export default function App() {
 
     if (editingNote) {
       const { error } = await supabase
-       .from('notes')
-       .update({
+      .from('notes')
+      .update({
           title: title.trim(),
           content: noteText.trim(),
           priority
         })
-       .eq('id', editingNote.id)
-       .eq('user_id', user.id)
+      .eq('id', editingNote.id)
+      .eq('user_id', user.id)
 
       if (error) setMessage('Error: ' + error.message)
       else {
@@ -259,8 +259,8 @@ export default function App() {
       }
     } else {
       const { error } = await supabase
-       .from('notes')
-       .insert({
+      .from('notes')
+      .insert({
           user_id: user.id,
           date: selectedDate,
           title: title.trim(),
@@ -307,10 +307,10 @@ export default function App() {
 
   async function deleteNote(id) {
     const { error } = await supabase
-     .from('notes')
-     .delete()
-     .eq('id', id)
-     .eq('user_id', user.id)
+    .from('notes')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
     if (error) {
       setMessage('Delete failed: ' + error.message)
     } else {
@@ -342,6 +342,506 @@ export default function App() {
       time: taskCategory === 'daily'? taskTime : null,
       due_date: dueDate,
       done: false
+    })
+    if (error) {
+      setMessage('Error adding task: ' + error.message)
+    } else {
+      setTask('')
+      setTaskTime('')
+      setTaskDueDate('')
+      setMessage('✅ Task added')
+      fetchTasks()
+    }
+  }
+
+  async function toggleTask(id) {
+    const task = tasks.find(t => t.id === id)
+    const { error } = await supabase
+    .from('tasks')
+    .update({ done:!task.done })
+    .eq('id', id)
+    .eq('user_id', user.id)
+    if (!error) fetchTasks()
+  }
+
+  async function deleteTask(id) {
+    const { error } = await supabase
+    .from('tasks')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+    if (!error) {
+      setMessage('🗑️ Task deleted')
+      fetchTasks()
+    }
+  }
+
+  const formatTime = (sec) => {
+    const mins = Math.floor(sec / 60)
+    const secs = sec % 60
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const formatDate = (date) => {
+    const d = new Date(date)
+    return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
+  }
+
+  const toggleStopwatch = () => {
+    setStopwatchRunning(!stopwatchRunning)
+  }
+
+  const resetStopwatch = () => {
+    setStopwatchRunning(false)
+    setStopwatchTime(0)
+  }
+
+  const toggleSelect = (id) => {
+    setSelectedNotes(prev =>
+      prev.includes(id)? prev.filter(x => x!== id) : [...prev, id]
+    )
+  }
+
+  const exportNotesPDF = () => {
+    const notesToExport = showExport? notes.filter(n => selectedNotes.includes(n.id)) : notes
+    if (notesToExport.length === 0) {
+      setMessage(showExport? 'Select notes to export' : 'No notes to export')
+      return
+    }
+    const doc = new jsPDF()
+    doc.setFontSize(18)
+    doc.text(`Discypln Notes - ${selectedDate}`, 20, 20)
+    let yPos = 40
+    notesToExport.forEach((note, idx) => {
+      if (yPos > 250) {
+        doc.addPage()
+        yPos = 20
+      }
+
+      doc.setFontSize(14)
+      doc.text(`${idx + 1}. ${note.title}`, 20, yPos)
+      doc.setFontSize(11)
+      const splitText = doc.splitTextToSize(note.content, 170)
+
+      splitText.forEach(line => {
+        if (yPos > 270) {
+          doc.addPage()
+          yPos = 20
+        }
+        doc.text(line, 20, yPos)
+        yPos += 6
+      })
+
+      doc.text(`Priority: ${note.priority}`, 20, yPos)
+      yPos += 12
+    })
+    doc.save(`discypln-notes-${selectedDate}.pdf`)
+    setMessage('✅ PDF exported!')
+    setShowExport(false)
+    setSelectedNotes([])
+  }
+
+  const exportTasksWord = async () => {
+    if (tasks.length === 0) {
+      setMessage('No tasks to export')
+      return
+    }
+    const doc = new Document({
+      sections: [{
+        children: [
+          new Paragraph({
+            children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
+          }),
+        ...tasks.map(t => new Paragraph({
+            children: [
+              new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
+              new TextRun({ text: t.content }),
+              new TextRun({ text: ` [${t.category}]`, italics: true, size: 20 })
+            ]
+          }))
+        ]
+      }]
+    })
+    const blob = await Packer.toBlob(doc)
+    saveAs(blob, `discypln-tasks.docx`)
+    setMessage('✅ Word file exported!')
+  }
+
+  const filteredTasks = activeCategory === 'all'
+  ? tasks.sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+    : tasks.filter(t => t.category === activeCategory)
+    .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+
+  const completedTasks = tasks.filter(t => t.done).length
+  const totalTasks = tasks.length
+  const disciplineScore = totalTasks > 0? Math.round((completedTasks / totalTasks) * 100) : 0
+
+  const getWeekDays = () => {
+    const today = new Date()
+    const days = []
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      days.push(d.toISOString().split('T')[0])
+    }
+    return days
+  }
+
+  const weekDays = getWeekDays()
+  const weeklyCompleted = tasks.filter(t => t.done && t.due_date && weekDays.includes(t.due_date)).length
+  const weeklyTotal = tasks.filter(t => t.due_date && weekDays.includes(t.due_date)).length
+
+  const getStreak = () => {
+    let streak = 0
+    const today = new Date()
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      const dateStr = d.toISOString().split('T')[0]
+      const dayTasks = tasks.filter(t => (t.due_date || selectedDate) === dateStr)
+
+      if (dayTasks.length === 0) continue
+
+      const dayCompleted = dayTasks.filter(t => t.done).length
+      if (dayCompleted === dayTasks.length) {
+        streak++
+      } else {
+        break
+      }
+    }
+    return streak
+  }
+
+  const streak = getStreak()
+
+  if (!user) {
+    return (
+      <div className="auth-container">
+        <h1 className="logo">Discypln</h1>
+        <div className="auth-box">
+          <h2>Login / Sign Up</h2>
+          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
+          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="input" />
+          <div className="btn-group">
+            <button onClick={signIn} disabled={loading} className="btn primary">{loading? 'Loading...' : 'Sign In'}</button>
+            <button onClick={signUp} disabled={loading} className="btn">{loading? 'Loading...' : 'Sign Up'}</button>
+          </div>
+          {message && <p className="message error">{message}</p>}
+        </div>
+        <footer className="auth-footer">©️ Hyesent.dev</footer>
+      </div>
+    )
+  }
+
+  if (viewMode === 'add' || viewMode === 'edit') {
+    return (
+      <div className="editor-page">
+        <header className="editor-header">
+          <button onClick={goBack}>{'<'}</button>
+          <button onClick={saveNote}>Save</button>
+        </header>
+
+        <div className="editor-body">
+          {viewMode === 'add' &&!priority && (
+            <div className="priority-picker">
+              <h3>Select Priority</h3>
+              <button onClick={() => setPriority('high')}>High</button>
+              <button onClick={() => setPriority('medium')}>Medium</button>
+              <button onClick={() => setPriority('low')}>Low</button>
+            </div>
+          )}
+
+          {(viewMode === 'edit' || priority) && (
+            <>
+              {viewMode === 'add' && (
+                <>
+                  <select
+                    value={titleFont}
+                    onChange={(e) => setTitleFont(e.target.value)}
+                    style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px', borderRadius: '6px', marginBottom: '8px', width: '100%' }}
+                  >
+                    <option value="Inter">Inter - Clean</option>
+                    <option value="Georgia">Georgia - Book</option>
+                    <option value="Poppins">Poppins - Modern</option>
+                    <option value="Merriweather">Merriweather - Readable</option>
+                    <option value="'Times New Roman'">Times - Classic</option>
+                    <option value="Arial">Arial - Simple</option>
+                    <option value="Pacifico">Pacifico - Cursive ✨</option>
+                    <option value="Caveat">Caveat - Handwriting</option>
+                  </select>
+                  <input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Title"
+                    className="title-input"
+                    style={{ fontFamily: titleFont, fontSize: '24px', fontWeight: '600' }}
+                  />
+                </>
+              )}
+              {viewMode === 'edit' && <h3 className="note-title-display" style={{ fontFamily: titleFont, fontSize: '24px' }}>{title}</h3>}
+
+              <textarea
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                placeholder="Start typing..."
+                className="content-editor"
+                style={{ fontFamily, fontSize: fontSize + 'px', lineHeight: '1.6' }}
+                autoFocus
+              />
+            </>
+          )}
+        </div>
+
+        <nav className="editor-nav">
+          {viewMode === 'add'? (
+            <>
+              <button onClick={toggleMic}>{isListening? '⏹️' : '🎤'} Voice</button>
+              <button onClick={() => fileInputRef.current.click()}>📷 Scan</button>
+              <select
+                value={fontFamily}
+                onChange={(e) => setFontFamily(e.target.value)}
+                style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px' }}
+              >
+                <option value="Inter">Inter</option>
+                <option value="Georgia">Georgia</option>
+                <option value="'Times New Roman'">Times</option>
+                <option value="'Courier New'">Courier</option>
+                <option value="Arial">Arial</option>
+                <option value="Poppins">Poppins</option>
+                <option value="'Roboto Slab'">Roboto Slab</option>
+                <option value="Montserrat">Montserrat</option>
+                <option value="Lora">Lora</option>
+                <option value="Merriweather">Merriweather</option>
+                <option value="Ubuntu">Ubuntu</option>
+                <option value="Quicksand">Quicksand</option>
+                <option value="Caveat">Caveat</option>
+                <option value="Pacifico">Pacifico</option>
+              </select>
+              <select
+                value={fontSize}
+                onChange={(e) => setFontSize(e.target.value)}
+                style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px', marginLeft: '6px' }}
+              >
+                <option value="14">14px</option>
+                <option value="16">16px</option>
+                <option value="18">18px</option>
+                <option value="20">20px</option>
+                <option value="24">24px</option>
+              </select>
+            </>
+          ) : (
+            <>
+              <button onClick={() => navigator.clipboard.writeText(noteText)}>Copy</button>
+              <button onClick={() => deleteNote(editingNote.id)}>Delete</button>
+              <button>Share</button>
+              <select
+                value={fontFamily}
+                onChange={(e) => setFontFamily(e.target.value)}
+                style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px' }}
+              >
+                <option value="Inter">Inter</option>
+                <option value="Georgia">Georgia</option>
+                <option value="'Times New Roman'">Times</option>
+                <option value="'Courier New'">Courier</option>
+                <option value="Arial">Arial</option>
+                <option value="Poppins">Poppins</option>
+                <option value="'Roboto Slab'">Roboto Slab</option>
+                <option value="Montserrat">Montserrat</option>
+                <option value="Lora">Lora</option>
+                <option value="Merriweather">Merriweather</option>
+                <option value="Ubuntu">Ubuntu</option>
+                <option value="Quicksand">Quicksand</option>
+                <option value="Caveat">Caveat</option>
+                <option value="Pacifico">Pacifico</option>
+              </select>
+              <select
+                value={fontSize}
+                onChange={(e) => setFontSize(e.target.value)}
+                style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px', marginLeft: '6px' }}
+              >
+                <option value="14">14px</option>
+                <option value="16">16px</option>
+                <option value="18">18px</option>
+                <option value="20">20px</option>
+                <option value="24">24px</option>
+              </select>
+            </>
+          )}
+        </nav>
+
+        <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} style={{ display: 'none' }} />
+        {message && <p className={`message ${message.includes('✅')? 'success' : 'error'}`} style={{ position: 'fixed', bottom: 80, left: 20, right: 20 }}>{message}</p>}
+      </div>
+    )
+  }
+
+  return (
+    <div className="container">
+      <header className="header">
+        <h1 className="logo">Discypln</h1>
+        <button onClick={signOut} className="btn logout">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y1="12" />
+          </svg>
+        </button>
+      </header>
+
+      <div className="dashboard-grid">
+        <div className="card clock-card">
+          <div className="clock-time">{currentTime.toLocaleTimeString()}</div>
+          <div className="clock-date">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
+          <div className="clock-status">{stopwatchRunning? '🟢 Discypln Active' : '🔴 Paused'}</div>
+          <div className="stopwatch">
+            <h4>Focus Timer</h4>
+            <div className="stopwatch-time">{formatTime(stopwatchTime)}</div>
+            <div className="stopwatch-buttons">
+              <button onClick={toggleStopwatch} className="btn primary">{stopwatchRunning? 'Pause' : 'Start'}</button>
+              <button onClick={resetStopwatch} className="btn">Restart</button>
+            </div>
+          </div>
+        </div>
+
+        <div className="card stats-card">
+          <h3>Your Progress</h3>
+          <div className="stat-grid">
+            <div className="stat-item">
+              <span className="stat-label">Discipline Score</span>
+              <strong className="stat-value">{disciplineScore}%</strong>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Tasks Done</span>
+              <strong className="stat-value">{completedTasks}/{totalTasks}</strong>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">This Week</span>
+              <strong className="stat-value">{weeklyCompleted}/{weeklyTotal}</strong>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Streak</span>
+              <strong className="stat-value">{streak} 🔥</strong>
+            </div>
+          </div>
+          <div className="heatmap">
+            {weekDays.map(day => {
+              const dayTasks = tasks.filter(t => (t.due_date || selectedDate) === day)
+              const active = dayTasks.length > 0 && dayTasks.every(t => t.done)
+              return <div key={day} className={`heat-cell ${active? 'active' : ''}`} title={day}></div>
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div className="notes-header">
+        <span>Notes</span>
+        <span>| {notes.length} Notes |</span>
+        <button onClick={openAddNote}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="12" y1="18" x2="12" y1="12" />
+            <line x1="9" y1="15" x2="15" y1="15" />
+          </svg> Add Notes
+        </button>
+      </div>
+
+      {loading && <p className="loading">Loading...</p>}
+      {notes.length === 0 &&!loading && <p className="empty">No notes for this date</p>}
+
+      {showExport && notes.length > 0 && (
+        <div className="card" style={{ marginBottom: '16px' }}>
+          <h4>Select Notes to Export</h4>
+          {notes.map(note => (
+            <label key={note.id} style={{ display: 'flex', alignItems: 'center', padding: '8px 0', cursor: 'pointer' }}>
+              <input type="checkbox" checked={selectedNotes.includes(note.id)} onChange={() => toggleSelect(note.id)} style={{ marginRight: '12px' }} />
+              <span>{note.title}</span>
+            </label>
+          ))}
+          <div className="button-row" style={{ marginTop: '12px' }}>
+            <button onClick={exportNotesPDF} disabled={selectedNotes.length === 0} className="btn primary">Export {selectedNotes.length} Selected</button>
+            <button onClick={() => { setShowExport(false); setSelectedNotes([]) }} className="btn">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {notes.map(note => (
+        <div key={note.id} className="note-summary" onClick={() =>!showExport && openEditNote(note)} style={showExport? { cursor: 'default', opacity: selectedNotes.includes(note.id)? 1 : 0.6 } : {}}>
+          {showExport && (
+            <input type="checkbox" checked={selectedNotes.includes(note.id)} onChange={(e) => { e.stopPropagation(); toggleSelect(note.id) }} style={{ marginRight: '12px' }} />
+          )}
+          <div style={{ flex: 1 }}>
+            <h4>{note.title}</h4>
+            <small>{formatDate(note.date)} • {note.priority} priority</small>
+          </div>
+        </div>
+      ))}
+
+      {notes.length > 0 && (
+        <div className="button-row">
+          {!showExport && <button onClick={() => setShowExport(true)} className="btn primary">📄 Export Notes PDF</button>}
+          {showExport && <button onClick={exportNotesPDF} className="btn primary">Export Selected</button>}
+          <button onClick={exportTasksWord} className="btn">📝 Export Tasks Word</button>
+        </div>
+      )}
+
+      <h3 className="section-title">Task Manager</h3>
+      <div className="category-tabs">
+        {['all', 'daily', 'weekly', 'custom'].map(cat => (
+          <button key={cat} onClick={() => setActiveCategory(cat)} className={`btn tab ${activeCategory === cat? 'active' : ''}`}>
+            {cat === 'all'? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      <div className="task-input">
+        <input value={task} onChange={e => setTask(e.target.value)} placeholder="Add task..." className="input" />
+        <select value={taskCategory} onChange={e => setTaskCategory(e.target.value)} className="select">
+          <option value="daily">Daily - with time</option>
+          <option value="weekly">Weekly - pick day</option>
+          <option value="custom">Custom - pick date</option>
+        </select>
+        {taskCategory === 'daily' && (
+          <input type="time" value={taskTime} onChange={e => setTaskTime(e.target.value)} className="input time-input" />
+        )}
+        {taskCategory === 'weekly' && (
+          <select value={taskWeekDay} onChange={e => setTaskWeekDay(e.target.value)} className="select">
+            <option value="monday">Monday</option>
+            <option value="tuesday">Tuesday</option>
+            <option value="wednesday">Wednesday</option>
+            <option value="thursday">Thursday</option>
+            <option value="friday">Friday</option>
+            <option value="saturday">Saturday</option>
+            <option value="sunday">Sunday</option>
+          </select>
+        )}
+        {taskCategory === 'custom' && (
+          <input type="date" value={taskDueDate} onChange={e => setTaskDueDate(e.target.value)} className="input" />
+        )}
+        <button onClick={addTask} className="btn primary">Add Task</button>
+      </div>
+
+      {filteredTasks.map(t => (
+        <div key={t.id} className={`task-item category-${t.category}`}>
+          <label className="checkbox-wrapper">
+            <input type="checkbox" checked={t.done} onChange={() => toggleTask(t.id)} />
+            <span className="checkmark"></span>
+          </label>
+          <div className="task-content">
+            <span className={t.done? 'done' : ''}>{t.content}</span>
+            <div className="task-meta">
+              {t.time && <span className="task-time">🕐 {t.time}</span>}
+              {t.weekday && <span className="task-tag">{t.weekday}</span>}
+              {t.due_date && taskCategory!== 'daily' && <span className="task-date">{t.due_date}</span>}
+            </div>
+          </div>
+          <button onClick={() => deleteTask(t.id)} className="btn-delete">×</button>
+        </div>
+      ))}
+      {filteredTasks.length === 0 && <p className="empty">No tasks in {activeCategory}</p>}
+    </div>
+  )
+}: false
     })
     if (error) {
       setMessage('Error adding task: ' + error.message)
