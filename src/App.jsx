@@ -48,13 +48,8 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState('all')
 
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [searchQuery, setSearchQuery] = useState('')
-
-const [pomodoroTime, setPomodoroTime] = useState(25 * 60)
-const [pomodoroRunning, setPomodoroRunning] = useState(false)
-const [isBreak, setIsBreak] = useState(false)
-const [pomodoroSessions, setPomodoroSessions] = useState(0)
-
+  const [stopwatchTime, setStopwatchTime] = useState(0)
+  const [stopwatchRunning, setStopwatchRunning] = useState(false)
 
   const [showExport, setShowExport] = useState(false)
   const [selectedNotes, setSelectedNotes] = useState([])
@@ -68,7 +63,7 @@ const [pomodoroSessions, setPomodoroSessions] = useState(0)
       setUser(session?.user?? null)
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+      setUser(session?.user?? null)
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -86,33 +81,14 @@ const [pomodoroSessions, setPomodoroSessions] = useState(0)
   }, [])
 
   useEffect(() => {
-  let interval
-
-  if (pomodoroRunning) {
-    interval = setInterval(() => {
-      setPomodoroTime(prev => {
-        if (prev <= 1) {
-
-          if (isBreak) {
-            setIsBreak(false)
-            setPomodoroSessions(prev => prev + 1)
-            return 25 * 60
-          } else {
-            setIsBreak(true)
-            return 5 * 60
-          }
-
-        }
-
-        return prev - 1
-      })
-    }, 1000)
-  }
-
-  return () => clearInterval(interval)
-}, [pomodoroRunning, isBreak])
-
-
+    let interval
+    if (stopwatchRunning) {
+      interval = setInterval(() => {
+        setStopwatchTime(prev => prev + 1)
+      }, 1000)
+    }
+    return () => clearInterval(interval)
+  }, [stopwatchRunning])
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -141,7 +117,7 @@ const [pomodoroSessions, setPomodoroSessions] = useState(0)
       })
       processedText = processedText.replace(/(^\w|\.\s+\w|\n\n\w)/g, (match) => match.toUpperCase())
 
-      setNoteText(prev => prev + (prev? ' ':' ') + processedText)
+      setNoteText(prev => prev + (prev? ' ' : '') + processedText)
       setMessage('')
     }
 
@@ -163,12 +139,12 @@ const [pomodoroSessions, setPomodoroSessions] = useState(0)
       setIsListening(false)
     } else {
       navigator.mediaDevices.getUserMedia({ audio: true })
-    .then(() => {
+     .then(() => {
           recognitionRef.current.start()
           setIsListening(true)
           setMessage('🎤 Say comma, full stop, new line for punctuation')
         })
-    .catch((err) => {
+     .catch((err) => {
           console.error(err)
           setMessage('Microphone permission denied. Tap the lock icon in Brave/Chrome > Site settings > Microphone > Allow')
           setIsListening(false)
@@ -198,11 +174,11 @@ const [pomodoroSessions, setPomodoroSessions] = useState(0)
     if (!user) return
     setLoading(true)
     const { data, error } = await supabase
-  .from('notes')
-  .select('*')
-  .eq('user_id', user.id)
-  .eq('date', selectedDate)
-  .order('created_at', { ascending: false })
+   .from('notes')
+   .select('*')
+   .eq('user_id', user.id)
+   .eq('date', selectedDate)
+   .order('created_at', { ascending: false })
     setLoading(false)
     if (error) {
       console.error('Fetch error:', error)
@@ -215,10 +191,10 @@ const [pomodoroSessions, setPomodoroSessions] = useState(0)
   async function fetchTasks() {
     if (!user) return
     const { data, error } = await supabase
-  .from('tasks')
-  .select('*')
-  .eq('user_id', user.id)
-  .order('created_at', { ascending: false })
+   .from('tasks')
+   .select('*')
+   .eq('user_id', user.id)
+   .order('created_at', { ascending: false })
     if (error) {
       console.error('Fetch tasks error:', error)
     } else {
@@ -261,14 +237,14 @@ const [pomodoroSessions, setPomodoroSessions] = useState(0)
 
     if (editingNote) {
       const { error } = await supabase
-    .from('notes')
-    .update({
+     .from('notes')
+     .update({
           title: title.trim(),
           content: noteText.trim(),
           priority
         })
-    .eq('id', editingNote.id)
-    .eq('user_id', user.id)
+     .eq('id', editingNote.id)
+     .eq('user_id', user.id)
 
       if (error) setMessage('Error: ' + error.message)
       else {
@@ -282,8 +258,8 @@ const [pomodoroSessions, setPomodoroSessions] = useState(0)
       }
     } else {
       const { error } = await supabase
-    .from('notes')
-    .insert({
+     .from('notes')
+     .insert({
           user_id: user.id,
           date: selectedDate,
           title: title.trim(),
@@ -330,39 +306,16 @@ const [pomodoroSessions, setPomodoroSessions] = useState(0)
 
   async function deleteNote(id) {
     const { error } = await supabase
-  .from('notes')
-  .delete()
-  .eq('id', id)
-  .eq('user_id', user.id)
+   .from('notes')
+   .delete()
+   .eq('id', id)
+   .eq('user_id', user.id)
     if (error) {
       setMessage('Delete failed: ' + error.message)
     } else {
       setMessage('🗑️ Note deleted')
       setViewMode('list')
       fetchNotes()
-    }
-  }
-
-  async function shareNote() {
-    if (!noteText.trim()) {
-      setMessage('Nothing to share')
-      return
-    }
-    const shareData = {
-      title: title || 'Discypln Note',
-      text: noteText
-    }
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData)
-        setMessage('✅ Shared!')
-      } else {
-        await navigator.clipboard.writeText(noteText)
-        setMessage('✅ Copied to clipboard!')
-      }
-    } catch (err) {
-      await navigator.clipboard.writeText(noteText)
-      setMessage('✅ Copied to clipboard!')
     }
   }
 
@@ -403,19 +356,19 @@ const [pomodoroSessions, setPomodoroSessions] = useState(0)
   async function toggleTask(id) {
     const task = tasks.find(t => t.id === id)
     const { error } = await supabase
-  .from('tasks')
-  .update({ done:!task.done })
-  .eq('id', id)
-  .eq('user_id', user.id)
+   .from('tasks')
+   .update({ done:!task.done })
+   .eq('id', id)
+   .eq('user_id', user.id)
     if (!error) fetchTasks()
   }
 
   async function deleteTask(id) {
     const { error } = await supabase
-  .from('tasks')
-  .delete()
-  .eq('id', id)
-  .eq('user_id', user.id)
+   .from('tasks')
+   .delete()
+   .eq('id', id)
+   .eq('user_id', user.id)
     if (!error) {
       setMessage('🗑️ Task deleted')
       fetchTasks()
@@ -432,59 +385,15 @@ const [pomodoroSessions, setPomodoroSessions] = useState(0)
     const d = new Date(date)
     return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
   }
-const formatNoteTime = (date) => {
-  return new Date(date).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-      }
-  const togglePomodoro = () => {
-  setPomodoroRunning(!pomodoroRunning)
-}
 
-const resetPomodoro = () => {
-  setPomodoroRunning(false)
-  setIsBreak(false)
-  setPomodoroTime(25 * 60)
-}
-
-const shareNote = async () => {
-
-  if (!editingNote) return
-
-  const shareText = `
-${editingNote.title}
-
-${editingNote.content}
-`
-
-  if (navigator.share) {
-
-    try {
-
-      await navigator.share({
-        title: editingNote.title,
-        text: shareText
-      })
-
-      setMessage('✅ Note shared!')
-
-    } catch (err) {
-
-      if (err.name !== 'AbortError') {
-        setMessage('Sharing failed')
-      }
-
-    }
-
-  } else {
-
-    navigator.clipboard.writeText(shareText)
-    setMessage('📋 Copied instead')
-
+  const toggleStopwatch = () => {
+    setStopwatchRunning(!stopwatchRunning)
   }
 
-    }
+  const resetStopwatch = () => {
+    setStopwatchRunning(false)
+    setStopwatchTime(0)
+  }
 
   const toggleSelect = (id) => {
     setSelectedNotes(prev =>
@@ -539,7 +448,7 @@ ${editingNote.content}
           new Paragraph({
             children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
           }),
-      ...tasks.map(t => new Paragraph({
+       ...tasks.map(t => new Paragraph({
             children: [
               new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
               new TextRun({ text: t.content }),
@@ -554,22 +463,11 @@ ${editingNote.content}
     setMessage('✅ Word file exported!')
   }
 
-  const filteredTasks =
-  activeCategory === 'all'
-    ? [...tasks].sort((a, b) =>
-        (a.time || '23:59')
-          .localeCompare(b.time || '23:59')
-      )
-    : tasks
-        .filter(t => t.category === activeCategory)
-        .sort((a, b) =>
-          (a.time || '23:59')
-            .localeCompare(b.time || '23:59')
-        )
-const filteredNotes = notes.filter(note =>
-  note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  note.content.toLowerCase().includes(searchQuery.toLowerCase())
-)
+  const filteredTasks = activeCategory === 'all'
+ ? tasks.sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+    : tasks.filter(t => t.category === activeCategory)
+   .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+
   const completedTasks = tasks.filter(t => t.done).length
   const totalTasks = tasks.length
   const disciplineScore = totalTasks > 0? Math.round((completedTasks / totalTasks) * 100) : 0
@@ -729,7 +627,7 @@ const filteredNotes = notes.filter(note =>
             <>
               <button onClick={() => navigator.clipboard.writeText(noteText)}>Copy</button>
               <button onClick={() => deleteNote(editingNote.id)}>Delete</button>
-              <button onClick={shareNote}>Share</button>
+              <button>Share</button>
               <select
                 value={fontFamily}
                 onChange={(e) => setFontFamily(e.target.value)}
@@ -788,50 +686,16 @@ const filteredNotes = notes.filter(note =>
         <div className="card clock-card">
           <div className="clock-time">{currentTime.toLocaleTimeString()}</div>
           <div className="clock-date">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
-          <div className="clock-status">
-  {pomodoroRunning
-    ? '🟢 Dscypln Session Active'
-    : '🔴 Paused'}
-</div>
+          <div className="clock-status">{stopwatchRunning? '🟢 Discypln Active' : '🔴 Paused'}</div>
           <div className="stopwatch">
-
-  <h4>
-    {isBreak ? '☕ Break Time' : '🍅 Pomodoro'}
-  </h4>
-
-  <div className="stopwatch-time">
-    {formatTime(pomodoroTime)}
-  </div>
-
-  <div
-    style={{
-      fontSize: '14px',
-      opacity: 0.7,
-      marginBottom: '10px'
-    }}
-  >
-    Sessions Completed: {pomodoroSessions}
-  </div>
-
-  <div className="stopwatch-buttons">
-
-    <button
-      onClick={togglePomodoro}
-      className="btn primary"
-    >
-      {pomodoroRunning ? 'Pause' : 'Start'}
-    </button>
-
-    <button
-      onClick={resetPomodoro}
-      className="btn"
-    >
-      Reset
-    </button>
-
-  </div>
-
-</div>
+            <h4>Focus Timer</h4>
+            <div className="stopwatch-time">{formatTime(stopwatchTime)}</div>
+            <div className="stopwatch-buttons">
+              <button onClick={toggleStopwatch} className="btn primary">{stopwatchRunning? 'Pause' : 'Start'}</button>
+              <button onClick={resetStopwatch} className="btn">Restart</button>
+            </div>
+          </div>
+        </div>
 
         <div className="card stats-card">
           <h3>Your Progress</h3>
@@ -875,18 +739,7 @@ const filteredNotes = notes.filter(note =>
           </svg> Add Notes
         </button>
       </div>
-        
-<input
-  type="text"
-  placeholder="Search notes..."
-  value={searchQuery}
-  onChange={(e) => setSearchQuery(e.target.value)}
-  className="input"
-  style={{
-    marginTop: '12px',
-    marginBottom: '16px'
-  }}
-/>
+
       {loading && <p className="loading">Loading...</p>}
       {notes.length === 0 &&!loading && <p className="empty">No notes for this date</p>}
 
@@ -906,7 +759,7 @@ const filteredNotes = notes.filter(note =>
         </div>
       )}
 
-      
+      {notes.map(note => (
         <div key={note.id} className="note-summary" onClick={() =>!showExport && openEditNote(note)} style={showExport? { cursor: 'default', opacity: selectedNotes.includes(note.id)? 1 : 0.6 } : {}}>
           {showExport && (
             <input type="checkbox" checked={selectedNotes.includes(note.id)} onChange={(e) => { e.stopPropagation(); toggleSelect(note.id) }} style={{ marginRight: '12px' }} />
@@ -963,59 +816,23 @@ const filteredNotes = notes.filter(note =>
       </div>
 
       {filteredTasks.map(t => (
-        <div
-  key={note.id}
-  className="note-summary"
-  onClick={() =>
-    !showExport && openEditNote(note)
-  }
-  style={
-    showExport
-      ? {
-          cursor: 'default',
-          opacity: selectedNotes.includes(note.id)
-            ? 1
-            : 0.6
-        }
-      : {}
-  }
->
-
-  {showExport && (
-    <input
-      type="checkbox"
-      checked={selectedNotes.includes(note.id)}
-      onChange={(e) => {
-        e.stopPropagation()
-        toggleSelect(note.id)
-      }}
-      style={{ marginRight: '12px' }}
-    />
-  )}
-
-  <div style={{ flex: 1 }}>
-
-    <h4>{note.title}</h4>
-
-    <small
-      style={{
-        display: 'block',
-        marginTop: '6px',
-        lineHeight: '1.7'
-      }}
-    >
-      {formatDate(note.date)}
-      {' • '}
-      {formatNoteTime(note.created_at)}
-      {' • '}
-      {note.priority} priority
-    </small>
-
-  </div>
-
-</div>
+        <div key={t.id} className={`task-item category-${t.category}`}>
+          <label className="checkbox-wrapper">
+            <input type="checkbox" checked={t.done} onChange={() => toggleTask(t.id)} />
+            <span className="checkmark"></span>
+          </label>
+          <div className="task-content">
+            <span className={t.done? 'done' : ''}>{t.content}</span>
+            <div className="task-meta">
+              {t.time && <span className="task-time">🕐 {t.time}</span>}
+              {t.weekday && <span className="task-tag">{t.weekday}</span>}
+              {t.due_date && taskCategory!== 'daily' && <span className="task-date">{t.due_date}</span>}
+            </div>
+          </div>
+          <button onClick={() => deleteTask(t.id)} className="btn-delete">×</button>
+        </div>
       ))}
       {filteredTasks.length === 0 && <p className="empty">No tasks in {activeCategory}</p>}
     </div>
   )
-                           }
+}
