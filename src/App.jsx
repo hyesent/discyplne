@@ -45,6 +45,9 @@ export default function App() {
   const [taskDueDate, setTaskDueDate] = useState('')
   const [taskTime, setTaskTime] = useState('')
   const [taskWeekDay, setTaskWeekDay] = useState('monday')
+  const [taskDifficulty, setTaskDifficulty] = useState('medium')
+  const [taskMinutes, setTaskMinutes] = useState(30)
+  const [taskTag, setTaskTag] = useState('general') // NEW
   const [activeCategory, setActiveCategory] = useState('all')
 
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -155,12 +158,12 @@ export default function App() {
       setIsListening(false)
     } else {
       navigator.mediaDevices.getUserMedia({ audio: true })
- .then(() => {
+     .then(() => {
           recognitionRef.current.start()
           setIsListening(true)
           setMessage('🎤 Say comma, full stop, new line for punctuation')
         })
- .catch((err) => {
+     .catch((err) => {
           console.error(err)
           setMessage('Microphone permission denied. Tap the lock icon in Brave/Chrome > Site settings > Microphone > Allow')
           setIsListening(false)
@@ -190,11 +193,11 @@ export default function App() {
     if (!user) return
     setLoading(true)
     const { data, error } = await supabase
-.from('notes')
-.select('*')
-.eq('user_id', user.id)
-.eq('date', selectedDate)
-.order('created_at', { ascending: false })
+   .from('notes')
+   .select('*')
+   .eq('user_id', user.id)
+   .eq('date', selectedDate)
+   .order('created_at', { ascending: false })
     setLoading(false)
     if (error) {
       console.error('Fetch error:', error)
@@ -207,10 +210,10 @@ export default function App() {
   async function fetchTasks() {
     if (!user) return
     const { data, error } = await supabase
-.from('tasks')
-.select('*')
-.eq('user_id', user.id)
-.order('created_at', { ascending: false })
+   .from('tasks')
+   .select('*')
+   .eq('user_id', user.id)
+   .order('created_at', { ascending: false })
     if (error) {
       console.error('Fetch tasks error:', error)
     } else {
@@ -253,14 +256,14 @@ export default function App() {
 
     if (editingNote) {
       const { error } = await supabase
- .from('notes')
- .update({
+     .from('notes')
+     .update({
           title: title.trim(),
           content: noteText.trim(),
           priority
         })
- .eq('id', editingNote.id)
- .eq('user_id', user.id)
+     .eq('id', editingNote.id)
+     .eq('user_id', user.id)
 
       if (error) setMessage('Error: ' + error.message)
       else {
@@ -274,8 +277,8 @@ export default function App() {
       }
     } else {
       const { error } = await supabase
- .from('notes')
- .insert({
+     .from('notes')
+     .insert({
           user_id: user.id,
           date: selectedDate,
           title: title.trim(),
@@ -322,10 +325,10 @@ export default function App() {
 
   async function deleteNote(id) {
     const { error } = await supabase
-.from('notes')
-.delete()
-.eq('id', id)
-.eq('user_id', user.id)
+   .from('notes')
+   .delete()
+   .eq('id', id)
+   .eq('user_id', user.id)
     if (error) {
       setMessage('Delete failed: ' + error.message)
     } else {
@@ -359,7 +362,13 @@ export default function App() {
   async function addTask() {
     if (!task.trim() ||!user) return
     let dueDate = selectedDate
-    if (taskCategory === 'weekly') {
+    let taskType = 'task'
+
+    if (taskCategory === 'daily') {
+      taskType = 'habit'
+      dueDate = new Date().toISOString().split('T')[0]
+    } else if (taskCategory === 'weekly') {
+      taskType = 'habit'
       const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
       const targetDay = days.indexOf(taskWeekDay)
       const today = new Date()
@@ -370,22 +379,30 @@ export default function App() {
     } else if (taskCategory === 'custom') {
       dueDate = taskDueDate || selectedDate
     }
+
     const { error } = await supabase.from('tasks').insert({
       user_id: user.id,
       content: task.trim(),
       category: taskCategory,
+      type: taskType,
       weekday: taskCategory === 'weekly'? taskWeekDay : null,
       time: taskCategory === 'daily'? taskTime : null,
       due_date: dueDate,
+      difficulty: taskDifficulty,
+      estimated_minutes: taskMinutes,
+      category_tag: taskTag, // NEW
       done: false
     })
+
     if (error) {
       setMessage('Error adding task: ' + error.message)
     } else {
       setTask('')
       setTaskTime('')
       setTaskDueDate('')
-      setMessage('✅ Task added')
+      setTaskMinutes(30)
+      setTaskTag('general') // NEW
+      setMessage('✅ Added')
       fetchTasks()
     }
   }
@@ -393,25 +410,24 @@ export default function App() {
   async function toggleTask(id) {
     const task = tasks.find(t => t.id === id)
     const { error } = await supabase
-.from('tasks')
-.update({ done:!task.done })
-.eq('id', id)
-.eq('user_id', user.id)
+   .from('tasks')
+   .update({ done:!task.done })
+   .eq('id', id)
+   .eq('user_id', user.id)
     if (!error) fetchTasks()
   }
 
   async function deleteTask(id) {
     const { error } = await supabase
-.from('tasks')
-.delete()
-.eq('id', id)
-.eq('user_id', user.id)
+   .from('tasks')
+   .delete()
+   .eq('id', id)
+   .eq('user_id', user.id)
     if (!error) {
       setMessage('🗑️ Task deleted')
       fetchTasks()
     }
   }
-
   const formatTime = (sec) => {
     const mins = Math.floor(sec / 60)
     const secs = sec % 60
@@ -493,11 +509,12 @@ export default function App() {
           new Paragraph({
             children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
           }),
- ...tasks.map(t => new Paragraph({
+        ...tasks.map(t => new Paragraph({
             children: [
               new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
               new TextRun({ text: t.content }),
-              new TextRun({ text: ` [${t.category}]`, italics: true, size: 20 })
+              new TextRun({ text: ` [${t.category}]`, italics: true, size: 20 }),
+              new TextRun({ text: t.category_tag && t.category_tag!== 'general'? ` #${t.category_tag}` : '', italics: true, size: 20 })
             ]
           }))
         ]
@@ -507,28 +524,6 @@ export default function App() {
     saveAs(blob, `discypln-tasks.docx`)
     setMessage('✅ Word file exported!')
   }
-
-  const filteredTasks =
-  activeCategory === 'all'
-? [...tasks].sort((a, b) =>
-        (a.time || '23:59')
-    .localeCompare(b.time || '23:59')
-      )
-    : tasks
-   .filter(t => t.category === activeCategory)
-   .sort((a, b) =>
-          (a.time || '23:59')
-      .localeCompare(b.time || '23:59')
-        )
-
-  const filteredNotes = notes.filter(note =>
-    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    note.content.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  const completedTasks = tasks.filter(t => t.done).length
-  const totalTasks = tasks.length
-  const disciplineScore = totalTasks > 0? Math.round((completedTasks / totalTasks) * 100) : 0
 
   const getWeekDays = () => {
     const today = new Date()
@@ -542,8 +537,16 @@ export default function App() {
   }
 
   const weekDays = getWeekDays()
-  const weeklyCompleted = tasks.filter(t => t.done && t.due_date && weekDays.includes(t.due_date)).length
-  const weeklyTotal = tasks.filter(t => t.due_date && weekDays.includes(t.due_date)).length
+  const todayStr = new Date().toISOString().split('T')[0]
+  const todayTasks = tasks.filter(t => t.due_date === todayStr || (t.category === 'daily' && t.type === 'habit'))
+  const todayCompleted = todayTasks.filter(t => t.done).length
+  const todayScore = todayTasks.length > 0? Math.round((todayCompleted / todayTasks.length) * 100) : 0
+
+  const weeklyTasks = tasks.filter(t => t.due_date && weekDays.includes(t.due_date))
+  const weeklyCompleted = weeklyTasks.filter(t => t.done).length
+  const weeklyScore = weeklyTasks.length > 0? Math.round((weeklyCompleted / weeklyTasks.length) * 100) : 0
+
+  const totalMinutes = tasks.filter(t => t.done).reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
 
   const getStreak = () => {
     let streak = 0
@@ -552,10 +555,10 @@ export default function App() {
       const d = new Date(today)
       d.setDate(today.getDate() - i)
       const dateStr = d.toISOString().split('T')[0]
-      const dayTasks = tasks.filter(t => (t.due_date || selectedDate) === dateStr)
-      if (dayTasks.length === 0) continue
-      const dayCompleted = dayTasks.filter(t => t.done).length
-      if (dayCompleted === dayTasks.length) {
+      const dayHabits = tasks.filter(t => t.type === 'habit' && t.due_date === dateStr)
+      if (dayHabits.length === 0) continue
+      const dayCompleted = dayHabits.filter(t => t.done).length
+      if (dayCompleted === dayHabits.length && dayHabits.length > 0) {
         streak++
       } else {
         break
@@ -563,8 +566,42 @@ export default function App() {
     }
     return streak
   }
-
   const streak = getStreak()
+
+  const getFailedDays = () => {
+    const failed = []
+    const today = new Date()
+    for (let i = 1; i <= 7; i++) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      const dateStr = d.toISOString().split('T')[0]
+      const dayHabits = tasks.filter(t => t.type === 'habit' && t.due_date === dateStr)
+      if (dayHabits.length > 0) {
+        const completed = dayHabits.filter(t => t.done).length
+        if (completed < dayHabits.length) {
+          failed.push({
+            date: dateStr,
+            completed,
+            total: dayHabits.length
+          })
+        }
+      }
+    }
+    return failed
+  }
+  const failedDays = getFailedDays()
+
+  const filteredTasks =
+    activeCategory === 'all'
+   ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+      : tasks
+     .filter(t => t.category === activeCategory)
+     .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+
+  const filteredNotes = notes.filter(note =>
+    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    note.content.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   if (!user) {
     return (
@@ -766,31 +803,42 @@ export default function App() {
           <h3>Your Progress</h3>
           <div className="stat-grid">
             <div className="stat-item">
-              <span className="stat-label">Discipline Score</span>
-              <strong className="stat-value">{disciplineScore}%</strong>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Tasks Done</span>
-              <strong className="stat-value">{completedTasks}/{totalTasks}</strong>
+              <span className="stat-label">Today</span>
+              <strong className="stat-value">{todayScore}%</strong>
             </div>
             <div className="stat-item">
               <span className="stat-label">This Week</span>
-              <strong className="stat-value">{weeklyCompleted}/{weeklyTotal}</strong>
+              <strong className="stat-value">{weeklyScore}%</strong>
             </div>
             <div className="stat-item">
               <span className="stat-label">Streak</span>
               <strong className="stat-value">{streak} 🔥</strong>
             </div>
+            <div className="stat-item">
+              <span className="stat-label">Deep Work</span>
+              <strong className="stat-value">{Math.floor(totalMinutes/60)}h {totalMinutes%60}m</strong>
+            </div>
           </div>
           <div className="heatmap">
             {weekDays.map(day => {
-              const dayTasks = tasks.filter(t => (t.due_date || selectedDate) === day)
+              const dayTasks = tasks.filter(t => t.due_date === day)
               const active = dayTasks.length > 0 && dayTasks.every(t => t.done)
               return <div key={day} className={`heat-cell ${active? 'active' : ''}`} title={day}></div>
             })}
           </div>
         </div>
       </div>
+
+      {failedDays.length > 0 && (
+        <div className="card" style={{ borderColor: 'var(--danger)' }}>
+          <h3 style={{ color: 'var(--danger)', marginBottom: '12px' }}>⚠️ Failed Days This Week</h3>
+          {failedDays.map(day => (
+            <div key={day.date} style={{ padding: '8px 0', opacity: 0.8 }}>
+              {formatDate(day.date)}: Completed {day.completed}/{day.total} habits
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="notes-header">
         <span>Notes</span>
@@ -833,26 +881,16 @@ export default function App() {
       )}
 
       {filteredNotes.map(note => (
-        <div key={note.id} className="note-summary" onClick={() =>!showExport && openEditNote(note)} style={showExport? { cursor: 'default', opacity: selectedNotes.includes(note.id)? 1 : 0.6 } : {}}>
-          {showExport && (
-            <input type="checkbox" checked={selectedNotes.includes(note.id)} onChange={(e) => { e.stopPropagation(); toggleSelect(note.id) }} style={{ marginRight: '12px' }} />
-          )}
-          <div style={{ flex: 1 }}>
-            <h4>{note.title}</h4>
-            <small style={{ display: 'block', marginTop: '6px', lineHeight: '1.7' }}>
-              {formatDate(note.date)} • {formatNoteTime(note.created_at)} • {note.priority} priority
-            </small>
-          </div>
+        <div key={note.id} className={`note-summary priority-${note.priority}`} onClick={() => openEditNote(note)}>
+          <h4>{note.title}</h4>
+          <small>{formatNoteTime(note.created_at)} • {note.priority}</small>
         </div>
       ))}
 
-      {notes.length > 0 && (
-        <div className="button-row">
-          {!showExport && <button onClick={() => setShowExport(true)} className="btn primary">📄 Export Notes PDF</button>}
-          {showExport && <button onClick={exportNotesPDF} className="btn primary">Export Selected</button>}
-          <button onClick={exportTasksWord} className="btn">📝 Export Tasks Word</button>
-        </div>
-      )}
+      <div className="button-row">
+        <button onClick={() => setShowExport(!showExport)} className="btn full-width">{showExport? 'Hide Export' : 'Export Notes PDF'}</button>
+        <button onClick={exportTasksWord} className="btn full-width">Export Tasks Word</button>
+      </div>
 
       <h3 className="section-title">Task Manager</h3>
       <div className="category-tabs">
@@ -866,9 +904,9 @@ export default function App() {
       <div className="task-input">
         <input value={task} onChange={e => setTask(e.target.value)} placeholder="Add task..." className="input" />
         <select value={taskCategory} onChange={e => setTaskCategory(e.target.value)} className="select">
-          <option value="daily">Daily - with time</option>
-          <option value="weekly">Weekly - pick day</option>
-          <option value="custom">Custom - pick date</option>
+          <option value="daily">Daily Habit</option>
+          <option value="weekly">Weekly Habit</option>
+          <option value="custom">One-time Task</option>
         </select>
         {taskCategory === 'daily' && (
           <input type="time" value={taskTime} onChange={e => setTaskTime(e.target.value)} className="input time-input" />
@@ -887,26 +925,54 @@ export default function App() {
         {taskCategory === 'custom' && (
           <input type="date" value={taskDueDate} onChange={e => setTaskDueDate(e.target.value)} className="input" />
         )}
-        <button onClick={addTask} className="btn primary">Add Task</button>
+        <select value={taskDifficulty} onChange={e => setTaskDifficulty(e.target.value)} className="select">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <input type="number" value={taskMinutes} onChange={e => setTaskMinutes(Number(e.target.value))} placeholder="mins" className="input" style={{maxWidth: '80px'}} />
+        <select value={taskTag} onChange={e => setTaskTag(e.target.value)} className="select">
+          <option value="general">General</option>
+          <option value="school">School</option>
+          <option value="work">Work</option>
+          <option value="health">Health</option>
+          <option value="personal">Personal</option>
+        </select>
+        <button onClick={addTask} className="btn primary">Add</button>
       </div>
 
-      {filteredTasks.map(t => (
-        <div key={t.id} className="task-item">
-          <input
-            type="checkbox"
-            checked={t.done}
-            onChange={() => toggleTask(t.id)}
-          />
-          <span className={t.done? 'done' : ''}>
-            {t.content}
-            {t.time && <small> at {t.time}</small>}
-            {t.weekday && <small> every {t.weekday}</small>}
-            {t.category === 'custom' && t.due_date && <small> on {formatDate(t.due_date)}</small>}
-          </span>
-          <button onClick={() => deleteTask(t.id)} className="btn-delete">×</button>
-        </div>
-      ))}
+      <div className="tasks-list">
+        {filteredTasks.map(t => (
+          <div key={t.id} className="task-item">
+            <label className="checkbox-wrapper">
+              <input
+                type="checkbox"
+                checked={t.done}
+                onChange={() => toggleTask(t.id)}
+              />
+              <span className="checkmark"></span>
+            </label>
+            <div className="task-content">
+              <span className={t.done? 'done' : ''}>{t.content}</span>
+              <div className="task-meta">
+                {t.time && <span className="task-time">{t.time}</span>}
+                {t.weekday && <span className="task-tag">{t.weekday}</span>}
+                {t.type === 'habit' && <span className="task-tag">Habit</span>}
+                {t.difficulty && <span className="task-tag">{t.difficulty}</span>}
+                {t.estimated_minutes && <span className="task-tag">{t.estimated_minutes}m</span>}
+                {t.category_tag && t.category_tag!== 'general' && <span className="task-tag">{t.category_tag}</span>}
+                {t.category === 'custom' && t.due_date && <span className="task-date">{formatDate(t.due_date)}</span>}
+              </div>
+            </div>
+            <button onClick={() => deleteTask(t.id)} className="btn-delete">×</button>
+          </div>
+        ))}
+      </div>
       {filteredTasks.length === 0 && <p className="empty">No tasks in {activeCategory}</p>}
+
+      {isProcessing && <p className="loading">Processing image...</p>}
+      {message && <p className={`message ${message.includes('✅')? 'success' : 'error'}`}>{message}</p>}
+      <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} style={{ display: 'none' }} />
     </div>
   )
 }
