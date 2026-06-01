@@ -606,7 +606,7 @@ export default function App() {
   if (!user) {
     return (
       <div className="auth-container">
-        <h1 className="logo">Discypln</h1>
+        <h1 className="logo">Dscypln</h1>
         <div className="auth-box">
           <h2>Login / Sign Up</h2>
           <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
