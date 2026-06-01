@@ -492,7 +492,7 @@ export default function App() {
       doc.text(`Priority: ${note.priority}`, 20, yPos)
       yPos += 12
     })
-    doc.save(`discypln-notes-${selectedDate}.pdf`)
+    doc.save(`dscypln-notes-${selectedDate}.pdf`)
     setMessage('✅ PDF exported!')
     setShowExport(false)
     setSelectedNotes([])
@@ -507,7 +507,7 @@ export default function App() {
       sections: [{
         children: [
           new Paragraph({
-            children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
+            children: [new TextRun({ text: `Dscypln Tasks`, bold: true, size: 32 })]
           }),
         ...tasks.map(t => new Paragraph({
             children: [
@@ -521,7 +521,7 @@ export default function App() {
       }]
     })
     const blob = await Packer.toBlob(doc)
-    saveAs(blob, `discypln-tasks.docx`)
+    saveAs(blob, `dscypln-tasks.docx`)
     setMessage('✅ Word file exported!')
   }
 
