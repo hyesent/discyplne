@@ -1,63 +1,35 @@
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import './App.css'
+import Tesseract from 'tesseract.js'
+import './index.css'
+import jsPDF from 'jspdf'
+import { Document, Packer, Paragraph, TextRun } from 'docx'
+import { saveAs } from 'file-saver'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// ALL 50+ LANGUAGES SUPPORTED
-const ALL_LANGUAGES = [
-  { code: 'en', name: 'English' },
-  { code: 'es', name: 'Spanish' },
-  { code: 'fr', name: 'French' },
-  { code: 'de', name: 'German' },
-  { code: 'it', name: 'Italian' },
-  { code: 'pt', name: 'Portuguese' },
-  { code: 'ru', name: 'Russian' },
-  { code: 'zh-CN', name: 'Chinese Simplified' },
-  { code: 'zh-TW', name: 'Chinese Traditional' },
-  { code: 'ja', name: 'Japanese' },
-  { code: 'ko', name: 'Korean' },
-  { code: 'ar', name: 'Arabic' },
-  { code: 'hi', name: 'Hindi' },
-  { code: 'nl', name: 'Dutch' },
-  { code: 'pl', name: 'Polish' },
-  { code: 'tr', name: 'Turkish' },
-  { code: 'vi', name: 'Vietnamese' },
-  { code: 'th', name: 'Thai' },
-  { code: 'he', name: 'Hebrew' },
-  { code: 'sv', name: 'Swedish' },
-  { code: 'da', name: 'Danish' },
-  { code: 'fi', name: 'Finnish' },
-  { code: 'no', name: 'Norwegian' },
-  { code: 'cs', name: 'Czech' },
-  { code: 'el', name: 'Greek' },
-  { code: 'hu', name: 'Hungarian' },
-  { code: 'ro', name: 'Romanian' },
-  { code: 'uk', name: 'Ukrainian' },
-  { code: 'id', name: 'Indonesian' },
-  { code: 'ms', name: 'Malay' },
-  { code: 'fa', name: 'Persian' },
-  { code: 'bn', name: 'Bengali' },
-  { code: 'ta', name: 'Tamil' },
-  { code: 'te', name: 'Telugu' },
-  { code: 'mr', name: 'Marathi' },
-  { code: 'ur', name: 'Urdu' },
-  { code: 'sw', name: 'Swahili' },
-  { code: 'fil', name: 'Filipino' }
-]
+const VOICE_COMMANDS = {
+  'comma': ',',
+  'full stop': '.',
+  'period': '.',
+  'question mark': '?',
+  'exclamation mark': '!',
+  'new line': '\n',
+  'new paragraph': '\n\n'
+}
 
 // CODE LANGUAGE DETECTOR
 const detectCodeLanguage = (text) => {
   const patterns = [
-    { regex: /import\s+.*from\s+['"].*['"]|export\s+(default\s+)?|const\s+.*=\s*\(/, name: 'JavaScript/React' },
-    { regex: /def\s+\w+\s*\(.*\):|import\s+\w+|from\s+\w+\s+import/, name: 'Python' },
-    { regex: /public\s+class\s+\w+|System\.out\.println|import\s+java\./, name: 'Java' },
-    { regex: /#include\s*<.*>|std::|int\s+main\s*\(/, name: 'C++' },
-    { regex: /<\?php|\$\w+\s*=|echo\s+/, name: 'PHP' },
-    { regex: /SELECT\s+.*FROM|INSERT\s+INTO|UPDATE\s+.*SET/i, name: 'SQL' },
-    { regex: /<html|<div|<body|<head|<!DOCTYPE/, name: 'HTML' },
+    { regex: /import\s+.*from\s+['"].*['"]|export\s+(default\s+)?|const\s+.*=\s*\(|function\s+\w+\s*\(|=>\s*{/, name: 'JavaScript/React' },
+    { regex: /def\s+\w+\s*\(.*\):|import\s+\w+|from\s+\w+\s+import|print\s*\(/, name: 'Python' },
+    { regex: /public\s+class\s+\w+|System\.out\.println|import\s+java\.|public\s+static\s+void/, name: 'Java' },
+    { regex: /#include\s*<.*>|std::|int\s+main\s*\(|cout\s*<<|cin\s*>>/, name: 'C++' },
+    { regex: /<\?php|\$\w+\s*=|echo\s+|function\s+\w+\s*\(/, name: 'PHP' },
+    { regex: /SELECT\s+.*FROM|INSERT\s+INTO|UPDATE\s+.*SET|CREATE\s+TABLE/i, name: 'SQL' },
+    { regex: /<html|<div|<body|<head|<!DOCTYPE|<script|<style/, name: 'HTML' },
     { regex: /\{\s*"[\w]+"\s*:|JSON\.parse|JSON\.stringify/, name: 'JSON' },
     { regex: /^\s*[\w-]+\s*:\s*.+$/m, name: 'YAML' }
   ]
@@ -86,73 +58,114 @@ const getNLLBLangCode = (code) => {
 
 export default function App() {
   const [user, setUser] = useState(null)
-  const [session, setSession] = useState(null)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [notes, setNotes] = useState([])
-  const [filteredNotes, setFilteredNotes] = useState([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [title, setTitle] = useState('')
   const [noteText, setNoteText] = useState('')
-  const [fontFamily, setFontFamily] = useState('Inter')
-  const [titleFont, setTitleFont] = useState('Inter')
-  const [fontSize, setFontSize] = useState('16')
-  const [priority, setPriority] = useState('')
-  const [viewMode, setViewMode] = useState('home')
+  const [isListening, setIsListening] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [detectedCode, setDetectedCode] = useState(null)
+  const recognitionRef = useRef(null)
+  const fileInputRef = useRef(null)
+
+  const [notes, setNotes] = useState([])
+  const [title, setTitle] = useState('')
+  const [priority, setPriority] = useState('medium')
   const [editingNote, setEditingNote] = useState(null)
+  const [viewMode, setViewMode] = useState('list')
+
+  const [task, setTask] = useState('')
+  const [tasks, setTasks] = useState([])
+  const [taskCategory, setTaskCategory] = useState('daily')
+  const [taskDueDate, setTaskDueDate] = useState('')
+  const [taskTime, setTaskTime] = useState('')
+  const [taskWeekDay, setTaskWeekDay] = useState('monday')
+  const [taskDifficulty, setTaskDifficulty] = useState('medium')
+  const [taskMinutes, setTaskMinutes] = useState(30)
+  const [taskTag, setTaskTag] = useState('general')
+  const [editingTask, setEditingTask] = useState(null)
+  const formatMinutes = (mins) => {
+    if (!mins || mins === 0) return '0m'
+    const hours = Math.floor(mins / 60)
+    const minutes = mins % 60
+    if (hours === 0) return `${minutes}m`
+    if (minutes === 0) return `${hours}h`
+    return `${hours}h ${minutes}m`
+  }
+  const [activeCategory, setActiveCategory] = useState('all')
+  const [targetLang, setTargetLang] = useState("fr")
+
+  const ALL_LANGUAGES = [
+    {code:"af",name:"Afrikaans"},{code:"sq",name:"Albanian"},{code:"am",name:"Amharic"},{code:"ar",name:"Arabic"},
+    {code:"hy",name:"Armenian"},{code:"az",name:"Azerbaijani"},{code:"eu",name:"Basque"},{code:"be",name:"Belarusian"},
+    {code:"bn",name:"Bengali"},{code:"bs",name:"Bosnian"},{code:"bg",name:"Bulgarian"},{code:"ca",name:"Catalan"},
+    {code:"ceb",name:"Cebuano"},{code:"ny",name:"Chichewa"},{code:"zh-CN",name:"Chinese Simplified"},{code:"zh-TW",name:"Chinese Traditional"},
+    {code:"co",name:"Corsican"},{code:"hr",name:"Croatian"},{code:"cs",name:"Czech"},{code:"da",name:"Danish"},
+    {code:"nl",name:"Dutch"},{code:"en",name:"English"},{code:"eo",name:"Esperanto"},{code:"et",name:"Estonian"},
+    {code:"tl",name:"Filipino"},{code:"fi",name:"Finnish"},{code:"fr",name:"French"},{code:"fy",name:"Frisian"},
+    {code:"gl",name:"Galician"},{code:"ka",name:"Georgian"},{code:"de",name:"German"},{code:"el",name:"Greek"},
+    {code:"gu",name:"Gujarati"},{code:"ht",name:"Haitian Creole"},{code:"ha",name:"Hausa"},{code:"haw",name:"Hawaiian"},
+    {code:"he",name:"Hebrew"},{code:"hi",name:"Hindi"},{code:"hmn",name:"Hmong"},{code:"hu",name:"Hungarian"},
+    {code:"is",name:"Icelandic"},{code:"ig",name:"Igbo"},{code:"id",name:"Indonesian"},{code:"ga",name:"Irish"},
+    {code:"it",name:"Italian"},{code:"ja",name:"Japanese"},{code:"jw",name:"Javanese"},{code:"kn",name:"Kannada"},
+    {code:"kk",name:"Kazakh"},{code:"km",name:"Khmer"},{code:"rw",name:"Kinyarwanda"},{code:"ko",name:"Korean"},
+    {code:"ku",name:"Kurdish"},{code:"ky",name:"Kyrgyz"},{code:"lo",name:"Lao"},{code:"la",name:"Latin"},
+    {code:"lv",name:"Latvian"},{code:"lt",name:"Lithuanian"},{code:"lb",name:"Luxembourgish"},{code:"mk",name:"Macedonian"},
+    {code:"mg",name:"Malagasy"},{code:"ms",name:"Malay"},{code:"ml",name:"Malayalam"},{code:"mt",name:"Maltese"},
+    {code:"mi",name:"Maori"},{code:"mr",name:"Marathi"},{code:"mn",name:"Mongolian"},{code:"my",name:"Myanmar"},
+    {code:"ne",name:"Nepali"},{code:"no",name:"Norwegian"},{code:"or",name:"Odia"},{code:"ps",name:"Pashto"},
+    {code:"fa",name:"Persian"},{code:"pl",name:"Polish"},{code:"pt",name:"Portuguese"},{code:"pa",name:"Punjabi"},
+    {code:"ro",name:"Romanian"},{code:"ru",name:"Russian"},{code:"sm",name:"Samoan"},{code:"gd",name:"Scots Gaelic"},
+    {code:"sr",name:"Serbian"},{code:"st",name:"Sesotho"},{code:"sn",name:"Shona"},{code:"sd",name:"Sindhi"},
+    {code:"si",name:"Sinhala"},{code:"sk",name:"Slovak"},{code:"sl",name:"Slovenian"},{code:"so",name:"Somali"},
+    {code:"es",name:"Spanish"},{code:"su",name:"Sundanese"},{code:"sw",name:"Swahili"},{code:"sv",name:"Swedish"},
+    {code:"tg",name:"Tajik"},{code:"ta",name:"Tamil"},{code:"tt",name:"Tatar"},{code:"te",name:"Telugu"},
+    {code:"th",name:"Thai"},{code:"tr",name:"Turkish"},{code:"tk",name:"Turkmen"},{code:"uk",name:"Ukrainian"},
+    {code:"ur",name:"Urdu"},{code:"ug",name:"Uyghur"},{code:"uz",name:"Uzbek"},{code:"vi",name:"Vietnamese"},
+    {code:"cy",name:"Welsh"},{code:"xh",name:"Xhosa"},{code:"yi",name:"Yiddish"},{code:"yo",name:"Yoruba"},{code:"zu",name:"Zulu"}
+  ]
+  const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage('')
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [message])
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [pomodoroTime, setPomodoroTime] = useState(1500)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const [pomodoroTime, setPomodoroTime] = useState(25 * 60)
   const [pomodoroRunning, setPomodoroRunning] = useState(false)
   const [isBreak, setIsBreak] = useState(false)
   const [pomodoroSessions, setPomodoroSessions] = useState(0)
-  const [totalMinutes, setTotalMinutes] = useState(0)
-  const [weeklyScore, setWeeklyScore] = useState(0)
-  const [streak, setStreak] = useState(0)
-  const [failedDays, setFailedDays] = useState([])
-  const [tasks, setTasks] = useState([])
-  const [filteredTasks, setFilteredTasks] = useState([])
-  const [task, setTask] = useState('')
-  const [taskCategory, setTaskCategory] = useState('daily')
-  const [taskTime, setTaskTime] = useState('09:00')
-  const [taskWeekDay, setTaskWeekDay] = useState('monday')
-  const [taskDueDate, setTaskDueDate] = useState(new Date().toISOString().split('T')[0])
-  const [taskDifficulty, setTaskDifficulty] = useState('easy')
-  const [taskMinutes, setTaskMinutes] = useState(25)
-  const [taskTag, setTaskTag] = useState('general')
-  const [activeCategory, setActiveCategory] = useState('all')
-  const [isListening, setIsListening] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
+
   const [showExport, setShowExport] = useState(false)
   const [selectedNotes, setSelectedNotes] = useState([])
-  const [targetLang, setTargetLang] = useState('fr')
-  const [editingTask, setEditingTask] = useState(null)
-  const [detectedCode, setDetectedCode] = useState(null)
-  const fileInputRef = useRef(null)
-  const recognitionRef = useRef(null)
+
+  const [fontFamily, setFontFamily] = useState('Inter')
+  const [fontSize, setFontSize] = useState('16')
+  const [titleFont, setTitleFont] = useState('Inter')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
       setUser(session?.user?? null)
-      if (session?.user) {
-        fetchNotes()
-        fetchTasks()
-        fetchPomodoroStats()
-      }
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
       setUser(session?.user?? null)
-      if (session?.user) {
-        fetchNotes()
-        fetchTasks()
-        fetchPomodoroStats()
-      }
     })
     return () => subscription.unsubscribe()
   }, [])
+
+  useEffect(() => {
+    if (user) {
+      fetchNotes()
+      fetchTasks()
+    }
+  }, [selectedDate, user])
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -160,15 +173,21 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    let interval = null
+    let interval
     if (pomodoroRunning) {
       interval = setInterval(() => {
-        setPomodoroTime(time => {
-          if (time <= 1) {
-            handlePomodoroComplete()
-            return isBreak? 1500 : 300
+        setPomodoroTime(prev => {
+          if (prev <= 1) {
+            if (isBreak) {
+              setIsBreak(false)
+              setPomodoroSessions(prev => prev + 1)
+              return 25 * 60
+            } else {
+              setIsBreak(true)
+              return 5 * 60
+            }
           }
-          return time - 1
+          return prev - 1
         })
       }, 1000)
     }
@@ -176,189 +195,356 @@ export default function App() {
   }, [pomodoroRunning, isBreak])
 
   useEffect(() => {
-    if (searchQuery) {
-      const filtered = notes.filter(note =>
-        note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        note.content.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-      setFilteredNotes(filtered)
-    } else {
-      setFilteredNotes(notes)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SpeechRecognition) {
+      setMessage('Speech Recognition not supported. Use Chrome/Brave.')
+      return
     }
-  }, [searchQuery, notes])
+    const recognition = new SpeechRecognition()
+    recognition.continuous = true
+    recognition.interimResults = true
+    recognition.lang = 'en-US'
 
-  useEffect(() => {
-    if (activeCategory === 'all') {
-      setFilteredTasks(tasks)
-    } else {
-      setFilteredTasks(tasks.filter(t => t.category === activeCategory))
+    recognition.onresult = (event) => {
+      let transcript = ''
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          transcript += event.results[i][0].transcript
+        }
+      }
+      if (!transcript) return
+
+      let processedText = transcript.toLowerCase()
+      Object.keys(VOICE_COMMANDS).forEach(cmd => {
+        const regex = new RegExp(`\\b${cmd}\\b`, 'gi')
+        processedText = processedText.replace(regex, VOICE_COMMANDS[cmd])
+      })
+      processedText = processedText.replace(/(^\w|\.\s+\w|\n\n\w)/g, (match) => match.toUpperCase())
+
+      setNoteText(prev => prev + (prev? ' ' : '') + processedText)
+      setMessage('')
     }
-  }, [activeCategory, tasks])
 
+    recognition.onerror = (event) => {
+      console.error('Speech error:', event.error)
+      if (event.error!== 'no-speech') {
+        setMessage(`Mic error: ${event.error}`)
+      }
+      setIsListening(false)
+    }
+    recognition.onend = () => setIsListening(false)
+    recognitionRef.current = recognition
+  }, [])
+
+  // CODE DETECTOR - runs in background, no UI
   useEffect(() => {
     if (noteText) {
       const codeLang = detectCodeLanguage(noteText)
       if (codeLang) {
         setDetectedCode(codeLang)
         setMessage(`💻 Code detected: ${codeLang}`)
-        setTimeout(() => setMessage(''), 2000)
       } else {
         setDetectedCode(null)
       }
+    } else {
+      setDetectedCode(null)
     }
   }, [noteText])
 
-  const signIn = async () => {
-    setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) setMessage(error.message)
-    setLoading(false)
+  const toggleMic = () => {
+    if (!recognitionRef.current) return
+    if (isListening) {
+      recognitionRef.current.stop()
+      setIsListening(false)
+    } else {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(() => {
+          recognitionRef.current.start()
+          setIsListening(true)
+          setMessage('🎤 Say comma, full stop, new line for punctuation')
+        })
+      .catch((err) => {
+          console.error(err)
+          setMessage('Microphone permission denied. Tap the lock icon in Brave/Chrome > Site settings > Microphone > Allow')
+          setIsListening(false)
+        })
+    }
   }
 
-  const signUp = async () => {
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setIsProcessing(true)
+    setMessage('Reading image...')
+    Tesseract.recognize(file, 'eng', {
+      logger: m => console.log(m.status, m.progress)
+    }).then(({ data: { text } }) => {
+      setNoteText(prev => prev + (prev? '\n\n' : '') + text)
+      setMessage('✅ Text extracted!')
+      setIsProcessing(false)
+      e.target.value = ''
+    }).catch(() => {
+      setMessage('Failed to read image')
+      setIsProcessing(false)
+    })
+  }
+
+  async function fetchNotes() {
+    if (!user) return
+    setLoading(true)
+    const { data, error } = await supabase
+    .from('notes')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('date', selectedDate)
+    .order('created_at', { ascending: false })
+    setLoading(false)
+    if (error) {
+      console.error('Fetch error:', error)
+      setMessage('Failed to load notes')
+    } else {
+      setNotes(data || [])
+    }
+  }
+
+  async function fetchTasks() {
+    if (!user) return
+    const { data, error } = await supabase
+    .from('tasks')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    if (error) {
+      console.error('Fetch tasks error:', error)
+    } else {
+      setTasks(data || [])
+    }
+  }
+
+  async function signUp() {
     setLoading(true)
     const { error } = await supabase.auth.signUp({ email, password })
-    if (error) setMessage(error.message)
-    else setMessage('Check your email to confirm!')
     setLoading(false)
+    if (error) setMessage(error.message)
+    else setMessage('Check email for confirmation link')
   }
 
-  const signOut = async () => {
+  async function signIn() {
+    setLoading(true)
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    setLoading(false)
+    if (error) setMessage(error.message)
+  }
+
+  async function signOut() {
     await supabase.auth.signOut()
     setNotes([])
     setTasks([])
-    setViewMode('home')
+    setTitle('')
+    setNoteText('')
+    setEditingNote(null)
+    setViewMode('list')
   }
 
-  const fetchNotes = async () => {
-    const { data } = await supabase.from('notes').select('*').order('created_at', { ascending: false })
-    if (data) setNotes(data)
-  }
-
-  const fetchTasks = async () => {
-    const { data } = await supabase.from('tasks').select('*').order('created_at', { ascending: false })
-    if (data) setTasks(data)
-  }
-
-  const fetchPomodoroStats = async () => {
-    const today = new Date().toISOString().split('T')[0]
-    const { data } = await supabase.from('pomodoro_sessions').select('*').eq('date', today)
-    if (data && data[0]) {
-      setPomodoroSessions(data[0].sessions_completed || 0)
-      setTotalMinutes(data[0].total_minutes || 0)
-    }
-  }
-
-  const saveNote = async () => {
+  async function saveNote() {
     if (!title.trim() ||!noteText.trim()) {
-      setMessage('Title and content required')
+      setMessage('Title and note required')
       return
     }
     setLoading(true)
-    const noteData = {
-      title,
-      content: noteText,
-      font_family: fontFamily,
-      title_font: titleFont,
-      font_size: parseInt(fontSize),
-      priority: priority || 'medium',
-      user_id: user.id
-    }
+    setMessage('')
+
     if (editingNote) {
-      await supabase.from('notes').update(noteData).eq('id', editingNote.id)
-      setMessage('✅ Note updated!')
+      const { error } = await supabase
+      .from('notes')
+      .update({
+          title: title.trim(),
+          content: noteText.trim(),
+          priority
+        })
+      .eq('id', editingNote.id)
+      .eq('user_id', user.id)
+
+      if (error) setMessage('Error: ' + error.message)
+      else {
+        setMessage('✅ Note updated!')
+        setEditingNote(null)
+        setTitle('')
+        setNoteText('')
+        setPriority('medium')
+        await fetchNotes()
+        setViewMode('list')
+      }
     } else {
-      await supabase.from('notes').insert([noteData])
-      setMessage('✅ Note saved!')
+      const { error } = await supabase
+      .from('notes')
+      .insert({
+          user_id: user.id,
+          date: selectedDate,
+          title: title.trim(),
+          content: noteText.trim(),
+          priority
+        })
+
+      if (error) setMessage('Error: ' + error.message)
+      else {
+        setMessage('✅ Note saved!')
+        setTitle('')
+        setNoteText('')
+        setPriority('medium')
+        await fetchNotes()
+        setViewMode('list')
+      }
     }
-    setTitle('')
-    setNoteText('')
-    setPriority('')
-    setEditingNote(null)
-    setViewMode('home')
-    fetchNotes()
     setLoading(false)
   }
 
-  const deleteNote = async (id) => {
-    await supabase.from('notes').delete().eq('id', id)
-    fetchNotes()
-    setMessage('✅ Note deleted')
-  }
-
-  const openAddNote = () => {
+  function openAddNote() {
+    setEditingNote(null)
     setTitle('')
     setNoteText('')
-    setPriority('')
-    setEditingNote(null)
+    setPriority('medium')
     setViewMode('add')
   }
 
-  const openEditNote = (note) => {
+  function openEditNote(note) {
+    setEditingNote(note)
     setTitle(note.title)
     setNoteText(note.content)
-    setFontFamily(note.font_family || 'Inter')
-    setTitleFont(note.title_font || 'Inter')
-    setFontSize(note.font_size?.toString() || '16')
     setPriority(note.priority)
-    setEditingNote(note)
     setViewMode('edit')
   }
 
-  const goBack = () => {
-    setViewMode('home')
+  function goBack() {
+    setViewMode('list')
     setEditingNote(null)
+    setTitle('')
+    setNoteText('')
+    setPriority('medium')
   }
 
-  const addTask = async () => {
-    if (!task.trim()) return
-    const newTask = {
-      content: task,
+  async function deleteNote(id) {
+    const { error } = await supabase
+    .from('notes')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+    if (error) {
+      setMessage('Delete failed: ' + error.message)
+    } else {
+      setMessage('🗑️ Note deleted')
+      await fetchNotes()
+      setViewMode('list')
+    }
+  }
+
+  async function shareNote() {
+    if (!editingNote) return
+    const shareText = `${editingNote.title}\n\n${editingNote.content}`
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: editingNote.title,
+          text: shareText
+        })
+        setMessage('✅ Note shared!')
+      } catch (err) {
+        if (err.name!== 'AbortError') {
+          setMessage('Sharing failed')
+        }
+      }
+    } else {
+      navigator.clipboard.writeText(shareText)
+      setMessage('📋 Copied instead')
+    }
+  }
+
+  async function addTask() {
+    if (!task.trim() ||!user) return
+    let dueDate = selectedDate
+    let taskType = 'task'
+
+    if (taskCategory === 'daily') {
+      taskType = 'habit'
+      dueDate = new Date().toISOString().split('T')[0]
+    } else if (taskCategory === 'weekly') {
+      taskType = 'habit'
+      const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+      const targetDay = days.indexOf(taskWeekDay)
+      const today = new Date()
+      const diff = (targetDay - today.getDay() + 7) % 7
+      const nextDate = new Date(today)
+      nextDate.setDate(today.getDate() + diff)
+      dueDate = nextDate.toISOString().split('T')[0]
+    } else if (taskCategory === 'custom') {
+      dueDate = taskDueDate || selectedDate
+    }
+
+    const { error } = await supabase.from('tasks').insert({
+      user_id: user.id,
+      content: task.trim(),
       category: taskCategory,
-      time: taskCategory === 'daily'? taskTime : null,
+      type: taskType,
       weekday: taskCategory === 'weekly'? taskWeekDay : null,
-      due_date: taskCategory === 'custom'? taskDueDate : null,
+      time: taskCategory === 'daily'? taskTime : null,
+      due_date: dueDate,
       difficulty: taskDifficulty,
       estimated_minutes: taskMinutes,
       category_tag: taskTag,
-      type: taskCategory === 'custom'? 'task' : 'habit',
-      done: false,
-      user_id: user.id
+      done: false
+    })
+
+    if (error) {
+      setMessage('Error adding task: ' + error.message)
+    } else {
+      setTask('')
+      setTaskTime('')
+      setTaskDueDate('')
+      setTaskMinutes(30)
+      setTaskTag('general')
+      setMessage('✅ Added')
+      fetchTasks()
     }
-    await supabase.from('tasks').insert([newTask])
-    setTask('')
-    fetchTasks()
   }
 
-  const toggleTask = async (id) => {
-    const t = tasks.find(x => x.id === id)
-    await supabase.from('tasks').update({ done:!t.done }).eq('id', id)
-    fetchTasks()
+  async function toggleTask(id) {
+    const task = tasks.find(t => t.id === id)
+    const { error } = await supabase
+    .from('tasks')
+    .update({ done:!task.done })
+    .eq('id', id)
+    .eq('user_id', user.id)
+    if (!error) fetchTasks()
   }
 
-  const deleteTask = async (id) => {
-    await supabase.from('tasks').delete().eq('id', id)
-    fetchTasks()
+  async function deleteTask(id) {
+    const { error } = await supabase
+    .from('tasks')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+    if (!error) {
+      setMessage('🗑️ Task deleted')
+      fetchTasks()
+    }
   }
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
+  const formatTime = (sec) => {
+    const mins = Math.floor(sec / 60)
+    const secs = sec % 60
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
-  const formatMinutes = (mins) => {
-    const h = Math.floor(mins / 60)
-    const m = mins % 60
-    return h > 0? `${h}h ${m}m` : `${m}m`
+  const formatDate = (date) => {
+    const d = new Date(date)
+    return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
   }
 
-  const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  }
-
-  const formatNoteTime = (timestamp) => {
-    return new Date(timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+  const formatNoteTime = (date) => {
+    return new Date(date).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   }
 
   const togglePomodoro = () => {
@@ -367,149 +553,11 @@ export default function App() {
 
   const resetPomodoro = () => {
     setPomodoroRunning(false)
-    setPomodoroTime(isBreak? 300 : 1500)
+    setIsBreak(false)
+    setPomodoroTime(25 * 60)
   }
 
-  const handlePomodoroComplete = async () => {
-    if (!isBreak) {
-      const newSessions = pomodoroSessions + 1
-      const newMinutes = totalMinutes + 25
-      setPomodoroSessions(newSessions)
-      setTotalMinutes(newMinutes)
-      const today = new Date().toISOString().split('T')[0]
-      await supabase.from('pomodoro_sessions').upsert({
-        user_id: user.id,
-        date: today,
-        sessions_completed: newSessions,
-        total_minutes: newMinutes
-      })
-    }
-    setIsBreak(!isBreak)
-  }
-
-  const toggleMic = () => {
-    if (!('webkitSpeechRecognition' in window)) {
-      setMessage('Voice not supported in this browser')
-      return
-    }
-    if (isListening) {
-      recognitionRef.current?.stop()
-      setIsListening(false)
-    } else {
-      const recognition = new webkitSpeechRecognition()
-      recognition.continuous = true
-      recognition.interimResults = true
-      recognition.onresult = (event) => {
-        let transcript = ''
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript
-        }
-        setNoteText(prev => prev + transcript)
-      }
-      recognition.start()
-      recognitionRef.current = recognition
-      setIsListening(true)
-    }
-  }
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setIsProcessing(true)
-    setMessage('Processing image...')
-    const reader = new FileReader()
-    reader.onload = async (event) => {
-      try {
-        const { data: { text } } = await Tesseract.recognize(event.target.result, 'eng')
-        setNoteText(prev => prev + '\n' + text)
-        setMessage('✅ Text extracted!')
-      } catch {
-        setMessage('❌ OCR failed')
-      }
-      setIsProcessing(false)
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const shareNote = () => {
-    const shareText = `${title}\n\n${noteText}\n\nShared via Discypln`
-    if (navigator.share) {
-      navigator.share({ title, text: shareText })
-    } else {
-      navigator.clipboard.writeText(shareText)
-      setMessage('✅ Copied to clipboard!')
-    }
-  }
-
-  const toggleSelect = (id) => {
-    setSelectedNotes(prev =>
-      prev.includes(id)? prev.filter(x => x!== id) : [...prev, id]
-    )
-  }
-
-  const exportNotesPDF = () => {
-    const selected = notes.filter(n => selectedNotes.includes(n.id))
-    const html = `
-      <html><head><style>
-        body { font-family: Arial; padding: 40px; }
-       .note { page-break-after: always; margin-bottom: 40px; }
-        h1 { color: #333; border-bottom: 2px solid #667eea; }
-       .meta { color: #666; font-size: 12px; margin-bottom: 20px; }
-      </style></head><body>
-        ${selected.map(n => `
-          <div class="note">
-            <h1>${n.title}</h1>
-            <div class="meta">Priority: ${n.priority} | ${formatNoteTime(n.created_at)}</div>
-            <div style="white-space: pre-wrap;">${n.content}</div>
-          </div>
-        `).join('')}
-      </body></html>
-    `
-    const blob = new Blob([html], { type: 'text/html' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'notes-export.html'
-    a.click()
-    setShowExport(false)
-    setSelectedNotes([])
-    setMessage('✅ Exported!')
-  }
-
-  const exportTasksWord = () => {
-    const html = `
-      <html><head><meta charset="UTF-8"></head><body>
-        <h1>Task List - ${new Date().toLocaleDateString()}</h1>
-        <table border="1" style="border-collapse: collapse; width: 100%;">
-          <tr style="background: #667eea; color: white;">
-            <th>Task</th><th>Category</th><th>Difficulty</th><th>Time</th><th>Status</th>
-          </tr>
-          ${tasks.map(t => `
-            <tr>
-              <td>${t.content}</td>
-              <td>${t.category}</td>
-              <td>${t.difficulty}</td>
-              <td>${t.estimated_minutes}m</td>
-              <td>${t.done? '✓' : ''}</td>
-            </tr>
-          `).join('')}
-        </table>
-      </body></html>
-    `
-    const blob = new Blob([html], { type: 'application/msword' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'tasks.doc'
-    a.click()
-    setMessage('✅ Tasks exported!')
-  }
-
-  const exportWeeklyReport = () => {
-    setMessage('✅ Weekly report generated!')
-  }
-
-  // TRANSLATION: HUGGING FACE FIRST, NO API KEYS
+  // TRANSLATION WITH 5 APIs: HuggingFace #1, then Libre, MyMemory, Lingva, Google
   async function translateNote() {
     if (!noteText.trim()) {
       setMessage("Note empty. Type something first.")
@@ -517,20 +565,18 @@ export default function App() {
     }
 
     setLoading(true)
-    setMessage("🌍 Translating with Hugging Face...")
-
-    const textToTranslate = noteText.trim()
     const langName = ALL_LANGUAGES.find(l => l.code === targetLang)?.name || targetLang
 
     // 1. Hugging Face NLLB-200 - FREE, NO KEY, STRONG
     try {
+      setMessage("🌍 Translating with Hugging Face...")
       const res = await fetch(
         "https://api-inference.huggingface.co/models/facebook/nllb-200-distilled-600M",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            inputs: textToTranslate,
+            inputs: noteText.trim(),
             parameters: {
               src_lang: "eng_Latn",
               tgt_lang: getNLLBLangCode(targetLang)
@@ -552,13 +598,13 @@ export default function App() {
     }
 
     // 2. LibreTranslate - FREE, NO KEY
-    setMessage("🌍 Trying LibreTranslate...")
     try {
+      setMessage("🌍 Trying LibreTranslate...")
       const response = await fetch("https://libretranslate.com/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          q: textToTranslate,
+          q: noteText.trim(),
           source: "auto",
           target: targetLang,
           format: "text"
@@ -575,10 +621,41 @@ export default function App() {
       }
     } catch {}
 
-    // 3. Google Free - FREE, NO KEY
-    setMessage("🌍 Trying Google...")
+    // 3. MyMemory - FREE, NO KEY
     try {
-      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(textToTranslate)}`
+      setMessage("🌍 Trying MyMemory...")
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(noteText.trim())}&langpair=en|${targetLang}`
+      const res = await fetch(url)
+      const data = await res.json()
+      if (data.responseStatus === 200 && data.responseData?.translatedText) {
+        const result = data.responseData.translatedText
+        if (!result.includes('Bună')) {
+          setNoteText(result)
+          setMessage(`✅ Translated to ${langName}!`)
+          setLoading(false)
+          return
+        }
+      }
+    } catch {}
+
+    // 4. Lingva - FREE, NO KEY
+    try {
+      setMessage("🌍 Trying Lingva...")
+      const url = `https://lingva.ml/api/v1/en/${targetLang}/${encodeURIComponent(noteText.trim())}`
+      const res = await fetch(url)
+      const data = await res.json()
+      if (data.translation &&!data.translation.includes('Bună')) {
+        setNoteText(data.translation)
+        setMessage(`✅ Translated to ${langName}!`)
+        setLoading(false)
+        return
+      }
+    } catch {}
+
+    // 5. Google Free - FREE, NO KEY
+    try {
+      setMessage("🌍 Trying Google...")
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(noteText.trim())}`
       const res = await fetch(url)
       const parsed = await res.json()
       const translated = parsed[0].map(item => item[0]).join('')
@@ -590,35 +667,225 @@ export default function App() {
       }
     } catch {}
 
-    // 4. MyMemory - FREE, NO KEY, last resort
-    setMessage("🌍 Trying MyMemory...")
-    try {
-      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=en|${targetLang}`
-      const res = await fetch(url)
-      const data = await res.json()
-      if (data.responseStatus === 200 && data.responseData?.translatedText) {
-        const result = data.responseData.translatedText
-        if (!result.includes('Bună')) {
-          setNoteText(result)
-          setMessage(`✅ Translated to ${langName}!`)
-        } else {
-          setMessage("❌ Translation failed. Try shorter text or different language.")
-        }
-      } else {
-        setMessage("❌ All translators failed. Check internet connection.")
-      }
-    } catch (e) {
-      setMessage("❌ No internet: " + e.message)
-    }
+    setMessage("❌ All 5 translators failed. Check internet or try shorter text.")
     setLoading(false)
   }
 
+  const toggleSelect = (id) => {
+    setSelectedNotes(prev =>
+      prev.includes(id)? prev.filter(x => x!== id) : [...prev, id]
+    )
+  }
+
+  const exportNotesPDF = () => {
+    const notesToExport = showExport? notes.filter(n => selectedNotes.includes(n.id)) : notes
+    if (notesToExport.length === 0) {
+      setMessage(showExport? 'Select notes to export' : 'No notes to export')
+      return
+    }
+    const doc = new jsPDF()
+    doc.setFontSize(18)
+    doc.text(`Discypln Notes - ${selectedDate}`, 20, 20)
+    let yPos = 40
+    notesToExport.forEach((note, idx) => {
+      if (yPos > 250) {
+        doc.addPage()
+        yPos = 20
+      }
+      doc.setFontSize(14)
+      doc.text(`${idx + 1}. ${note.title}`, 20, yPos)
+      doc.setFontSize(11)
+      const splitText = doc.splitTextToSize(note.content, 170)
+      splitText.forEach(line => {
+        if (yPos > 270) {
+          doc.addPage()
+          yPos = 20
+        }
+        doc.text(line, 20, yPos)
+        yPos += 6
+      })
+      doc.text(`Priority: ${note.priority}`, 20, yPos)
+      yPos += 12
+    })
+    doc.save(`discypln-notes-${selectedDate}.pdf`)
+    setMessage('✅ PDF exported!')
+    setShowExport(false)
+    setSelectedNotes([])
+  }
+
+  const exportTasksWord = async () => {
+    if (tasks.length === 0) {
+      setMessage('No tasks to export')
+      return
+    }
+    const doc = new Document({
+      sections: [{
+        children: [
+          new Paragraph({
+            children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
+          }),
+        ...tasks.map(t => new Paragraph({
+            children: [
+              new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
+              new TextRun({ text: t.content }),
+              new TextRun({ text: ` [${t.category}]`, italics: true, size: 20 }),
+              new TextRun({ text: t.category_tag && t.category_tag!== 'general'? ` #${t.category_tag}` : '', italics: true, size: 20 })
+            ]
+          }))
+        ]
+      }]
+    })
+    const blob = await Packer.toBlob(doc)
+    saveAs(blob, `discypln-tasks.docx`)
+    setMessage('✅ Word file exported!')
+  }
+
+  const getStreak = () => {
+    let streak = 0
+    const today = new Date()
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      const dateStr = d.toISOString().split('T')[0]
+      const dayHabits = tasks.filter(t => t.type === 'habit' && t.due_date === dateStr)
+      if (dayHabits.length === 0) continue
+      const dayCompleted = dayHabits.filter(t => t.done).length
+      if (dayCompleted === dayHabits.length && dayHabits.length > 0) {
+        streak++
+      } else {
+        break
+      }
+    }
+    return streak
+  }
+  const streak = getStreak()
+
+  const exportWeeklyReport = async () => {
+    const jsPDF = (await import('jspdf')).default
+    const autoTable = (await import('jspdf-autotable')).default
+
+    const now = new Date()
+    const startOfWeek = new Date(now)
+    startOfWeek.setDate(now.getDate() - now.getDay() + 1)
+    startOfWeek.setHours(0,0,0,0)
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(startOfWeek.getDate() + 6)
+    endOfWeek.setHours(23,59,59,999)
+
+    const weekStr = `${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`
+
+    const weekTasks = tasks.filter(t => {
+      if (!t.done) return false
+      const taskDate = new Date(t.updated_at || t.due_date)
+      return taskDate >= startOfWeek && taskDate <= endOfWeek
+    })
+
+    const totalMins = weekTasks.reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
+
+    const categoryStats = {}
+    weekTasks.forEach(t => {
+      const cat = t.category_tag || 'Uncategorized'
+      if (!categoryStats[cat]) categoryStats[cat] = {count: 0, mins: 0}
+      categoryStats[cat].count += 1
+      categoryStats[cat].mins += t.estimated_minutes || 0
+    })
+
+    const doc = new jsPDF()
+    doc.setFontSize(20)
+    doc.text('Discypln Weekly Report - Tasks', 14, 20)
+    doc.setFontSize(12)
+    doc.text(`Week: ${weekStr}`, 14, 30)
+    doc.text(`Tasks Completed: ${weekTasks.length}`, 14, 38)
+    doc.text(`Total Focus Time: ${formatMinutes(totalMins)}`, 14, 46)
+    doc.text(`Current Streak: ${streak} days`, 14, 54)
+
+    let yPos = 54
+    Object.entries(categoryStats).forEach(([cat, stats]) => {
+      yPos += 7
+      doc.setFontSize(11)
+      doc.text(`• ${cat}: ${stats.count} tasks, ${formatMinutes(stats.mins)}`, 14, yPos)
+    })
+
+    autoTable(doc, {
+      startY: yPos + 10,
+      head: [['Date', 'Task', 'Category', 'Time']],
+      body: weekTasks.map(t => [
+        new Date(t.updated_at || t.due_date).toLocaleDateString(),
+        t.content,
+        t.category_tag,
+        formatMinutes(t.estimated_minutes)
+      ]),
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [41, 128, 185] }
+    })
+
+    doc.save(`Discypln_Weekly_Tasks_${weekStr.replace(/\//g, '-')}.pdf`)
+  }
+
+  const getWeekDays = () => {
+    const today = new Date()
+    const days = []
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      days.push(d.toISOString().split('T')[0])
+    }
+    return days
+  }
+
+  const weekDays = getWeekDays()
+  const todayStr = new Date().toISOString().split('T')[0]
+  const todayTasks = tasks.filter(t => t.due_date === todayStr || (t.category === 'daily' && t.type === 'habit'))
+    const todayCompleted = todayTasks.filter(t => t.done).length
+  const todayScore = todayTasks.length > 0? Math.round((todayCompleted / todayTasks.length) * 100) : 0
+
+  const weeklyTasks = tasks.filter(t => t.due_date && weekDays.includes(t.due_date))
+  const weeklyCompleted = weeklyTasks.filter(t => t.done).length
+  const weeklyScore = weeklyTasks.length > 0? Math.round((weeklyCompleted / weeklyTasks.length) * 100) : 0
+
+  const totalMinutes = tasks.filter(t => t.done).reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
+
+  const getFailedDays = () => {
+    const failed = []
+    const today = new Date()
+    for (let i = 1; i <= 7; i++) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      const dateStr = d.toISOString().split('T')[0]
+      const dayHabits = tasks.filter(t => t.type === 'habit' && t.due_date === dateStr)
+      if (dayHabits.length > 0) {
+        const completed = dayHabits.filter(t => t.done).length
+        if (completed < dayHabits.length) {
+          failed.push({
+            date: dateStr,
+            completed,
+            total: dayHabits.length
+          })
+        }
+      }
+    }
+    return failed
+  }
+  const failedDays = getFailedDays()
+
+  const filteredTasks =
+    activeCategory === 'all'
+   ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+      : tasks
+     .filter(t => t.category === activeCategory)
+     .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+
+  const filteredNotes = notes.filter(note =>
+    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    note.content.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
   if (!user) {
     return (
-      <div className="auth-page">
-        <div className="auth-card">
-          <h1 className="auth-logo">Discypln</h1>
-          <p className="auth-tagline">Master your focus</p>
+      <div className="auth-container">
+        <h1 className="logo">Discypln</h1>
+        <div className="auth-box">
+          <h2>Login / Sign Up</h2>
           <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
           <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="input" />
           <div className="btn-group">
@@ -639,7 +906,7 @@ export default function App() {
           <button onClick={goBack} style={{flex:'0 0 auto'}}>{'<'}</button>
           <div style={{display:'flex', gap:'4px', flex:'1 1 auto', justifyContent:'center', maxWidth:'200px'}}>
             <select
-             value={targetLang}
+            value={targetLang}
               onChange={(e) => setTargetLang(e.target.value)}
               style={{background:'#1a1a1a', color:'#fff', border:'1px solid #333', padding:'4px 6px', borderRadius:'6px', fontSize:'11px', flex:'1'}}
             >
@@ -807,7 +1074,7 @@ export default function App() {
         <div className="card clock-card">
           <div className="clock-time">{currentTime.toLocaleTimeString()}</div>
           <div className="clock-date">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
-                    <div className="clock-status">
+          <div className="clock-status">
             {pomodoroRunning? '🟢 Dscypln Session Active' : '🔴 Paused'}
           </div>
           <div className="stopwatch">
@@ -830,7 +1097,7 @@ export default function App() {
           <div className="stat-grid">
             <div className="stat-item">
               <span className="stat-label">Today</span>
-              <strong className="stat-value">{formatMinutes(totalMinutes)}</strong>
+              <strong className="stat-value">{todayScore}%</strong>
             </div>
             <div className="stat-item">
               <span className="stat-label">This Week</span>
@@ -844,7 +1111,6 @@ export default function App() {
               <span className="stat-label">Deep Work</span>
               <strong className="stat-value">{Math.floor(totalMinutes/60)}h {totalMinutes%60}m</strong>
             </div>
-          </div>
           <div style={{marginTop:'20px'}}>
             <h3 style={{fontSize:'14px', color:'#ccc', marginBottom:'8px'}}>Heatmap</h3>
             <div style={{display:'grid', gridTemplateColumns:'repeat(10, 1fr)', gap:'3px', maxWidth:'400px'}}>
@@ -1080,5 +1346,4 @@ export default function App() {
       )}
     </div>
   )
-            }
-      
+    }
