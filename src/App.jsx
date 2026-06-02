@@ -46,8 +46,8 @@ export default function App() {
   const [taskWeekDay, setTaskWeekDay] = useState('monday')
   const [taskDifficulty, setTaskDifficulty] = useState('medium')
   const [taskMinutes, setTaskMinutes] = useState(30)
-  const [taskTag, setTaskTag] = useState('general') // NEW
-  const [editingTask, setEditingTask] = useState(null) 
+  const [taskTag, setTaskTag] = useState('general')
+  const [editingTask, setEditingTask] = useState(null)
   const formatMinutes = (mins) => {
   if (!mins || mins === 0) return '0m'
   const hours = Math.floor(mins / 60)
@@ -57,7 +57,7 @@ export default function App() {
   return `${hours}h ${minutes}m`
 }
   const [activeCategory, setActiveCategory] = useState('all')
-  const [targetLang, setTargetLang] = useState("yo") // default Yoruba
+  const [targetLang, setTargetLang] = useState("yo")
 
 const ALL_LANGUAGES = [
   {code:"af",name:"Afrikaans"},{code:"sq",name:"Albanian"},{code:"am",name:"Amharic"},{code:"ar",name:"Arabic"},
@@ -94,7 +94,7 @@ useEffect(() => {
   if (message) {
     const timer = setTimeout(() => {
       setMessage('')
-    }, 2000) // 2 seconds
+    }, 2000)
     return () => clearTimeout(timer)
   }
 }, [message])
@@ -134,7 +134,6 @@ useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     return () => clearInterval(timer)
   }, [])
-  
 
   useEffect(() => {
     let interval
@@ -157,7 +156,6 @@ useEffect(() => {
     }
     return () => clearInterval(interval)
   }, [pomodoroRunning, isBreak])
-
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -208,12 +206,12 @@ useEffect(() => {
       setIsListening(false)
     } else {
       navigator.mediaDevices.getUserMedia({ audio: true })
-     .then(() => {
+    .then(() => {
           recognitionRef.current.start()
           setIsListening(true)
           setMessage('🎤 Say comma, full stop, new line for punctuation')
         })
-     .catch((err) => {
+    .catch((err) => {
           console.error(err)
           setMessage('Microphone permission denied. Tap the lock icon in Brave/Chrome > Site settings > Microphone > Allow')
           setIsListening(false)
@@ -243,11 +241,11 @@ useEffect(() => {
     if (!user) return
     setLoading(true)
     const { data, error } = await supabase
-   .from('notes')
-   .select('*')
-   .eq('user_id', user.id)
-   .eq('date', selectedDate)
-   .order('created_at', { ascending: false })
+  .from('notes')
+  .select('*')
+  .eq('user_id', user.id)
+  .eq('date', selectedDate)
+  .order('created_at', { ascending: false })
     setLoading(false)
     if (error) {
       console.error('Fetch error:', error)
@@ -260,10 +258,10 @@ useEffect(() => {
   async function fetchTasks() {
     if (!user) return
     const { data, error } = await supabase
-   .from('tasks')
-   .select('*')
-   .eq('user_id', user.id)
-   .order('created_at', { ascending: false })
+  .from('tasks')
+  .select('*')
+  .eq('user_id', user.id)
+  .order('created_at', { ascending: false })
     if (error) {
       console.error('Fetch tasks error:', error)
     } else {
@@ -306,14 +304,14 @@ useEffect(() => {
 
     if (editingNote) {
       const { error } = await supabase
-     .from('notes')
-     .update({
+    .from('notes')
+    .update({
           title: title.trim(),
           content: noteText.trim(),
           priority
         })
-     .eq('id', editingNote.id)
-     .eq('user_id', user.id)
+    .eq('id', editingNote.id)
+    .eq('user_id', user.id)
 
       if (error) setMessage('Error: ' + error.message)
       else {
@@ -327,8 +325,8 @@ useEffect(() => {
       }
     } else {
       const { error } = await supabase
-     .from('notes')
-     .insert({
+    .from('notes')
+    .insert({
           user_id: user.id,
           date: selectedDate,
           title: title.trim(),
@@ -375,10 +373,10 @@ useEffect(() => {
 
   async function deleteNote(id) {
     const { error } = await supabase
-   .from('notes')
-   .delete()
-   .eq('id', id)
-   .eq('user_id', user.id)
+  .from('notes')
+  .delete()
+  .eq('id', id)
+  .eq('user_id', user.id)
     if (error) {
       setMessage('Delete failed: ' + error.message)
     } else {
@@ -440,7 +438,7 @@ useEffect(() => {
       due_date: dueDate,
       difficulty: taskDifficulty,
       estimated_minutes: taskMinutes,
-      category_tag: taskTag, // NEW
+      category_tag: taskTag,
       done: false
     })
 
@@ -451,7 +449,7 @@ useEffect(() => {
       setTaskTime('')
       setTaskDueDate('')
       setTaskMinutes(30)
-      setTaskTag('general') // NEW
+      setTaskTag('general')
       setMessage('✅ Added')
       fetchTasks()
     }
@@ -460,19 +458,19 @@ useEffect(() => {
   async function toggleTask(id) {
     const task = tasks.find(t => t.id === id)
     const { error } = await supabase
-   .from('tasks')
-   .update({ done:!task.done })
-   .eq('id', id)
-   .eq('user_id', user.id)
+  .from('tasks')
+  .update({ done:!task.done })
+  .eq('id', id)
+  .eq('user_id', user.id)
     if (!error) fetchTasks()
   }
 
   async function deleteTask(id) {
     const { error } = await supabase
-   .from('tasks')
-   .delete()
-   .eq('id', id)
-   .eq('user_id', user.id)
+  .from('tasks')
+  .delete()
+  .eq('id', id)
+  .eq('user_id', user.id)
     if (!error) {
       setMessage('🗑️ Task deleted')
       fetchTasks()
@@ -505,32 +503,67 @@ useEffect(() => {
     setIsBreak(false)
     setPomodoroTime(25 * 60)
   }
-async function translateNote() {
-  if (!noteText.trim()) {
-    setMessage("Note empty. Type something first.")
-    return
-  }
-  
-  setLoading(true)
-  setMessage("🌍 Translating...")
-  
-  try {
-    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(noteText)}&langpair=auto|${targetLang}`
-    const response = await fetch(url)
-    const data = await response.json()
-    
-    if (data.responseStatus === 200) {
-      setNoteText(data.responseData.translatedText)
-      const langName = ALL_LANGUAGES.find(l => l.code === targetLang)?.name
-      setMessage(`✅ Translated to ${langName}!`)
-    } else {
-      setMessage("Translation failed")
+
+  // TRANSLATION WITH 2 APIs: LibreTranslate primary, MyMemory backup
+  async function translateNote() {
+    if (!noteText.trim()) {
+      setMessage("Note empty. Type something first.")
+      return
     }
-  } catch (err) {
-    setMessage("No internet: " + err.message)
+
+    setLoading(true)
+    setMessage("🌍 Translating...")
+
+    try {
+      // PRIMARY: LibreTranslate - no key, better quality
+      const response = await fetch("https://libretranslate.de/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          q: noteText,
+          source: "en",
+          target: targetLang,
+          format: "text"
+        })
+      })
+
+      if (!response.ok) throw new Error('LibreTranslate unavailable')
+
+      const data = await response.json()
+
+      if (data.translatedText) {
+        setNoteText(data.translatedText)
+        const langName = ALL_LANGUAGES.find(l => l.code === targetLang)?.name || targetLang
+        setMessage(`✅ Translated to ${langName}!`)
+        setLoading(false)
+        return
+      }
+      throw new Error('No translation returned')
+
+    } catch (err) {
+      // BACKUP: MyMemory if LibreTranslate fails
+      try {
+        setMessage("🌍 Using backup translator...")
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(noteText)}&langpair=en|${targetLang}`
+        const res = await fetch(url)
+        const data = await res.json()
+
+        if (data.responseStatus === 200 && data.responseData?.translatedText) {
+          setNoteText(data.responseData.translatedText)
+          const langName = ALL_LANGUAGES.find(l => l.code === targetLang)?.name || targetLang
+          setMessage(`✅ Translated to ${langName}!`)
+        } else if (data.responseStatus === 403) {
+          setMessage("⚠️ Translation limit reached. Try shorter text.")
+        } else {
+          setMessage("❌ Translation failed. Both services down.")
+        }
+      } catch (e) {
+        setMessage("❌ No internet: " + e.message)
+      }
+    }
+    setLoading(false)
   }
-  setLoading(false)
-}
+
   const toggleSelect = (id) => {
     setSelectedNotes(prev =>
       prev.includes(id)? prev.filter(x => x!== id) : [...prev, id]
@@ -584,7 +617,7 @@ async function translateNote() {
           new Paragraph({
             children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
           }),
-        ...tasks.map(t => new Paragraph({
+       ...tasks.map(t => new Paragraph({
             children: [
               new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
               new TextRun({ text: t.content }),
@@ -599,15 +632,34 @@ async function translateNote() {
     saveAs(blob, `discypln-tasks.docx`)
     setMessage('✅ Word file exported!')
   }
- 
- 
+
+  const getStreak = () => {
+    let streak = 0
+    const today = new Date()
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      const dateStr = d.toISOString().split('T')[0]
+      const dayHabits = tasks.filter(t => t.type === 'habit' && t.due_date === dateStr)
+      if (dayHabits.length === 0) continue
+      const dayCompleted = dayHabits.filter(t => t.done).length
+      if (dayCompleted === dayHabits.length && dayHabits.length > 0) {
+        streak++
+      } else {
+        break
+      }
+    }
+    return streak
+  }
+  const streak = getStreak()
+
  const exportWeeklyReport = async () => {
   const jsPDF = (await import('jspdf')).default
   const autoTable = (await import('jspdf-autotable')).default
 
   const now = new Date()
   const startOfWeek = new Date(now)
-  startOfWeek.setDate(now.getDate() - now.getDay() + 1) // Monday
+  startOfWeek.setDate(now.getDate() - now.getDay() + 1)
   startOfWeek.setHours(0,0,0,0)
   const endOfWeek = new Date(startOfWeek)
   endOfWeek.setDate(startOfWeek.getDate() + 6)
@@ -615,16 +667,14 @@ async function translateNote() {
 
   const weekStr = `${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`
 
-  // Filter completed tasks this week
   const weekTasks = tasks.filter(t => {
-    if (!t.completed) return false
-    const taskDate = new Date(t.completed_at || t.due_date)
+    if (!t.done) return false
+    const taskDate = new Date(t.updated_at || t.due_date)
     return taskDate >= startOfWeek && taskDate <= endOfWeek
   })
 
   const totalMins = weekTasks.reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
 
-  // Category breakdown
   const categoryStats = {}
   weekTasks.forEach(t => {
     const cat = t.category_tag || 'Uncategorized'
@@ -642,7 +692,6 @@ async function translateNote() {
   doc.text(`Total Focus Time: ${formatMinutes(totalMins)}`, 14, 46)
   doc.text(`Current Streak: ${streak} days`, 14, 54)
 
-  // Add category summary to PDF
   let yPos = 54
   Object.entries(categoryStats).forEach(([cat, stats]) => {
     yPos += 7
@@ -650,12 +699,11 @@ async function translateNote() {
     doc.text(`• ${cat}: ${stats.count} tasks, ${formatMinutes(stats.mins)}`, 14, yPos)
   })
 
-  // Table with grid lines
   autoTable(doc, {
     startY: yPos + 10,
     head: [['Date', 'Task', 'Category', 'Time']],
     body: weekTasks.map(t => [
-      new Date(t.completed_at || t.due_date).toLocaleDateString(),
+      new Date(t.updated_at || t.due_date).toLocaleDateString(),
       t.content,
       t.category_tag,
       formatMinutes(t.estimated_minutes)
@@ -690,26 +738,6 @@ async function translateNote() {
 
   const totalMinutes = tasks.filter(t => t.done).reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
 
-  const getStreak = () => {
-    let streak = 0
-    const today = new Date()
-    for (let i = 0; i < 30; i++) {
-      const d = new Date(today)
-      d.setDate(today.getDate() - i)
-      const dateStr = d.toISOString().split('T')[0]
-      const dayHabits = tasks.filter(t => t.type === 'habit' && t.due_date === dateStr)
-      if (dayHabits.length === 0) continue
-      const dayCompleted = dayHabits.filter(t => t.done).length
-      if (dayCompleted === dayHabits.length && dayHabits.length > 0) {
-        streak++
-      } else {
-        break
-      }
-    }
-    return streak
-  }
-  const streak = getStreak()
-
   const getFailedDays = () => {
     const failed = []
     const today = new Date()
@@ -735,10 +763,10 @@ async function translateNote() {
 
   const filteredTasks =
     activeCategory === 'all'
-   ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+  ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
       : tasks
-     .filter(t => t.category === activeCategory)
-     .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+    .filter(t => t.category === activeCategory)
+    .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
 
   const filteredNotes = notes.filter(note =>
     note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -768,11 +796,9 @@ async function translateNote() {
     return (
       <div className="editor-page">
         <header className="editor-header" style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px', gap:'8px'}}>
-  
-  {/* Left: Back */}
+
   <button onClick={goBack} style={{flex:'0 0 auto'}}>{'<'}</button>
 
-  {/* Middle: Translate dropdown + button */}
   <div style={{display:'flex', gap:'4px', flex:'1 1 auto', justifyContent:'center', maxWidth:'200px'}}>
     <select
       value={targetLang}
@@ -786,7 +812,6 @@ async function translateNote() {
     <button onClick={translateNote} style={{padding:'4px 8px', fontSize:'14px'}}>🌍</button>
   </div>
 
-  {/* Right: Save */}
   <button onClick={saveNote} style={{flex:'0 0 auto'}}>Save</button>
 </header>
         <div className="editor-body">
@@ -822,7 +847,7 @@ async function translateNote() {
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Title"
                     className="title-input"
-                    style={{ fontFamily: titleFont.includes(' ')? `'${titleFont}', serif` : titleFont, fontSize: '24px', fontWeight: '600' }}
+                                        style={{ fontFamily: titleFont.includes(' ')? `'${titleFont}', serif` : titleFont, fontSize: '24px', fontWeight: '600' }}
                   />
                 </>
               )}
@@ -977,7 +1002,6 @@ async function translateNote() {
               <span className="stat-label">Deep Work</span>
               <strong className="stat-value">{Math.floor(totalMinutes/60)}h {totalMinutes%60}m</strong>
             </div>
-          </div>
           <div style={{marginTop:'20px'}}>
   <h3 style={{fontSize:'14px', color:'#ccc', marginBottom:'8px'}}>Heatmap</h3>
 
@@ -988,8 +1012,8 @@ async function translateNote() {
       const dateStr = date.toISOString().split('T')[0]
 
       const dayTasks = tasks.filter(t => {
-        if (!t.completed) return false
-        const taskDate = new Date(t.completed_at || t.due_date).toISOString().split('T')[0]
+        if (!t.done) return false
+        const taskDate = new Date(t.updated_at || t.due_date).toISOString().split('T')[0]
         return taskDate === dateStr
       })
 
@@ -1089,7 +1113,7 @@ async function translateNote() {
       ))}
 
       <div className="button-row" style={{display:'flex', gap:'10px'}}>
-  <button onClick={() => setShowExport(!showExport)} className="btn full-width">{showExport ? 'Hide' : 'Export Notes'}</button>
+  <button onClick={() => setShowExport(!showExport)} className="btn full-width">{showExport? 'Hide' : 'Export Notes'}</button>
   <button onClick={exportTasksWord} className="btn full-width">Export Tasks Word</button>
   <button onClick={exportWeeklyReport} className="btn full-width primary">Export Weekly Report</button>
 </div>
@@ -1215,4 +1239,4 @@ async function translateNote() {
 )}
     </div>
   )
-}
+                  }
