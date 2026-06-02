@@ -699,6 +699,7 @@ body {
     font-size: 1.5rem;
   }
 }
+<<<<<<< HEAD
 .task-tag.habit { 
   background: rgba(34, 197, 94, 0.15); 
   color: var(--success); 
@@ -714,3 +715,5 @@ body {
   margin-bottom: 12px;
   font-weight: 600;
 }
+=======
+>>>>>>> 13f1f17ef82ba063552f80c23532c655682b0601
