@@ -49,55 +49,55 @@ export default function App() {
   const [taskTag, setTaskTag] = useState('general')
   const [editingTask, setEditingTask] = useState(null)
   const formatMinutes = (mins) => {
-  if (!mins || mins === 0) return '0m'
-  const hours = Math.floor(mins / 60)
-  const minutes = mins % 60
-  if (hours === 0) return `${minutes}m`
-  if (minutes === 0) return `${hours}h`
-  return `${hours}h ${minutes}m`
-}
-  const [activeCategory, setActiveCategory] = useState('all')
-  const [targetLang, setTargetLang] = useState("yo")
-
-const ALL_LANGUAGES = [
-  {code:"af",name:"Afrikaans"},{code:"sq",name:"Albanian"},{code:"am",name:"Amharic"},{code:"ar",name:"Arabic"},
-  {code:"hy",name:"Armenian"},{code:"az",name:"Azerbaijani"},{code:"eu",name:"Basque"},{code:"be",name:"Belarusian"},
-  {code:"bn",name:"Bengali"},{code:"bs",name:"Bosnian"},{code:"bg",name:"Bulgarian"},{code:"ca",name:"Catalan"},
-  {code:"ceb",name:"Cebuano"},{code:"ny",name:"Chichewa"},{code:"zh-CN",name:"Chinese Simplified"},{code:"zh-TW",name:"Chinese Traditional"},
-  {code:"co",name:"Corsican"},{code:"hr",name:"Croatian"},{code:"cs",name:"Czech"},{code:"da",name:"Danish"},
-  {code:"nl",name:"Dutch"},{code:"en",name:"English"},{code:"eo",name:"Esperanto"},{code:"et",name:"Estonian"},
-  {code:"tl",name:"Filipino"},{code:"fi",name:"Finnish"},{code:"fr",name:"French"},{code:"fy",name:"Frisian"},
-  {code:"gl",name:"Galician"},{code:"ka",name:"Georgian"},{code:"de",name:"German"},{code:"el",name:"Greek"},
-  {code:"gu",name:"Gujarati"},{code:"ht",name:"Haitian Creole"},{code:"ha",name:"Hausa"},{code:"haw",name:"Hawaiian"},
-  {code:"he",name:"Hebrew"},{code:"hi",name:"Hindi"},{code:"hmn",name:"Hmong"},{code:"hu",name:"Hungarian"},
-  {code:"is",name:"Icelandic"},{code:"ig",name:"Igbo"},{code:"id",name:"Indonesian"},{code:"ga",name:"Irish"},
-  {code:"it",name:"Italian"},{code:"ja",name:"Japanese"},{code:"jw",name:"Javanese"},{code:"kn",name:"Kannada"},
-  {code:"kk",name:"Kazakh"},{code:"km",name:"Khmer"},{code:"rw",name:"Kinyarwanda"},{code:"ko",name:"Korean"},
-  {code:"ku",name:"Kurdish"},{code:"ky",name:"Kyrgyz"},{code:"lo",name:"Lao"},{code:"la",name:"Latin"},
-  {code:"lv",name:"Latvian"},{code:"lt",name:"Lithuanian"},{code:"lb",name:"Luxembourgish"},{code:"mk",name:"Macedonian"},
-  {code:"mg",name:"Malagasy"},{code:"ms",name:"Malay"},{code:"ml",name:"Malayalam"},{code:"mt",name:"Maltese"},
-  {code:"mi",name:"Maori"},{code:"mr",name:"Marathi"},{code:"mn",name:"Mongolian"},{code:"my",name:"Myanmar"},
-  {code:"ne",name:"Nepali"},{code:"no",name:"Norwegian"},{code:"or",name:"Odia"},{code:"ps",name:"Pashto"},
-  {code:"fa",name:"Persian"},{code:"pl",name:"Polish"},{code:"pt",name:"Portuguese"},{code:"pa",name:"Punjabi"},
-  {code:"ro",name:"Romanian"},{code:"ru",name:"Russian"},{code:"sm",name:"Samoan"},{code:"gd",name:"Scots Gaelic"},
-  {code:"sr",name:"Serbian"},{code:"st",name:"Sesotho"},{code:"sn",name:"Shona"},{code:"sd",name:"Sindhi"},
-  {code:"si",name:"Sinhala"},{code:"sk",name:"Slovak"},{code:"sl",name:"Slovenian"},{code:"so",name:"Somali"},
-  {code:"es",name:"Spanish"},{code:"su",name:"Sundanese"},{code:"sw",name:"Swahili"},{code:"sv",name:"Swedish"},
-  {code:"tg",name:"Tajik"},{code:"ta",name:"Tamil"},{code:"tt",name:"Tatar"},{code:"te",name:"Telugu"},
-  {code:"th",name:"Thai"},{code:"tr",name:"Turkish"},{code:"tk",name:"Turkmen"},{code:"uk",name:"Ukrainian"},
-  {code:"ur",name:"Urdu"},{code:"ug",name:"Uyghur"},{code:"uz",name:"Uzbek"},{code:"vi",name:"Vietnamese"},
-  {code:"cy",name:"Welsh"},{code:"xh",name:"Xhosa"},{code:"yi",name:"Yiddish"},{code:"yo",name:"Yoruba"},{code:"zu",name:"Zulu"}
-]
-const [message, setMessage] = useState('')
-
-useEffect(() => {
-  if (message) {
-    const timer = setTimeout(() => {
-      setMessage('')
-    }, 2000)
-    return () => clearTimeout(timer)
+    if (!mins || mins === 0) return '0m'
+    const hours = Math.floor(mins / 60)
+    const minutes = mins % 60
+    if (hours === 0) return `${minutes}m`
+    if (minutes === 0) return `${hours}h`
+    return `${hours}h ${minutes}m`
   }
-}, [message])
+  const [activeCategory, setActiveCategory] = useState('all')
+  const [targetLang, setTargetLang] = useState("fr")
+
+  const ALL_LANGUAGES = [
+    {code:"af",name:"Afrikaans"},{code:"sq",name:"Albanian"},{code:"am",name:"Amharic"},{code:"ar",name:"Arabic"},
+    {code:"hy",name:"Armenian"},{code:"az",name:"Azerbaijani"},{code:"eu",name:"Basque"},{code:"be",name:"Belarusian"},
+    {code:"bn",name:"Bengali"},{code:"bs",name:"Bosnian"},{code:"bg",name:"Bulgarian"},{code:"ca",name:"Catalan"},
+    {code:"ceb",name:"Cebuano"},{code:"ny",name:"Chichewa"},{code:"zh-CN",name:"Chinese Simplified"},{code:"zh-TW",name:"Chinese Traditional"},
+    {code:"co",name:"Corsican"},{code:"hr",name:"Croatian"},{code:"cs",name:"Czech"},{code:"da",name:"Danish"},
+    {code:"nl",name:"Dutch"},{code:"en",name:"English"},{code:"eo",name:"Esperanto"},{code:"et",name:"Estonian"},
+    {code:"tl",name:"Filipino"},{code:"fi",name:"Finnish"},{code:"fr",name:"French"},{code:"fy",name:"Frisian"},
+    {code:"gl",name:"Galician"},{code:"ka",name:"Georgian"},{code:"de",name:"German"},{code:"el",name:"Greek"},
+    {code:"gu",name:"Gujarati"},{code:"ht",name:"Haitian Creole"},{code:"ha",name:"Hausa"},{code:"haw",name:"Hawaiian"},
+    {code:"he",name:"Hebrew"},{code:"hi",name:"Hindi"},{code:"hmn",name:"Hmong"},{code:"hu",name:"Hungarian"},
+    {code:"is",name:"Icelandic"},{code:"ig",name:"Igbo"},{code:"id",name:"Indonesian"},{code:"ga",name:"Irish"},
+    {code:"it",name:"Italian"},{code:"ja",name:"Japanese"},{code:"jw",name:"Javanese"},{code:"kn",name:"Kannada"},
+    {code:"kk",name:"Kazakh"},{code:"km",name:"Khmer"},{code:"rw",name:"Kinyarwanda"},{code:"ko",name:"Korean"},
+    {code:"ku",name:"Kurdish"},{code:"ky",name:"Kyrgyz"},{code:"lo",name:"Lao"},{code:"la",name:"Latin"},
+    {code:"lv",name:"Latvian"},{code:"lt",name:"Lithuanian"},{code:"lb",name:"Luxembourgish"},{code:"mk",name:"Macedonian"},
+    {code:"mg",name:"Malagasy"},{code:"ms",name:"Malay"},{code:"ml",name:"Malayalam"},{code:"mt",name:"Maltese"},
+    {code:"mi",name:"Maori"},{code:"mr",name:"Marathi"},{code:"mn",name:"Mongolian"},{code:"my",name:"Myanmar"},
+    {code:"ne",name:"Nepali"},{code:"no",name:"Norwegian"},{code:"or",name:"Odia"},{code:"ps",name:"Pashto"},
+    {code:"fa",name:"Persian"},{code:"pl",name:"Polish"},{code:"pt",name:"Portuguese"},{code:"pa",name:"Punjabi"},
+    {code:"ro",name:"Romanian"},{code:"ru",name:"Russian"},{code:"sm",name:"Samoan"},{code:"gd",name:"Scots Gaelic"},
+    {code:"sr",name:"Serbian"},{code:"st",name:"Sesotho"},{code:"sn",name:"Shona"},{code:"sd",name:"Sindhi"},
+    {code:"si",name:"Sinhala"},{code:"sk",name:"Slovak"},{code:"sl",name:"Slovenian"},{code:"so",name:"Somali"},
+    {code:"es",name:"Spanish"},{code:"su",name:"Sundanese"},{code:"sw",name:"Swahili"},{code:"sv",name:"Swedish"},
+    {code:"tg",name:"Tajik"},{code:"ta",name:"Tamil"},{code:"tt",name:"Tatar"},{code:"te",name:"Telugu"},
+    {code:"th",name:"Thai"},{code:"tr",name:"Turkish"},{code:"tk",name:"Turkmen"},{code:"uk",name:"Ukrainian"},
+    {code:"ur",name:"Urdu"},{code:"ug",name:"Uyghur"},{code:"uz",name:"Uzbek"},{code:"vi",name:"Vietnamese"},
+    {code:"cy",name:"Welsh"},{code:"xh",name:"Xhosa"},{code:"yi",name:"Yiddish"},{code:"yo",name:"Yoruba"},{code:"zu",name:"Zulu"}
+  ]
+  const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage('')
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [message])
   const [currentTime, setCurrentTime] = useState(new Date())
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -206,12 +206,12 @@ useEffect(() => {
       setIsListening(false)
     } else {
       navigator.mediaDevices.getUserMedia({ audio: true })
-    .then(() => {
+       .then(() => {
           recognitionRef.current.start()
           setIsListening(true)
           setMessage('🎤 Say comma, full stop, new line for punctuation')
         })
-    .catch((err) => {
+       .catch((err) => {
           console.error(err)
           setMessage('Microphone permission denied. Tap the lock icon in Brave/Chrome > Site settings > Microphone > Allow')
           setIsListening(false)
@@ -241,11 +241,11 @@ useEffect(() => {
     if (!user) return
     setLoading(true)
     const { data, error } = await supabase
-  .from('notes')
-  .select('*')
-  .eq('user_id', user.id)
-  .eq('date', selectedDate)
-  .order('created_at', { ascending: false })
+     .from('notes')
+     .select('*')
+     .eq('user_id', user.id)
+     .eq('date', selectedDate)
+     .order('created_at', { ascending: false })
     setLoading(false)
     if (error) {
       console.error('Fetch error:', error)
@@ -258,10 +258,10 @@ useEffect(() => {
   async function fetchTasks() {
     if (!user) return
     const { data, error } = await supabase
-  .from('tasks')
-  .select('*')
-  .eq('user_id', user.id)
-  .order('created_at', { ascending: false })
+     .from('tasks')
+     .select('*')
+     .eq('user_id', user.id)
+     .order('created_at', { ascending: false })
     if (error) {
       console.error('Fetch tasks error:', error)
     } else {
@@ -304,14 +304,14 @@ useEffect(() => {
 
     if (editingNote) {
       const { error } = await supabase
-    .from('notes')
-    .update({
+       .from('notes')
+       .update({
           title: title.trim(),
           content: noteText.trim(),
           priority
         })
-    .eq('id', editingNote.id)
-    .eq('user_id', user.id)
+       .eq('id', editingNote.id)
+       .eq('user_id', user.id)
 
       if (error) setMessage('Error: ' + error.message)
       else {
@@ -325,8 +325,8 @@ useEffect(() => {
       }
     } else {
       const { error } = await supabase
-    .from('notes')
-    .insert({
+       .from('notes')
+       .insert({
           user_id: user.id,
           date: selectedDate,
           title: title.trim(),
@@ -373,10 +373,10 @@ useEffect(() => {
 
   async function deleteNote(id) {
     const { error } = await supabase
-  .from('notes')
-  .delete()
-  .eq('id', id)
-  .eq('user_id', user.id)
+     .from('notes')
+     .delete()
+     .eq('id', id)
+     .eq('user_id', user.id)
     if (error) {
       setMessage('Delete failed: ' + error.message)
     } else {
@@ -458,19 +458,19 @@ useEffect(() => {
   async function toggleTask(id) {
     const task = tasks.find(t => t.id === id)
     const { error } = await supabase
-  .from('tasks')
-  .update({ done:!task.done })
-  .eq('id', id)
-  .eq('user_id', user.id)
+     .from('tasks')
+     .update({ done:!task.done })
+     .eq('id', id)
+     .eq('user_id', user.id)
     if (!error) fetchTasks()
   }
 
   async function deleteTask(id) {
     const { error } = await supabase
-  .from('tasks')
-  .delete()
-  .eq('id', id)
-  .eq('user_id', user.id)
+     .from('tasks')
+     .delete()
+     .eq('id', id)
+     .eq('user_id', user.id)
     if (!error) {
       setMessage('🗑️ Task deleted')
       fetchTasks()
@@ -515,7 +515,6 @@ useEffect(() => {
     setMessage("🌍 Translating...")
 
     try {
-      // PRIMARY: LibreTranslate - no key, better quality
       const response = await fetch("https://libretranslate.de/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -541,7 +540,6 @@ useEffect(() => {
       throw new Error('No translation returned')
 
     } catch (err) {
-      // BACKUP: MyMemory if LibreTranslate fails
       try {
         setMessage("🌍 Using backup translator...")
         const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(noteText)}&langpair=en|${targetLang}`
@@ -617,7 +615,7 @@ useEffect(() => {
           new Paragraph({
             children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
           }),
-       ...tasks.map(t => new Paragraph({
+         ...tasks.map(t => new Paragraph({
             children: [
               new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
               new TextRun({ text: t.content }),
@@ -653,67 +651,67 @@ useEffect(() => {
   }
   const streak = getStreak()
 
- const exportWeeklyReport = async () => {
-  const jsPDF = (await import('jspdf')).default
-  const autoTable = (await import('jspdf-autotable')).default
+  const exportWeeklyReport = async () => {
+    const jsPDF = (await import('jspdf')).default
+    const autoTable = (await import('jspdf-autotable')).default
 
-  const now = new Date()
-  const startOfWeek = new Date(now)
-  startOfWeek.setDate(now.getDate() - now.getDay() + 1)
-  startOfWeek.setHours(0,0,0,0)
-  const endOfWeek = new Date(startOfWeek)
-  endOfWeek.setDate(startOfWeek.getDate() + 6)
-  endOfWeek.setHours(23,59,59,999)
+    const now = new Date()
+    const startOfWeek = new Date(now)
+    startOfWeek.setDate(now.getDate() - now.getDay() + 1)
+    startOfWeek.setHours(0,0,0,0)
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(startOfWeek.getDate() + 6)
+    endOfWeek.setHours(23,59,59,999)
 
-  const weekStr = `${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`
+    const weekStr = `${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`
 
-  const weekTasks = tasks.filter(t => {
-    if (!t.done) return false
-    const taskDate = new Date(t.updated_at || t.due_date)
-    return taskDate >= startOfWeek && taskDate <= endOfWeek
-  })
+    const weekTasks = tasks.filter(t => {
+      if (!t.done) return false
+      const taskDate = new Date(t.updated_at || t.due_date)
+      return taskDate >= startOfWeek && taskDate <= endOfWeek
+    })
 
-  const totalMins = weekTasks.reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
+    const totalMins = weekTasks.reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
 
-  const categoryStats = {}
-  weekTasks.forEach(t => {
-    const cat = t.category_tag || 'Uncategorized'
-    if (!categoryStats[cat]) categoryStats[cat] = {count: 0, mins: 0}
-    categoryStats[cat].count += 1
-    categoryStats[cat].mins += t.estimated_minutes || 0
-  })
+    const categoryStats = {}
+    weekTasks.forEach(t => {
+      const cat = t.category_tag || 'Uncategorized'
+      if (!categoryStats[cat]) categoryStats[cat] = {count: 0, mins: 0}
+      categoryStats[cat].count += 1
+      categoryStats[cat].mins += t.estimated_minutes || 0
+    })
 
-  const doc = new jsPDF()
-  doc.setFontSize(20)
-  doc.text('Discypln Weekly Report - Tasks', 14, 20)
-  doc.setFontSize(12)
-  doc.text(`Week: ${weekStr}`, 14, 30)
-  doc.text(`Tasks Completed: ${weekTasks.length}`, 14, 38)
-  doc.text(`Total Focus Time: ${formatMinutes(totalMins)}`, 14, 46)
-  doc.text(`Current Streak: ${streak} days`, 14, 54)
+    const doc = new jsPDF()
+    doc.setFontSize(20)
+    doc.text('Discypln Weekly Report - Tasks', 14, 20)
+    doc.setFontSize(12)
+    doc.text(`Week: ${weekStr}`, 14, 30)
+    doc.text(`Tasks Completed: ${weekTasks.length}`, 14, 38)
+    doc.text(`Total Focus Time: ${formatMinutes(totalMins)}`, 14, 46)
+    doc.text(`Current Streak: ${streak} days`, 14, 54)
 
-  let yPos = 54
-  Object.entries(categoryStats).forEach(([cat, stats]) => {
-    yPos += 7
-    doc.setFontSize(11)
-    doc.text(`• ${cat}: ${stats.count} tasks, ${formatMinutes(stats.mins)}`, 14, yPos)
-  })
+    let yPos = 54
+    Object.entries(categoryStats).forEach(([cat, stats]) => {
+      yPos += 7
+      doc.setFontSize(11)
+      doc.text(`• ${cat}: ${stats.count} tasks, ${formatMinutes(stats.mins)}`, 14, yPos)
+    })
 
-  autoTable(doc, {
-    startY: yPos + 10,
-    head: [['Date', 'Task', 'Category', 'Time']],
-    body: weekTasks.map(t => [
-      new Date(t.updated_at || t.due_date).toLocaleDateString(),
-      t.content,
-      t.category_tag,
-      formatMinutes(t.estimated_minutes)
-    ]),
-    styles: { fontSize: 10 },
-    headStyles: { fillColor: [41, 128, 185] }
-  })
+    autoTable(doc, {
+      startY: yPos + 10,
+      head: [['Date', 'Task', 'Category', 'Time']],
+      body: weekTasks.map(t => [
+        new Date(t.updated_at || t.due_date).toLocaleDateString(),
+        t.content,
+        t.category_tag,
+        formatMinutes(t.estimated_minutes)
+      ]),
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [41, 128, 185] }
+    })
 
-  doc.save(`Discypln_Weekly_Tasks_${weekStr.replace(/\//g, '-')}.pdf`)
-}
+    doc.save(`Discypln_Weekly_Tasks_${weekStr.replace(/\//g, '-')}.pdf`)
+  }
 
   const getWeekDays = () => {
     const today = new Date()
@@ -763,10 +761,10 @@ useEffect(() => {
 
   const filteredTasks =
     activeCategory === 'all'
-  ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+     ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
       : tasks
-    .filter(t => t.category === activeCategory)
-    .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+       .filter(t => t.category === activeCategory)
+       .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
 
   const filteredNotes = notes.filter(note =>
     note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -796,24 +794,21 @@ useEffect(() => {
     return (
       <div className="editor-page">
         <header className="editor-header" style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px', gap:'8px'}}>
-
-  <button onClick={goBack} style={{flex:'0 0 auto'}}>{'<'}</button>
-
-  <div style={{display:'flex', gap:'4px', flex:'1 1 auto', justifyContent:'center', maxWidth:'200px'}}>
-    <select
-      value={targetLang}
-      onChange={(e) => setTargetLang(e.target.value)}
-      style={{background:'#1a1a1a', color:'#fff', border:'1px solid #333', padding:'4px 6px', borderRadius:'6px', fontSize:'11px', flex:'1'}}
-    >
-      {ALL_LANGUAGES.map(lang => (
-        <option key={lang.code} value={lang.code}>{lang.name}</option>
-      ))}
-    </select>
-    <button onClick={translateNote} style={{padding:'4px 8px', fontSize:'14px'}}>🌍</button>
-  </div>
-
-  <button onClick={saveNote} style={{flex:'0 0 auto'}}>Save</button>
-</header>
+          <button onClick={goBack} style={{flex:'0 0 auto'}}>{'<'}</button>
+          <div style={{display:'flex', gap:'4px', flex:'1 1 auto', justifyContent:'center', maxWidth:'200px'}}>
+            <select
+             value={targetLang}
+              onChange={(e) => setTargetLang(e.target.value)}
+              style={{background:'#1a1a1a', color:'#fff', border:'1px solid #333', padding:'4px 6px', borderRadius:'6px', fontSize:'11px', flex:'1'}}
+            >
+              {ALL_LANGUAGES.map(lang => (
+                <option key={lang.code} value={lang.code}>{lang.name}</option>
+              ))}
+            </select>
+            <button onClick={translateNote} style={{padding:'4px 8px', fontSize:'14px'}}>🌍</button>
+          </div>
+          <button onClick={saveNote} style={{flex:'0 0 auto'}}>Save</button>
+        </header>
         <div className="editor-body">
           {viewMode === 'add' &&!priority && (
             <div className="priority-picker">
@@ -828,8 +823,7 @@ useEffect(() => {
             <>
               {viewMode === 'add' && (
                 <>
-                  <select
-                    value={titleFont}
+                  <select                     value={titleFont}
                     onChange={(e) => setTitleFont(e.target.value)}
                     style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px', borderRadius: '6px', marginBottom: '8px', width: '100%' }}
                   >
@@ -847,7 +841,7 @@ useEffect(() => {
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Title"
                     className="title-input"
-                                        style={{ fontFamily: titleFont.includes(' ')? `'${titleFont}', serif` : titleFont, fontSize: '24px', fontWeight: '600' }}
+                    style={{ fontFamily: titleFont.includes(' ')? `'${titleFont}', serif` : titleFont, fontSize: '24px', fontWeight: '600' }}
                   />
                 </>
               )}
@@ -1002,55 +996,54 @@ useEffect(() => {
               <span className="stat-label">Deep Work</span>
               <strong className="stat-value">{Math.floor(totalMinutes/60)}h {totalMinutes%60}m</strong>
             </div>
+          </div>
           <div style={{marginTop:'20px'}}>
-  <h3 style={{fontSize:'14px', color:'#ccc', marginBottom:'8px'}}>Heatmap</h3>
+            <h3 style={{fontSize:'14px', color:'#ccc', marginBottom:'8px'}}>Heatmap</h3>
+            <div style={{display:'grid', gridTemplateColumns:'repeat(10, 1fr)', gap:'3px', maxWidth:'400px'}}>
+              {Array.from({length: 30}).map((_, i) => {
+                const date = new Date()
+                date.setDate(date.getDate() - (29 - i))
+                const dateStr = date.toISOString().split('T')[0]
 
-  <div style={{display:'grid', gridTemplateColumns:'repeat(10, 1fr)', gap:'3px', maxWidth:'400px'}}>
-    {Array.from({length: 30}).map((_, i) => {
-      const date = new Date()
-      date.setDate(date.getDate() - (29 - i))
-      const dateStr = date.toISOString().split('T')[0]
+                const dayTasks = tasks.filter(t => {
+                  if (!t.done) return false
+                  const taskDate = new Date(t.updated_at || t.due_date).toISOString().split('T')[0]
+                  return taskDate === dateStr
+                })
 
-      const dayTasks = tasks.filter(t => {
-        if (!t.done) return false
-        const taskDate = new Date(t.updated_at || t.due_date).toISOString().split('T')[0]
-        return taskDate === dateStr
-      })
+                const minutes = dayTasks.reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
+                const intensity = minutes === 0? 0 : minutes < 30? 1 : minutes < 60? 2 : minutes < 120? 3 : 4
+                const colors = ['#1a1a1a', '#0e4429', '#006d32', '#26a641', '#39d353']
 
-      const minutes = dayTasks.reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
-      const intensity = minutes === 0? 0 : minutes < 30? 1 : minutes < 60? 2 : minutes < 120? 3 : 4
-      const colors = ['#1a1a1a', '#0e4429', '#006d32', '#26a641', '#39d353']
-
-      return (
-        <button
-          key={dateStr}
-          title={`${dateStr}: ${dayTasks.length} tasks, ${formatMinutes(minutes)}`}
-          style={{
-            width:'36px',
-            height:'36px',
-            background:colors[intensity],
-            border:'1px solid #333',
-            borderRadius:'4px',
-            fontSize:'9px',
-            color:'#fff',
-            cursor:'pointer'
-          }}
-          onClick={() => setMessage(`${dateStr}: ${dayTasks.length} tasks`)}
-        >
-          {date.getDate()}
-        </button>
-      )
-    })}
-  </div>
-
-  <div style={{display:'flex', gap:'4px', alignItems:'center', marginTop:'6px', fontSize:'10px', color:'#666'}}>
-    Less
-    <div style={{width:'10px', height:'10px', background:'#1a1a1a', border:'1px solid #333'}}></div>
-    <div style={{width:'10px', height:'10px', background:'#26a641', border:'1px solid #333'}}></div>
-    <div style={{width:'10px', height:'10px', background:'#39d353', border:'1px solid #333'}}></div>
-    More
-  </div>
-</div>
+                return (
+                  <button
+                    key={dateStr}
+                    title={`${dateStr}: ${dayTasks.length} tasks, ${formatMinutes(minutes)}`}
+                    style={{
+                      width:'36px',
+                      height:'36px',
+                      background:colors[intensity],
+                      border:'1px solid #333',
+                      borderRadius:'4px',
+                      fontSize:'9px',
+                      color:'#fff',
+                      cursor:'pointer'
+                    }}
+                    onClick={() => setMessage(`${dateStr}: ${dayTasks.length} tasks`)}
+                  >
+                    {date.getDate()}
+                  </button>
+                )
+              })}
+            </div>
+            <div style={{display:'flex', gap:'4px', alignItems:'center', marginTop:'6px', fontSize:'10px', color:'#666'}}>
+              Less
+              <div style={{width:'10px', height:'10px', background:'#1a1a1a', border:'1px solid #333'}}></div>
+              <div style={{width:'10px', height:'10px', background:'#26a641', border:'1px solid #333'}}></div>
+              <div style={{width:'10px', height:'10px', background:'#39d353', border:'1px solid #333'}}></div>
+              More
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1113,10 +1106,10 @@ useEffect(() => {
       ))}
 
       <div className="button-row" style={{display:'flex', gap:'10px'}}>
-  <button onClick={() => setShowExport(!showExport)} className="btn full-width">{showExport? 'Hide' : 'Export Notes'}</button>
-  <button onClick={exportTasksWord} className="btn full-width">Export Tasks Word</button>
-  <button onClick={exportWeeklyReport} className="btn full-width primary">Export Weekly Report</button>
-</div>
+        <button onClick={() => setShowExport(!showExport)} className="btn full-width">{showExport? 'Hide' : 'Export Notes'}</button>
+        <button onClick={exportTasksWord} className="btn full-width">Export Tasks Word</button>
+        <button onClick={exportWeeklyReport} className="btn full-width primary">Export Weekly Report</button>
+      </div>
 
       <h3 className="section-title">Task Manager</h3>
       <div className="category-tabs">
@@ -1190,10 +1183,10 @@ useEffect(() => {
                 {t.category === 'custom' && t.due_date && <span className="task-date">{formatDate(t.due_date)}</span>}
               </div>
             </div>
-          <div style={{display:'flex', gap:'6px'}}>
-  <button onClick={() => setEditingTask(t)} className="btn-delete">✏️</button>
-  <button onClick={() => deleteTask(t.id)} className="btn-delete">×</button>
-</div>
+            <div style={{display:'flex', gap:'6px'}}>
+              <button onClick={() => setEditingTask(t)} className="btn-delete">✏️</button>
+              <button onClick={() => deleteTask(t.id)} className="btn-delete">×</button>
+            </div>
           </div>
         ))}
       </div>
@@ -1203,40 +1196,40 @@ useEffect(() => {
       {message && <p className={`message ${message.includes('✅')? 'success' : 'error'}`}>{message}</p>}
       <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} style={{ display: 'none' }} />
       {editingTask && (
-  <div style={{position:'fixed', top:0, left:0, right:0, bottom:0, background:'rgba(0,0,0,0.8)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000}}>
-    <div style={{background:'#1a1a1a', padding:'20px', borderRadius:'12px', width:'320px', border:'1px solid #333'}}>
-      <h3 style={{marginBottom:'16px', color:'#fff'}}>Edit Task</h3>
-      <input value={editingTask.content} onChange={e => setEditingTask({...editingTask, content:e.target.value})} className="input" placeholder="Task name" style={{marginBottom:'8px', width:'100%'}} />
-      <input value={editingTask.estimated_minutes} onChange={e => setEditingTask({...editingTask, estimated_minutes:Number(e.target.value)})} type="number" className="input" placeholder="mins, e.g. 120" style={{marginBottom:'8px', width:'100%'}} />
-      <select value={editingTask.category_tag} onChange={e => setEditingTask({...editingTask, category_tag:e.target.value})} className="select" style={{marginBottom:'8px', width:'100%'}}>
-        <option value="general">General</option>
-        <option value="school">School</option>
-        <option value="work">Work</option>
-        <option value="health">Health</option>
-        <option value="personal">Personal</option>
-      </select>
-      <select value={editingTask.difficulty} onChange={e => setEditingTask({...editingTask, difficulty:e.target.value})} className="select" style={{marginBottom:'16px', width:'100%'}}>
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-      </select>
-      <div style={{display:'flex', gap:'8px'}}>
-        <button onClick={async () => {
-          await supabase.from('tasks').update({
-            content: editingTask.content,
-            estimated_minutes: editingTask.estimated_minutes,
-            category_tag: editingTask.category_tag,
-            difficulty: editingTask.difficulty
-          }).eq('id', editingTask.id).eq('user_id', user.id)
-          fetchTasks()
-          setEditingTask(null)
-          setMessage('✅ Task updated')
-        }} className="btn primary" style={{flex:1}}>Save</button>
-        <button onClick={() => setEditingTask(null)} className="btn" style={{flex:1}}>Cancel</button>
-      </div>
-    </div>
-  </div>
-)}
+        <div style={{position:'fixed', top:0, left:0, right:0, bottom:0, background:'rgba(0,0,0,0.8)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000}}>
+          <div style={{background:'#1a1a1a', padding:'20px', borderRadius:'12px', width:'320px', border:'1px solid #333'}}>
+            <h3 style={{marginBottom:'16px', color:'#fff'}}>Edit Task</h3>
+            <input value={editingTask.content} onChange={e => setEditingTask({...editingTask, content:e.target.value})} className="input" placeholder="Task name" style={{marginBottom:'8px', width:'100%'}} />
+            <input value={editingTask.estimated_minutes} onChange={e => setEditingTask({...editingTask, estimated_minutes:Number(e.target.value)})} type="number" className="input" placeholder="mins, e.g. 120" style={{marginBottom:'8px', width:'100%'}} />
+            <select value={editingTask.category_tag} onChange={e => setEditingTask({...editingTask, category_tag:e.target.value})} className="select" style={{marginBottom:'8px', width:'100%'}}>
+              <option value="general">General</option>
+              <option value="school">School</option>
+              <option value="work">Work</option>
+              <option value="health">Health</option>
+              <option value="personal">Personal</option>
+            </select>
+            <select value={editingTask.difficulty} onChange={e => setEditingTask({...editingTask, difficulty:e.target.value})} className="select" style={{marginBottom:'16px', width:'100%'}}>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+            <div style={{display:'flex', gap:'8px'}}>
+              <button onClick={async () => {
+                await supabase.from('tasks').update({
+                  content: editingTask.content,
+                  estimated_minutes: editingTask.estimated_minutes,
+                  category_tag: editingTask.category_tag,
+                  difficulty: editingTask.difficulty
+                }).eq('id', editingTask.id).eq('user_id', user.id)
+                fetchTasks()
+                setEditingTask(null)
+                setMessage('✅ Task updated')
+              }} className="btn primary" style={{flex:1}}>Save</button>
+              <button onClick={() => setEditingTask(null)} className="btn" style={{flex:1}}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
-                  }
+                }
