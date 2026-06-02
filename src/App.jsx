@@ -20,6 +20,31 @@ const VOICE_COMMANDS = {
   'new paragraph': '\n\n'
 }
 
+// CODE DETECTION HELPER
+const detectCodeLanguage = (text) => {
+  if (!text) return null
+
+  const patterns = {
+    'JavaScript/React': /import.*from|useState|useEffect|export default|const.*=.*=>|return\s*\(/,
+    'Python': /def |import |print\(|if __name__|elif |:\s*$/m,
+    'HTML': /<html|<div|<body|<script|<style|<!DOCTYPE/,
+    'CSS': /{[\s\S]*:[\s\S]*}|@media|#[\w-]+\s*{|\.[\w-]+\s*{/,
+    'Java': /public class|System\.out|public static void main/,
+    'C/C++': /#include|int main\(|std::|cout\s*<</,
+    'SQL': /SELECT.* FROM|INSERT INTO|CREATE TABLE|UPDATE.* SET/i,
+    'JSON': /^\s*{[\s\S]*}\s*$/m,
+    'Shell/Bash': /#!\/bin\/bash|echo |npm |git |cd |ls /,
+    'PHP': /<\?php|\$\w+\s*=|echo\s+/
+  }
+
+  for (const [lang, regex] of Object.entries(patterns)) {
+    if (regex.test(text)) return lang
+  }
+
+  if (text.includes('{') && text.includes('}') && text.includes(';')) return 'Code'
+  return null
+}
+
 export default function App() {
   const [user, setUser] = useState(null)
   const [email, setEmail] = useState('')
@@ -29,6 +54,7 @@ export default function App() {
   const [noteText, setNoteText] = useState('')
   const [isListening, setIsListening] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [detectedCode, setDetectedCode] = useState(null)
   const recognitionRef = useRef(null)
   const fileInputRef = useRef(null)
 
@@ -94,10 +120,24 @@ export default function App() {
     if (message) {
       const timer = setTimeout(() => {
         setMessage('')
-      }, 2000)
+      }, 3000)
       return () => clearTimeout(timer)
     }
   }, [message])
+
+  // AUTO-DETECT CODE
+  useEffect(() => {
+    const codeType = detectCodeLanguage(noteText)
+    if (codeType && noteText.length > 50) {
+      setDetectedCode(codeType)
+      if (!message.includes('detected')) {
+        setMessage(`💻 ${codeType} detected`)
+      }
+    } else {
+      setDetectedCode(null)
+    }
+  }, [noteText])
+
   const [currentTime, setCurrentTime] = useState(new Date())
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -206,12 +246,12 @@ export default function App() {
       setIsListening(false)
     } else {
       navigator.mediaDevices.getUserMedia({ audio: true })
-       .then(() => {
+      .then(() => {
           recognitionRef.current.start()
           setIsListening(true)
           setMessage('🎤 Say comma, full stop, new line for punctuation')
         })
-       .catch((err) => {
+      .catch((err) => {
           console.error(err)
           setMessage('Microphone permission denied. Tap the lock icon in Brave/Chrome > Site settings > Microphone > Allow')
           setIsListening(false)
@@ -241,11 +281,11 @@ export default function App() {
     if (!user) return
     setLoading(true)
     const { data, error } = await supabase
-     .from('notes')
-     .select('*')
-     .eq('user_id', user.id)
-     .eq('date', selectedDate)
-     .order('created_at', { ascending: false })
+    .from('notes')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('date', selectedDate)
+    .order('created_at', { ascending: false })
     setLoading(false)
     if (error) {
       console.error('Fetch error:', error)
@@ -258,10 +298,10 @@ export default function App() {
   async function fetchTasks() {
     if (!user) return
     const { data, error } = await supabase
-     .from('tasks')
-     .select('*')
-     .eq('user_id', user.id)
-     .order('created_at', { ascending: false })
+    .from('tasks')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
     if (error) {
       console.error('Fetch tasks error:', error)
     } else {
@@ -304,14 +344,14 @@ export default function App() {
 
     if (editingNote) {
       const { error } = await supabase
-       .from('notes')
-       .update({
+      .from('notes')
+      .update({
           title: title.trim(),
           content: noteText.trim(),
           priority
         })
-       .eq('id', editingNote.id)
-       .eq('user_id', user.id)
+      .eq('id', editingNote.id)
+      .eq('user_id', user.id)
 
       if (error) setMessage('Error: ' + error.message)
       else {
@@ -325,8 +365,8 @@ export default function App() {
       }
     } else {
       const { error } = await supabase
-       .from('notes')
-       .insert({
+      .from('notes')
+      .insert({
           user_id: user.id,
           date: selectedDate,
           title: title.trim(),
@@ -373,10 +413,10 @@ export default function App() {
 
   async function deleteNote(id) {
     const { error } = await supabase
-     .from('notes')
-     .delete()
-     .eq('id', id)
-     .eq('user_id', user.id)
+    .from('notes')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
     if (error) {
       setMessage('Delete failed: ' + error.message)
     } else {
@@ -458,19 +498,19 @@ export default function App() {
   async function toggleTask(id) {
     const task = tasks.find(t => t.id === id)
     const { error } = await supabase
-     .from('tasks')
-     .update({ done:!task.done })
-     .eq('id', id)
-     .eq('user_id', user.id)
+    .from('tasks')
+    .update({ done:!task.done })
+    .eq('id', id)
+    .eq('user_id', user.id)
     if (!error) fetchTasks()
   }
 
   async function deleteTask(id) {
     const { error } = await supabase
-     .from('tasks')
-     .delete()
-     .eq('id', id)
-     .eq('user_id', user.id)
+    .from('tasks')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
     if (!error) {
       setMessage('🗑️ Task deleted')
       fetchTasks()
@@ -504,7 +544,7 @@ export default function App() {
     setPomodoroTime(25 * 60)
   }
 
-  // TRANSLATION WITH 2 APIs: LibreTranslate primary, MyMemory backup
+  // TRANSLATION WITH 4 APIs: Lingva -> LibreTranslate -> Google Free -> MyMemory
   async function translateNote() {
     if (!noteText.trim()) {
       setMessage("Note empty. Type something first.")
@@ -514,22 +554,27 @@ export default function App() {
     setLoading(true)
     setMessage("🌍 Translating...")
 
+    // 1. Try Lingva - best limits 10k chars
     try {
-      const response = await fetch("https://libretranslate.de/translate", {
+      const res = await fetch(`https://lingva.ml/api/v1/en/${targetLang}/${encodeURIComponent(noteText)}`)
+      const data = await res.json()
+      if (data.translation) {
+        setNoteText(data.translation)
+        const langName = ALL_LANGUAGES.find(l => l.code === targetLang)?.name || targetLang
+        setMessage(`✅ Translated to ${langName}!`)
+        setLoading(false)
+        return
+      }
+    } catch {}
+
+    // 2. Try LibreTranslate
+    try {
+      const res = await fetch(`https://libretranslate.de/translate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          q: noteText,
-          source: "en",
-          target: targetLang,
-          format: "text"
-        })
+        body: JSON.stringify({ q: noteText, source: "en", target: targetLang })
       })
-
-      if (!response.ok) throw new Error('LibreTranslate unavailable')
-
-      const data = await response.json()
-
+      const data = await res.json()
       if (data.translatedText) {
         setNoteText(data.translatedText)
         const langName = ALL_LANGUAGES.find(l => l.code === targetLang)?.name || targetLang
@@ -537,27 +582,42 @@ export default function App() {
         setLoading(false)
         return
       }
-      throw new Error('No translation returned')
+    } catch {}
 
-    } catch (err) {
-      try {
-        setMessage("🌍 Using backup translator...")
-        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(noteText)}&langpair=en|${targetLang}`
-        const res = await fetch(url)
-        const data = await res.json()
+    // 3. Try Google Free via proxy
+    try {
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(noteText)}`
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`
+      const res = await fetch(proxyUrl)
+      const data = await res.json()
+      const parsed = JSON.parse(data.contents)
+      const translated = parsed[0].map(item => item[0]).join('')
 
-        if (data.responseStatus === 200 && data.responseData?.translatedText) {
-          setNoteText(data.responseData.translatedText)
-          const langName = ALL_LANGUAGES.find(l => l.code === targetLang)?.name || targetLang
-          setMessage(`✅ Translated to ${langName}!`)
-        } else if (data.responseStatus === 403) {
-          setMessage("⚠️ Translation limit reached. Try shorter text.")
-        } else {
-          setMessage("❌ Translation failed. Both services down.")
-        }
-      } catch (e) {
-        setMessage("❌ No internet: " + e.message)
+      if (translated) {
+        setNoteText(translated)
+        const langName = ALL_LANGUAGES.find(l => l.code === targetLang)?.name || targetLang
+        setMessage(`✅ Translated to ${langName}!`)
+        setLoading(false)
+        return
       }
+    } catch {}
+
+    // 4. Try MyMemory as last resort
+    try {
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(noteText)}&langpair=en|${targetLang}`
+      const res = await fetch(url)
+      const data = await res.json()
+      if (data.responseStatus === 200 && data.responseData?.translatedText) {
+        setNoteText(data.responseData.translatedText)
+        const langName = ALL_LANGUAGES.find(l => l.code === targetLang)?.name || targetLang
+        setMessage(`✅ Translated to ${langName}!`)
+      } else if (data.responseStatus === 403) {
+        setMessage("⚠️ Translation limit reached. Try shorter text.")
+      } else {
+        setMessage("❌ All translators failed. Text too long or service down.")
+      }
+    } catch (e) {
+      setMessage("❌ No internet: " + e.message)
     }
     setLoading(false)
   }
@@ -615,7 +675,7 @@ export default function App() {
           new Paragraph({
             children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
           }),
-         ...tasks.map(t => new Paragraph({
+        ...tasks.map(t => new Paragraph({
             children: [
               new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
               new TextRun({ text: t.content }),
@@ -761,10 +821,10 @@ export default function App() {
 
   const filteredTasks =
     activeCategory === 'all'
-     ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+    ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
       : tasks
-       .filter(t => t.category === activeCategory)
-       .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+      .filter(t => t.category === activeCategory)
+      .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
 
   const filteredNotes = notes.filter(note =>
     note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -793,443 +853,379 @@ export default function App() {
   if (viewMode === 'add' || viewMode === 'edit') {
     return (
       <div className="editor-page">
-        <header className="editor-header" style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px', gap:'8px'}}>
-          <button onClick={goBack} style={{flex:'0 0 auto'}}>{'<'}</button>
-          <div style={{display:'flex', gap:'4px', flex:'1 1 auto', justifyContent:'center', maxWidth:'200px'}}>
-            <select
-             value={targetLang}
-              onChange={(e) => setTargetLang(e.target.value)}
-              style={{background:'#1a1a1a', color:'#fff', border:'1px solid #333', padding:'4px 6px', borderRadius:'6px', fontSize:'11px', flex:'1'}}
-            >
+        <header className="editor-header" style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px', gap:
+        '8px'}}>
+          <button onClick={goBack} className="btn-icon">←</button>
+          <h1 className="editor-title">{viewMode === 'add' ? 'New Note' : 'Edit Note'}</h1>
+          <div style={{display:'flex', gap:'8px'}}>
+            {editingNote && <button onClick={shareNote} className="btn-icon">📤</button>}
+            <button onClick={saveNote} disabled={loading} className="btn primary">
+              {loading ? 'Saving...' : 'Save'}
+            </button>
+          </div>
+        </header>
+
+        <div className="editor-body" style={{padding:'16px', display:'flex', flexDirection:'column', gap:'12px'}}>
+          <input
+            type="text"
+            placeholder="Note title..."
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="title-input"
+            style={{
+              fontFamily: titleFont,
+              fontSize: '24px',
+              fontWeight: '600',
+              border: 'none',
+              outline: 'none',
+              background: 'transparent'
+            }}
+            autoFocus
+          />
+
+          <div className="toolbar" style={{display:'flex', gap:'8px', flexWrap:'wrap', alignItems:'center'}}>
+            <button onClick={toggleMic} className={`btn ${isListening ? 'listening' : ''}`}>
+              {isListening ? '🔴 Stop' : '🎤 Speak'}
+            </button>
+            <button onClick={() => fileInputRef.current?.click()} disabled={isProcessing} className="btn">
+              {isProcessing ? '📸 Processing...' : '📸 OCR'}
+            </button>
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+
+            <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)} className="select">
               {ALL_LANGUAGES.map(lang => (
                 <option key={lang.code} value={lang.code}>{lang.name}</option>
               ))}
             </select>
-            <button onClick={translateNote} style={{padding:'4px 8px', fontSize:'14px'}}>🌍</button>
+            <button onClick={translateNote} disabled={loading} className="btn">🌍 Translate</button>
+
+            <select value={priority} onChange={(e) => setPriority(e.target.value)} className="select">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+
+            <select value={fontFamily} onChange={(e) => setFontFamily(e.target.value)} className="select">
+              <option value="Inter">Inter</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Courier New">Courier</option>
+              <option value="Comic Sans MS">Comic Sans</option>
+            </select>
+            <input
+              type="number"
+              value={fontSize}
+              onChange={(e) => setFontSize(e.target.value)}
+              min="12"
+              max="32"
+              className="input"
+              style={{width:'70px'}}
+            />
           </div>
-          <button onClick={saveNote} style={{flex:'0 0 auto'}}>Save</button>
-        </header>
-        <div className="editor-body">
-          {viewMode === 'add' &&!priority && (
-            <div className="priority-picker">
-              <h3>Select Priority</h3>
-              <button onClick={() => setPriority('high')}>High</button>
-              <button onClick={() => setPriority('medium')}>Medium</button>
-              <button onClick={() => setPriority('low')}>Low</button>
-            </div>
-          )}
 
-          {(viewMode === 'edit' || priority) && (
-            <>
-              {viewMode === 'add' && (
-                <>
-                  <select                     value={titleFont}
-                    onChange={(e) => setTitleFont(e.target.value)}
-                    style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px', borderRadius: '6px', marginBottom: '8px', width: '100%' }}
-                  >
-                    <option value="Inter">Inter - Clean</option>
-                    <option value="Georgia">Georgia - Book</option>
-                    <option value="Poppins">Poppins - Modern</option>
-                    <option value="Merriweather">Merriweather - Readable</option>
-                    <option value="'Times New Roman'">Times - Classic</option>
-                    <option value="Arial">Arial - Simple</option>
-                    <option value="Pacifico">Pacifico - Cursive ✨</option>
-                    <option value="Caveat">Caveat - Handwriting</option>
-                  </select>
-                  <input
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Title"
-                    className="title-input"
-                    style={{ fontFamily: titleFont.includes(' ')? `'${titleFont}', serif` : titleFont, fontSize: '24px', fontWeight: '600' }}
-                  />
-                </>
-              )}
-              {viewMode === 'edit' && <h3 className="note-title-display" style={{ fontFamily: titleFont.includes(' ')? `'${titleFont}', serif` : titleFont, fontSize: '24px' }}>{title}</h3>}
+          <div style={{position:'relative', flex:1}}>
+            <textarea
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              placeholder="Start typing... or paste code"
+              className="content-editor"
+              style={{
+                fontFamily: detectedCode ? "'Courier New', monospace" : fontFamily,
+                fontSize: fontSize + 'px',
+                lineHeight: '1.6',
+                background: detectedCode ? '#0d1117' : undefined,
+                color: detectedCode ? '#c9d1d9' : undefined,
+                width: '100%',
+                minHeight: '60vh',
+                padding: '12px',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                resize: 'vertical'
+              }}
+            />
+            {detectedCode && (
+              <div style={{
+                position: 'absolute',
+                top: '8px',
+                right: '8px',
+                background: '#238636',
+                color: 'white',
+                padding: '2px 8px',
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontFamily: 'sans-serif',
+                pointerEvents: 'none'
+              }}>
+                {detectedCode}
+              </div>
+            )}
+          </div>
 
-              <textarea
-                value={noteText}
-                onChange={(e) => setNoteText(e.target.value)}
-                placeholder="Start typing..."
-                className="content-editor"
-                style={{ fontFamily: fontFamily.includes(' ')? `'${fontFamily}', serif` : fontFamily, fontSize: fontSize + 'px', lineHeight: '1.6' }}
-                autoFocus
-              />
-            </>
+          {message && (
+            <p className={`message ${message.includes('❌') || message.includes('Error') ? 'error' : ''}`}>
+              {message}
+            </p>
           )}
         </div>
-
-        <nav className="editor-nav">
-          {viewMode === 'add'? (
-            <>
-              <button onClick={toggleMic}>{isListening? '⏹️' : '🎤'} Voice</button>
-              <button onClick={() => fileInputRef.current.click()}>📷 Scan</button>
-              <select
-                value={fontFamily}
-                onChange={(e) => setFontFamily(e.target.value)}
-                style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px' }}
-              >
-                <option value="Inter">Inter</option>
-                <option value="Georgia">Georgia</option>
-                <option value="'Times New Roman'">Times</option>
-                <option value="'Courier New'">Courier</option>
-                <option value="Arial">Arial</option>
-                <option value="Poppins">Poppins</option>
-                <option value="'Roboto Slab'">Roboto Slab</option>
-                <option value="Montserrat">Montserrat</option>
-                <option value="Lora">Lora</option>
-                <option value="Merriweather">Merriweather</option>
-                <option value="Ubuntu">Ubuntu</option>
-                <option value="Quicksand">Quicksand</option>
-                <option value="Caveat">Caveat</option>
-                <option value="Pacifico">Pacifico</option>
-              </select>
-              <select
-                value={fontSize}
-                onChange={(e) => setFontSize(e.target.value)}
-                style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px', marginLeft: '6px' }}
-              >
-                <option value="14">14px</option>
-                <option value="16">16px</option>
-                <option value="18">18px</option>
-                <option value="20">20px</option>
-                <option value="24">24px</option>
-              </select>
-            </>
-          ) : (
-            <>
-              <button onClick={() => navigator.clipboard.writeText(noteText)}>Copy</button>
-              <button onClick={() => deleteNote(editingNote.id)}>Delete</button>
-              <button onClick={shareNote}>Share</button>
-              <select
-                value={fontFamily}
-                onChange={(e) => setFontFamily(e.target.value)}
-                style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px' }}
-              >
-                <option value="Inter">Inter</option>
-                <option value="Georgia">Georgia</option>
-                <option value="'Times New Roman'">Times</option>
-                <option value="'Courier New'">Courier</option>
-                <option value="Arial">Arial</option>
-                <option value="Poppins">Poppins</option>
-                <option value="'Roboto Slab'">Roboto Slab</option>
-                <option value="Montserrat">Montserrat</option>
-                <option value="Lora">Lora</option>
-                <option value="Merriweather">Merriweather</option>
-                <option value="Ubuntu">Ubuntu</option>
-                <option value="Quicksand">Quicksand</option>
-                <option value="Caveat">Caveat</option>
-                <option value="Pacifico">Pacifico</option>
-              </select>
-              <select
-                value={fontSize}
-                onChange={(e) => setFontSize(e.target.value)}
-                style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '6px 8px', borderRadius: '6px', marginLeft: '6px' }}
-              >
-                <option value="14">14px</option>
-                <option value="16">16px</option>
-                <option value="18">18px</option>
-                <option value="20">20px</option>
-                <option value="24">24px</option>
-              </select>
-            </>
-          )}
-        </nav>
-
-        <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} style={{ display: 'none' }} />
-        {message && <p className={`message ${message.includes('✅')? 'success' : 'error'}`} style={{ position: 'fixed', bottom: 80, left: 20, right: 20 }}>{message}</p>}
       </div>
     )
   }
 
   return (
-    <div className="container">
+    <div className="app">
       <header className="header">
-        <h1 className="logo">Discypln</h1>
-        <button onClick={signOut} className="btn logout">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y1="12" />
-          </svg>
-        </button>
+        <div className="header-top">
+          <h1 className="logo">Discypln</h1>
+          <div className="time">{currentTime.toLocaleTimeString()}</div>
+          <button onClick={signOut} className="btn">Sign Out</button>
+        </div>
+
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-value">{todayScore}%</div>
+            <div className="stat-label">Today</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">{weeklyScore}%</div>
+            <div className="stat-label">This Week</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">{streak}</div>
+            <div className="stat-label">Streak</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">{formatMinutes(totalMinutes)}</div>
+            <div className="stat-label">Total Time</div>
+          </div>
+        </div>
+
+        <div className="pomodoro">
+          <div className="pomodoro-display">{formatTime(pomodoroTime)}</div>
+          <div className="pomodoro-label">{isBreak ? 'Break' : 'Focus'} • Session {pomodoroSessions + 1}</div>
+          <div className="pomodoro-controls">
+            <button onClick={togglePomodoro} className="btn primary">
+              {pomodoroRunning ? '⏸️ Pause' : '▶️ Start'}
+            </button>
+            <button onClick={resetPomodoro} className="btn">Reset</button>
+          </div>
+        </div>
       </header>
 
-      <div className="dashboard-grid">
-        <div className="card clock-card">
-          <div className="clock-time">{currentTime.toLocaleTimeString()}</div>
-          <div className="clock-date">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
-          <div className="clock-status">
-            {pomodoroRunning? '🟢 Dscypln Session Active' : '🔴 Paused'}
-          </div>
-          <div className="stopwatch">
-            <h4>{isBreak? '☕ Break Time' : '🍅 Pomodoro'}</h4>
-            <div className="stopwatch-time">{formatTime(pomodoroTime)}</div>
-            <div style={{ fontSize: '14px', opacity: 0.7, marginBottom: '10px' }}>
-              Sessions Completed: {pomodoroSessions}
-            </div>
-            <div className="stopwatch-buttons">
-              <button onClick={togglePomodoro} className="btn primary">
-                {pomodoroRunning? 'Pause' : 'Start'}
-              </button>
-              <button onClick={resetPomodoro} className="btn">Reset</button>
-            </div>
-          </div>
-        </div>
-
-        <div className="card stats-card">
-          <h3>Your Progress</h3>
-          <div className="stat-grid">
-            <div className="stat-item">
-              <span className="stat-label">Today</span>
-              <strong className="stat-value">{formatMinutes(totalMinutes)}</strong>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">This Week</span>
-              <strong className="stat-value">{weeklyScore}%</strong>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Streak</span>
-              <strong className="stat-value">{streak} 🔥</strong>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Deep Work</span>
-              <strong className="stat-value">{Math.floor(totalMinutes/60)}h {totalMinutes%60}m</strong>
-            </div>
-          </div>
-          <div style={{marginTop:'20px'}}>
-            <h3 style={{fontSize:'14px', color:'#ccc', marginBottom:'8px'}}>Heatmap</h3>
-            <div style={{display:'grid', gridTemplateColumns:'repeat(10, 1fr)', gap:'3px', maxWidth:'400px'}}>
-              {Array.from({length: 30}).map((_, i) => {
-                const date = new Date()
-                date.setDate(date.getDate() - (29 - i))
-                const dateStr = date.toISOString().split('T')[0]
-
-                const dayTasks = tasks.filter(t => {
-                  if (!t.done) return false
-                  const taskDate = new Date(t.updated_at || t.due_date).toISOString().split('T')[0]
-                  return taskDate === dateStr
-                })
-
-                const minutes = dayTasks.reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
-                const intensity = minutes === 0? 0 : minutes < 30? 1 : minutes < 60? 2 : minutes < 120? 3 : 4
-                const colors = ['#1a1a1a', '#0e4429', '#006d32', '#26a641', '#39d353']
-
-                return (
-                  <button
-                    key={dateStr}
-                    title={`${dateStr}: ${dayTasks.length} tasks, ${formatMinutes(minutes)}`}
-                    style={{
-                      width:'36px',
-                      height:'36px',
-                      background:colors[intensity],
-                      border:'1px solid #333',
-                      borderRadius:'4px',
-                      fontSize:'9px',
-                      color:'#fff',
-                      cursor:'pointer'
-                    }}
-                    onClick={() => setMessage(`${dateStr}: ${dayTasks.length} tasks`)}
-                  >
-                    {date.getDate()}
-                  </button>
-                )
-              })}
-            </div>
-            <div style={{display:'flex', gap:'4px', alignItems:'center', marginTop:'6px', fontSize:'10px', color:'#666'}}>
-              Less
-              <div style={{width:'10px', height:'10px', background:'#1a1a1a', border:'1px solid #333'}}></div>
-              <div style={{width:'10px', height:'10px', background:'#26a641', border:'1px solid #333'}}></div>
-              <div style={{width:'10px', height:'10px', background:'#39d353', border:'1px solid #333'}}></div>
-              More
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {failedDays.length > 0 && (
-        <div className="card" style={{ borderColor: 'var(--danger)' }}>
-          <h3 style={{ color: 'var(--danger)', marginBottom: '12px' }}>⚠️ Failed Days This Week</h3>
-          {failedDays.map(day => (
-            <div key={day.date} style={{ padding: '8px 0', opacity: 0.8 }}>
-              {formatDate(day.date)}: Completed {day.completed}/{day.total} habits
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="notes-header">
-        <span>Notes</span>
-        <span>| {notes.length} Notes |</span>
-        <button onClick={openAddNote}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M14 2H6a2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 0 0 0 2-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-            <line x1="12" y1="18" x2="12" y1="12" />
-            <line x1="9" y1="15" x2="15" y1="15" />
-          </svg> Add Notes
-        </button>
-      </div>
-
-      <input
-        type="text"
-        placeholder="Search notes..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="input"
-        style={{ marginTop: '12px', marginBottom: '16px' }}
-      />
-      {loading && <p className="loading">Loading...</p>}
-      {notes.length === 0 &&!loading && <p className="empty">No notes for this date</p>}
-
-      {showExport && notes.length > 0 && (
-        <div className="card" style={{ marginBottom: '16px' }}>
-          <h4>Select Notes to Export</h4>
-          {notes.map(note => (
-            <label key={note.id} style={{ display: 'flex', alignItems: 'center', padding: '8px 0', cursor: 'pointer' }}>
-              <input type="checkbox" checked={selectedNotes.includes(note.id)} onChange={() => toggleSelect(note.id)} style={{ marginRight: '12px' }} />
-              <span>{note.title}</span>
-            </label>
-          ))}
-          <div className="button-row" style={{ marginTop: '12px' }}>
-            <button onClick={exportNotesPDF} disabled={selectedNotes.length === 0} className="btn primary">Export {selectedNotes.length} Selected</button>
-            <button onClick={() => { setShowExport(false); setSelectedNotes([]) }} className="btn">Cancel</button>
-          </div>
-        </div>
-      )}
-
-      {filteredNotes.map(note => (
-        <div key={note.id} className={`note-summary priority-${note.priority}`} onClick={() => openEditNote(note)}>
-          <h4>{note.title}</h4>
-          <small>{formatNoteTime(note.created_at)} • {note.priority}</small>
-        </div>
-      ))}
-
-      <div className="button-row" style={{display:'flex', gap:'10px'}}>
-        <button onClick={() => setShowExport(!showExport)} className="btn full-width">{showExport? 'Hide' : 'Export Notes'}</button>
-        <button onClick={exportTasksWord} className="btn full-width">Export Tasks Word</button>
-        <button onClick={exportWeeklyReport} className="btn full-width primary">Export Weekly Report</button>
-      </div>
-
-      <h3 className="section-title">Task Manager</h3>
-      <div className="category-tabs">
-        {['all', 'daily', 'weekly', 'custom'].map(cat => (
-          <button key={cat} onClick={() => setActiveCategory(cat)} className={`btn tab ${activeCategory === cat? 'active' : ''}`}>
-            {cat === 'all'? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      <div className="task-input">
-        <input value={task} onChange={e => setTask(e.target.value)} placeholder="Add task..." className="input" />
-        <select value={taskCategory} onChange={e => setTaskCategory(e.target.value)} className="select">
-          <option value="daily">Daily Habit</option>
-          <option value="weekly">Weekly Habit</option>
-          <option value="custom">One-time Task</option>
-        </select>
-        {taskCategory === 'daily' && (
-          <input type="time" value={taskTime} onChange={e => setTaskTime(e.target.value)} className="input time-input" />
-        )}
-        {taskCategory === 'weekly' && (
-          <select value={taskWeekDay} onChange={e => setTaskWeekDay(e.target.value)} className="select">
-            <option value="monday">Monday</option>
-            <option value="tuesday">Tuesday</option>
-            <option value="wednesday">Wednesday</option>
-            <option value="thursday">Thursday</option>
-            <option value="friday">Friday</option>
-            <option value="saturday">Saturday</option>
-            <option value="sunday">Sunday</option>
-          </select>
-        )}
-        {taskCategory === 'custom' && (
-          <input type="date" value={taskDueDate} onChange={e => setTaskDueDate(e.target.value)} className="input" />
-        )}
-        <select value={taskDifficulty} onChange={e => setTaskDifficulty(e.target.value)} className="select">
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-        </select>
-        <input type="number" value={taskMinutes} onChange={e => setTaskMinutes(Number(e.target.value))} placeholder="mins" className="input" style={{maxWidth: '80px'}} />
-        <select value={taskTag} onChange={e => setTaskTag(e.target.value)} className="select">
-          <option value="general">General</option>
-          <option value="school">School</option>
-          <option value="work">Work</option>
-          <option value="health">Health</option>
-          <option value="personal">Personal</option>
-        </select>
-        <button onClick={addTask} className="btn primary">Add</button>
-      </div>
-
-      <div className="tasks-list">
-        {filteredTasks.map(t => (
-          <div key={t.id} className="task-item">
-            <label className="checkbox-wrapper">
+      <main className="main">
+        <section className="section">
+          <div className="section-header">
+            <h2>Notes - {formatDate(selectedDate)}</h2>
+            <div className="section-actions">
               <input
-                type="checkbox"
-                checked={t.done}
-                onChange={() => toggleTask(t.id)}
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="date-input"
               />
-              <span className="checkmark"></span>
-            </label>
-            <div className="task-content">
-              <span className={t.done? 'done' : ''}>{t.content}</span>
-              <div className="task-meta">
-                {t.time && <span className="task-time">{t.time}</span>}
-                {t.weekday && <span className="task-tag">{t.weekday}</span>}
-                {t.type === 'habit' && <span className="task-tag">Habit</span>}
-                {t.difficulty && <span className="task-tag">{t.difficulty}</span>}
-                {t.estimated_minutes && <span className="task-tag">{t.estimated_minutes}m</span>}
-                {t.category_tag && t.category_tag!== 'general' && <span className="task-tag">{t.category_tag}</span>}
-                {t.category === 'custom' && t.due_date && <span className="task-date">{formatDate(t.due_date)}</span>}
-              </div>
-            </div>
-            <div style={{display:'flex', gap:'6px'}}>
-              <button onClick={() => setEditingTask(t)} className="btn-delete">✏️</button>
-              <button onClick={() => deleteTask(t.id)} className="btn-delete">×</button>
+              <button onClick={openAddNote} className="btn primary">+ New Note</button>
+              <button onClick={() => setShowExport(!showExport)} className="btn">📤 Export</button>
             </div>
           </div>
-        ))}
-      </div>
-      {filteredTasks.length === 0 && <p className="empty">No tasks in {activeCategory}</p>}
 
-      {isProcessing && <p className="loading">Processing image...</p>}
-      {message && <p className={`message ${message.includes('✅')? 'success' : 'error'}`}>{message}</p>}
-      <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} style={{ display: 'none' }} />
-      {editingTask && (
-        <div style={{position:'fixed', top:0, left:0, right:0, bottom:0, background:'rgba(0,0,0,0.8)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000}}>
-          <div style={{background:'#1a1a1a', padding:'20px', borderRadius:'12px', width:'320px', border:'1px solid #333'}}>
-            <h3 style={{marginBottom:'16px', color:'#fff'}}>Edit Task</h3>
-            <input value={editingTask.content} onChange={e => setEditingTask({...editingTask, content:e.target.value})} className="input" placeholder="Task name" style={{marginBottom:'8px', width:'100%'}} />
-            <input value={editingTask.estimated_minutes} onChange={e => setEditingTask({...editingTask, estimated_minutes:Number(e.target.value)})} type="number" className="input" placeholder="mins, e.g. 120" style={{marginBottom:'8px', width:'100%'}} />
-            <select value={editingTask.category_tag} onChange={e => setEditingTask({...editingTask, category_tag:e.target.value})} className="select" style={{marginBottom:'8px', width:'100%'}}>
-              <option value="general">General</option>
-              <option value="school">School</option>
-              <option value="work">Work</option>
-              <option value="health">Health</option>
-              <option value="personal">Personal</option>
+          {showExport && (
+            <div className="export-panel">
+              <p>Select notes to export:</p>
+              <div className="note-checkboxes">
+                {notes.map(note => (
+                  <label key={note.id} className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={selectedNotes.includes(note.id)}
+                      onChange={() => toggleSelect(note.id)}
+                    />
+                    {note.title}
+                  </label>
+                ))}
+              </div>
+              <button onClick={exportNotesPDF} className="btn primary">Export Selected to PDF</button>
+              <button onClick={() => {setShowExport(false); setSelectedNotes([])}} className="btn">Cancel</button>
+            </div>
+          )}
+
+          <input
+            type="text"
+            placeholder="🔍 Search notes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+          />
+
+          {loading ? (
+            <p className="message">Loading notes...</p>
+          ) : filteredNotes.length === 0 ? (
+            <p className="message empty">No notes for this date</p>
+          ) : (
+            <div className="notes-grid">
+              {filteredNotes.map(note => (
+                <div key={note.id} className={`note-card priority-${note.priority}`}>
+                  <div className="note-header">
+                    <h3 onClick={() => openEditNote(note)}>{note.title}</h3>
+                    <button onClick={() => deleteNote(note.id)} className="btn-icon delete">🗑️</button>
+                  </div>
+                  <p className="note-preview" onClick={() => openEditNote(note)}>
+                    {note.content.substring(0, 150)}{note.content.length > 150 ? '...' : ''}
+                  </p>
+                  <div className="note-footer">
+                    <span className="note-time">{formatNoteTime(note.created_at)}</span>
+                    <span className={`priority-badge ${note.priority}`}>{note.priority}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="section">
+          <div className="section-header">
+            <h2>Tasks & Habits</h2>
+            <button onClick={exportTasksWord} className="btn">📄 Export Word</button>
+            <button onClick={exportWeeklyReport} className="btn">📊 Weekly Report</button>
+          </div>
+
+          <div className="task-input-group">
+            <input
+              type="text"
+              placeholder="Add task or habit..."
+              value={task}
+              onChange={(e) => setTask(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && addTask()}
+              className="input"
+            />
+            <select value={taskCategory} onChange={(e) => setTaskCategory(e.target.value)} className="select">
+              <option value="daily">Daily Habit</option>
+              <option value="weekly">Weekly Habit</option>
+              <option value="custom">Custom Task</option>
             </select>
-            <select value={editingTask.difficulty} onChange={e => setEditingTask({...editingTask, difficulty:e.target.value})} className="select" style={{marginBottom:'16px', width:'100%'}}>
+
+            {taskCategory === 'daily' && (
+              <input
+                type="time"
+                value={taskTime}
+                onChange={(e) => setTaskTime(e.target.value)}
+                className="input"
+              />
+            )}
+
+            {taskCategory === 'weekly' && (
+              <select value={taskWeekDay} onChange={(e) => setTaskWeekDay(e.target.value)} className="select">
+                <option value="monday">Monday</option>
+                <option value="tuesday">Tuesday</option>
+                <option value="wednesday">Wednesday</option>
+                <option value="thursday">Thursday</option>
+                <option value="friday">Friday</option>
+                <option value="saturday">Saturday</option>
+                <option value="sunday">Sunday</option>
+              </select>
+            )}
+
+            {taskCategory === 'custom' && (
+              <input
+                type="date"
+                value={taskDueDate}
+                onChange={(e) => setTaskDueDate(e.target.value)}
+                className="input"
+              />
+            )}
+
+            <select value={taskDifficulty} onChange={(e) => setTaskDifficulty(e.target.value)} className="select">
               <option value="easy">Easy</option>
               <option value="medium">Medium</option>
               <option value="hard">Hard</option>
             </select>
-            <div style={{display:'flex', gap:'8px'}}>
-              <button onClick={async () => {
-                await supabase.from('tasks').update({
-                  content: editingTask.content,
-                  estimated_minutes: editingTask.estimated_minutes,
-                  category_tag: editingTask.category_tag,
-                  difficulty: editingTask.difficulty
-                }).eq('id', editingTask.id).eq('user_id', user.id)
-                fetchTasks()
-                setEditingTask(null)
-                setMessage('✅ Task updated')
-              }} className="btn primary" style={{flex:1}}>Save</button>
-              <button onClick={() => setEditingTask(null)} className="btn" style={{flex:1}}>Cancel</button>
-            </div>
+
+            <input
+              type="number"
+              placeholder="Minutes"
+              value={taskMinutes}
+              onChange={(e) => setTaskMinutes(parseInt(e.target.value) || 30)}
+              min="5"
+              max="480"
+              className="input"
+              style={{width:'100px'}}
+            />
+
+            <input
+              type="text"
+              placeholder="Tag"
+              value={taskTag}
+              onChange={(e) => setTaskTag(e.target.value)}
+              className="input"
+              style={{width:'120px'}}
+            />
+
+            <button onClick={addTask} className="btn primary">Add</button>
           </div>
+
+          <div className="filter-tabs">
+            <button onClick={() => setActiveCategory('all')} className={`tab ${activeCategory === 'all' ? 'active' : ''}`}>
+              All
+            </button>
+            <button onClick={() => setActiveCategory('daily')} className={`tab ${activeCategory === 'daily' ? 'active' : ''}`}>
+              Daily
+            </button>
+            <button onClick={() => setActiveCategory('weekly')} className={`tab ${activeCategory === 'weekly' ? 'active' : ''}`}>
+              Weekly
+            </button>
+            <button onClick={() => setActiveCategory('custom')} className={`tab ${activeCategory === 'custom' ? 'active' : ''}`}>
+              Custom
+            </button>
+          </div>
+
+          {filteredTasks.length === 0 ? (
+            <p className="message empty">No tasks yet</p>
+          ) : (
+            <div className="tasks-list">
+              {filteredTasks.map(task => (
+                <div key={task.id} className={`task-item ${task.done ? 'done' : ''} difficulty-${task.difficulty}`}>
+                  <input
+                    type="checkbox"
+                    checked={task.done}
+                    onChange={() => toggleTask(task.id)}
+                    className="task-checkbox"
+                  />
+                  <div className="task-content">
+                    <span className="task-text">{task.content}</span>
+                    <div className="task-meta">
+                      {task.time && <span className="task-time">⏰ {task.time}</span>}
+                      {task.weekday && <span className="task-day">📅 {task.weekday}</span>}
+                      {task.due_date && <span className="task-date">📆 {task.due_date}</span>}
+                      <span className={`difficulty-badge ${task.difficulty}`}>{task.difficulty}</span>
+                      <span className="time-badge">⏱️ {formatMinutes(task.estimated_minutes)}</span>
+                      {task.category_tag && task.category_tag !== 'general' && (
+                        <span className="tag-badge">#{task.category_tag}</span>
+                      )}
+                    </div>
+                  </div>
+                  <button onClick={() => deleteTask(task.id)} className="btn-icon delete">🗑️</button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {failedDays.length > 0 && (
+            <div className="failed-days">
+              <h3>⚠️ Missed Days This Week</h3>
+              {failedDays.map((day, idx) => (
+                <div key={idx} className="failed-day">
+                  {day.date}: {day.completed}/{day.total} habits completed
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+
+      {message && (
+        <div className={`toast ${message.includes('❌') || message.includes('Error') ? 'error' : 'success'}`}>
+          {message}
         </div>
       )}
+
+      <footer className="footer">©️ Hyesent.dev</footer>
     </div>
   )
-                }
+        }
