@@ -48,7 +48,47 @@ export default function App() {
   const [taskDifficulty, setTaskDifficulty] = useState('medium')
   const [taskMinutes, setTaskMinutes] = useState(30)
   const [taskTag, setTaskTag] = useState('general') // NEW
+  const [editingTask, setEditingTask] = useState(null) 
+  const formatMinutes = (mins) => {
+  if (!mins || mins === 0) return '0m'
+  const hours = Math.floor(mins / 60)
+  const minutes = mins % 60
+  if (hours === 0) return `${minutes}m`
+  if (minutes === 0) return `${hours}h`
+  return `${hours}h ${minutes}m`
+}
   const [activeCategory, setActiveCategory] = useState('all')
+  const [targetLang, setTargetLang] = useState("yo") // default Yoruba
+
+const ALL_LANGUAGES = [
+  {code:"af",name:"Afrikaans"},{code:"sq",name:"Albanian"},{code:"am",name:"Amharic"},{code:"ar",name:"Arabic"},
+  {code:"hy",name:"Armenian"},{code:"az",name:"Azerbaijani"},{code:"eu",name:"Basque"},{code:"be",name:"Belarusian"},
+  {code:"bn",name:"Bengali"},{code:"bs",name:"Bosnian"},{code:"bg",name:"Bulgarian"},{code:"ca",name:"Catalan"},
+  {code:"ceb",name:"Cebuano"},{code:"ny",name:"Chichewa"},{code:"zh-CN",name:"Chinese Simplified"},{code:"zh-TW",name:"Chinese Traditional"},
+  {code:"co",name:"Corsican"},{code:"hr",name:"Croatian"},{code:"cs",name:"Czech"},{code:"da",name:"Danish"},
+  {code:"nl",name:"Dutch"},{code:"en",name:"English"},{code:"eo",name:"Esperanto"},{code:"et",name:"Estonian"},
+  {code:"tl",name:"Filipino"},{code:"fi",name:"Finnish"},{code:"fr",name:"French"},{code:"fy",name:"Frisian"},
+  {code:"gl",name:"Galician"},{code:"ka",name:"Georgian"},{code:"de",name:"German"},{code:"el",name:"Greek"},
+  {code:"gu",name:"Gujarati"},{code:"ht",name:"Haitian Creole"},{code:"ha",name:"Hausa"},{code:"haw",name:"Hawaiian"},
+  {code:"he",name:"Hebrew"},{code:"hi",name:"Hindi"},{code:"hmn",name:"Hmong"},{code:"hu",name:"Hungarian"},
+  {code:"is",name:"Icelandic"},{code:"ig",name:"Igbo"},{code:"id",name:"Indonesian"},{code:"ga",name:"Irish"},
+  {code:"it",name:"Italian"},{code:"ja",name:"Japanese"},{code:"jw",name:"Javanese"},{code:"kn",name:"Kannada"},
+  {code:"kk",name:"Kazakh"},{code:"km",name:"Khmer"},{code:"rw",name:"Kinyarwanda"},{code:"ko",name:"Korean"},
+  {code:"ku",name:"Kurdish"},{code:"ky",name:"Kyrgyz"},{code:"lo",name:"Lao"},{code:"la",name:"Latin"},
+  {code:"lv",name:"Latvian"},{code:"lt",name:"Lithuanian"},{code:"lb",name:"Luxembourgish"},{code:"mk",name:"Macedonian"},
+  {code:"mg",name:"Malagasy"},{code:"ms",name:"Malay"},{code:"ml",name:"Malayalam"},{code:"mt",name:"Maltese"},
+  {code:"mi",name:"Maori"},{code:"mr",name:"Marathi"},{code:"mn",name:"Mongolian"},{code:"my",name:"Myanmar"},
+  {code:"ne",name:"Nepali"},{code:"no",name:"Norwegian"},{code:"or",name:"Odia"},{code:"ps",name:"Pashto"},
+  {code:"fa",name:"Persian"},{code:"pl",name:"Polish"},{code:"pt",name:"Portuguese"},{code:"pa",name:"Punjabi"},
+  {code:"ro",name:"Romanian"},{code:"ru",name:"Russian"},{code:"sm",name:"Samoan"},{code:"gd",name:"Scots Gaelic"},
+  {code:"sr",name:"Serbian"},{code:"st",name:"Sesotho"},{code:"sn",name:"Shona"},{code:"sd",name:"Sindhi"},
+  {code:"si",name:"Sinhala"},{code:"sk",name:"Slovak"},{code:"sl",name:"Slovenian"},{code:"so",name:"Somali"},
+  {code:"es",name:"Spanish"},{code:"su",name:"Sundanese"},{code:"sw",name:"Swahili"},{code:"sv",name:"Swedish"},
+  {code:"tg",name:"Tajik"},{code:"ta",name:"Tamil"},{code:"tt",name:"Tatar"},{code:"te",name:"Telugu"},
+  {code:"th",name:"Thai"},{code:"tr",name:"Turkish"},{code:"tk",name:"Turkmen"},{code:"uk",name:"Ukrainian"},
+  {code:"ur",name:"Urdu"},{code:"ug",name:"Uyghur"},{code:"uz",name:"Uzbek"},{code:"vi",name:"Vietnamese"},
+  {code:"cy",name:"Welsh"},{code:"xh",name:"Xhosa"},{code:"yi",name:"Yiddish"},{code:"yo",name:"Yoruba"},{code:"zu",name:"Zulu"}
+]
 
   const [currentTime, setCurrentTime] = useState(new Date())
   const [searchQuery, setSearchQuery] = useState('')
@@ -86,6 +126,7 @@ export default function App() {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     return () => clearInterval(timer)
   }, [])
+  
 
   useEffect(() => {
     let interval
@@ -108,6 +149,7 @@ export default function App() {
     }
     return () => clearInterval(interval)
   }, [pomodoroRunning, isBreak])
+
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -455,7 +497,32 @@ export default function App() {
     setIsBreak(false)
     setPomodoroTime(25 * 60)
   }
-
+async function translateNote() {
+  if (!noteText.trim()) {
+    setMessage("Note empty. Type something first.")
+    return
+  }
+  
+  setLoading(true)
+  setMessage("🌍 Translating...")
+  
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(noteText)}&langpair=auto|${targetLang}`
+    const response = await fetch(url)
+    const data = await response.json()
+    
+    if (data.responseStatus === 200) {
+      setNoteText(data.responseData.translatedText)
+      const langName = ALL_LANGUAGES.find(l => l.code === targetLang)?.name
+      setMessage(`✅ Translated to ${langName}!`)
+    } else {
+      setMessage("Translation failed")
+    }
+  } catch (err) {
+    setMessage("No internet: " + err.message)
+  }
+  setLoading(false)
+}
   const toggleSelect = (id) => {
     setSelectedNotes(prev =>
       prev.includes(id)? prev.filter(x => x!== id) : [...prev, id]
@@ -492,7 +559,7 @@ export default function App() {
       doc.text(`Priority: ${note.priority}`, 20, yPos)
       yPos += 12
     })
-    doc.save(`dscypln-notes-${selectedDate}.pdf`)
+    doc.save(`discypln-notes-${selectedDate}.pdf`)
     setMessage('✅ PDF exported!')
     setShowExport(false)
     setSelectedNotes([])
@@ -507,7 +574,7 @@ export default function App() {
       sections: [{
         children: [
           new Paragraph({
-            children: [new TextRun({ text: `Dscypln Tasks`, bold: true, size: 32 })]
+            children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
           }),
         ...tasks.map(t => new Paragraph({
             children: [
@@ -521,7 +588,7 @@ export default function App() {
       }]
     })
     const blob = await Packer.toBlob(doc)
-    saveAs(blob, `dscypln-tasks.docx`)
+    saveAs(blob, `discypln-tasks.docx`)
     setMessage('✅ Word file exported!')
   }
 
@@ -606,7 +673,7 @@ export default function App() {
   if (!user) {
     return (
       <div className="auth-container">
-        <h1 className="logo">Dscypln</h1>
+        <h1 className="logo">Discypln</h1>
         <div className="auth-box">
           <h2>Login / Sign Up</h2>
           <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
@@ -625,11 +692,28 @@ export default function App() {
   if (viewMode === 'add' || viewMode === 'edit') {
     return (
       <div className="editor-page">
-        <header className="editor-header">
-          <button onClick={goBack}>{'<'}</button>
-          <button onClick={saveNote}>Save</button>
-        </header>
+        <header className="editor-header" style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px', gap:'8px'}}>
+  
+  {/* Left: Back */}
+  <button onClick={goBack} style={{flex:'0 0 auto'}}>{'<'}</button>
 
+  {/* Middle: Translate dropdown + button */}
+  <div style={{display:'flex', gap:'4px', flex:'1 1 auto', justifyContent:'center', maxWidth:'200px'}}>
+    <select
+      value={targetLang}
+      onChange={(e) => setTargetLang(e.target.value)}
+      style={{background:'#1a1a1a', color:'#fff', border:'1px solid #333', padding:'4px 6px', borderRadius:'6px', fontSize:'11px', flex:'1'}}
+    >
+      {ALL_LANGUAGES.map(lang => (
+        <option key={lang.code} value={lang.code}>{lang.name}</option>
+      ))}
+    </select>
+    <button onClick={translateNote} style={{padding:'4px 8px', fontSize:'14px'}}>🌍</button>
+  </div>
+
+  {/* Right: Save */}
+  <button onClick={saveNote} style={{flex:'0 0 auto'}}>Save</button>
+</header>
         <div className="editor-body">
           {viewMode === 'add' &&!priority && (
             <div className="priority-picker">
@@ -767,7 +851,7 @@ export default function App() {
   return (
     <div className="container">
       <header className="header">
-        <h1 className="logo">Dscypln</h1>
+        <h1 className="logo">Discypln</h1>
         <button onClick={signOut} className="btn logout">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -804,7 +888,7 @@ export default function App() {
           <div className="stat-grid">
             <div className="stat-item">
               <span className="stat-label">Today</span>
-              <strong className="stat-value">{todayScore}%</strong>
+              <strong className="stat-value">{formatMinutes(totalMinutes)}</strong>
             </div>
             <div className="stat-item">
               <span className="stat-label">This Week</span>
@@ -964,7 +1048,10 @@ export default function App() {
                 {t.category === 'custom' && t.due_date && <span className="task-date">{formatDate(t.due_date)}</span>}
               </div>
             </div>
-            <button onClick={() => deleteTask(t.id)} className="btn-delete">×</button>
+          <div style={{display:'flex', gap:'6px'}}>
+  <button onClick={() => setEditingTask(t)} className="btn-delete">✏️</button>
+  <button onClick={() => deleteTask(t.id)} className="btn-delete">×</button>
+</div>
           </div>
         ))}
       </div>
@@ -973,6 +1060,41 @@ export default function App() {
       {isProcessing && <p className="loading">Processing image...</p>}
       {message && <p className={`message ${message.includes('✅')? 'success' : 'error'}`}>{message}</p>}
       <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} style={{ display: 'none' }} />
+      {editingTask && (
+  <div style={{position:'fixed', top:0, left:0, right:0, bottom:0, background:'rgba(0,0,0,0.8)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000}}>
+    <div style={{background:'#1a1a1a', padding:'20px', borderRadius:'12px', width:'320px', border:'1px solid #333'}}>
+      <h3 style={{marginBottom:'16px', color:'#fff'}}>Edit Task</h3>
+      <input value={editingTask.content} onChange={e => setEditingTask({...editingTask, content:e.target.value})} className="input" placeholder="Task name" style={{marginBottom:'8px', width:'100%'}} />
+      <input value={editingTask.estimated_minutes} onChange={e => setEditingTask({...editingTask, estimated_minutes:Number(e.target.value)})} type="number" className="input" placeholder="mins, e.g. 120" style={{marginBottom:'8px', width:'100%'}} />
+      <select value={editingTask.category_tag} onChange={e => setEditingTask({...editingTask, category_tag:e.target.value})} className="select" style={{marginBottom:'8px', width:'100%'}}>
+        <option value="general">General</option>
+        <option value="school">School</option>
+        <option value="work">Work</option>
+        <option value="health">Health</option>
+        <option value="personal">Personal</option>
+      </select>
+      <select value={editingTask.difficulty} onChange={e => setEditingTask({...editingTask, difficulty:e.target.value})} className="select" style={{marginBottom:'16px', width:'100%'}}>
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+      <div style={{display:'flex', gap:'8px'}}>
+        <button onClick={async () => {
+          await supabase.from('tasks').update({
+            content: editingTask.content,
+            estimated_minutes: editingTask.estimated_minutes,
+            category_tag: editingTask.category_tag,
+            difficulty: editingTask.difficulty
+          }).eq('id', editingTask.id).eq('user_id', user.id)
+          fetchTasks()
+          setEditingTask(null)
+          setMessage('✅ Task updated')
+        }} className="btn primary" style={{flex:1}}>Save</button>
+        <button onClick={() => setEditingTask(null)} className="btn" style={{flex:1}}>Cancel</button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   )
 }
