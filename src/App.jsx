@@ -20,16 +20,46 @@ const VOICE_COMMANDS = {
   'new paragraph': '\n\n'
 }
 
+const ALL_LANGUAGES = [
+  {code:"af",name:"Afrikaans"},{code:"sq",name:"Albanian"},{code:"am",name:"Amharic"},{code:"ar",name:"Arabic"},
+  {code:"hy",name:"Armenian"},{code:"az",name:"Azerbaijani"},{code:"eu",name:"Basque"},{code:"be",name:"Belarusian"},
+  {code:"bn",name:"Bengali"},{code:"bs",name:"Bosnian"},{code:"bg",name:"Bulgarian"},{code:"ca",name:"Catalan"},
+  {code:"ceb",name:"Cebuano"},{code:"ny",name:"Chichewa"},{code:"zh-CN",name:"Chinese Simplified"},{code:"zh-TW",name:"Chinese Traditional"},
+  {code:"co",name:"Corsican"},{code:"hr",name:"Croatian"},{code:"cs",name:"Czech"},{code:"da",name:"Danish"},
+  {code:"nl",name:"Dutch"},{code:"en",name:"English"},{code:"eo",name:"Esperanto"},{code:"et",name:"Estonian"},
+  {code:"tl",name:"Filipino"},{code:"fi",name:"Finnish"},{code:"fr",name:"French"},{code:"fy",name:"Frisian"},
+  {code:"gl",name:"Galician"},{code:"ka",name:"Georgian"},{code:"de",name:"German"},{code:"el",name:"Greek"},
+  {code:"gu",name:"Gujarati"},{code:"ht",name:"Haitian Creole"},{code:"ha",name:"Hausa"},{code:"haw",name:"Hawaiian"},
+  {code:"he",name:"Hebrew"},{code:"hi",name:"Hindi"},{code:"hmn",name:"Hmong"},{code:"hu",name:"Hungarian"},
+  {code:"is",name:"Icelandic"},{code:"ig",name:"Igbo"},{code:"id",name:"Indonesian"},{code:"ga",name:"Irish"},
+  {code:"it",name:"Italian"},{code:"ja",name:"Japanese"},{code:"jw",name:"Javanese"},{code:"kn",name:"Kannada"},
+  {code:"kk",name:"Kazakh"},{code:"km",name:"Khmer"},{code:"rw",name:"Kinyarwanda"},{code:"ko",name:"Korean"},
+  {code:"ku",name:"Kurdish"},{code:"ky",name:"Kyrgyz"},{code:"lo",name:"Lao"},{code:"la",name:"Latin"},
+  {code:"lv",name:"Latvian"},{code:"lt",name:"Lithuanian"},{code:"lb",name:"Luxembourgish"},{code:"mk",name:"Macedonian"},
+  {code:"mg",name:"Malagasy"},{code:"ms",name:"Malay"},{code:"ml",name:"Malayalam"},{code:"mt",name:"Maltese"},
+  {code:"mi",name:"Maori"},{code:"mr",name:"Marathi"},{code:"mn",name:"Mongolian"},{code:"my",name:"Myanmar"},
+  {code:"ne",name:"Nepali"},{code:"no",name:"Norwegian"},{code:"or",name:"Odia"},{code:"ps",name:"Pashto"},
+  {code:"fa",name:"Persian"},{code:"pl",name:"Polish"},{code:"pt",name:"Portuguese"},{code:"pa",name:"Punjabi"},
+  {code:"ro",name:"Romanian"},{code:"ru",name:"Russian"},{code:"sm",name:"Samoan"},{code:"gd",name:"Scots Gaelic"},
+  {code:"sr",name:"Serbian"},{code:"st",name:"Sesotho"},{code:"sn",name:"Shona"},{code:"sd",name:"Sindhi"},
+  {code:"si",name:"Sinhala"},{code:"sk",name:"Slovak"},{code:"sl",name:"Slovenian"},{code:"so",name:"Somali"},
+  {code:"es",name:"Spanish"},{code:"su",name:"Sundanese"},{code:"sw",name:"Swahili"},{code:"sv",name:"Swedish"},
+  {code:"tg",name:"Tajik"},{code:"ta",name:"Tamil"},{code:"tt",name:"Tatar"},{code:"te",name:"Telugu"},
+  {code:"th",name:"Thai"},{code:"tr",name:"Turkish"},{code:"tk",name:"Turkmen"},{code:"uk",name:"Ukrainian"},
+  {code:"ur",name:"Urdu"},{code:"ug",name:"Uyghur"},{code:"uz",name:"Uzbek"},{code:"vi",name:"Vietnamese"},
+  {code:"cy",name:"Welsh"},{code:"xh",name:"Xhosa"},{code:"yi",name:"Yiddish"},{code:"yo",name:"Yoruba"},{code:"zu",name:"Zulu"}
+]
+
 // CODE LANGUAGE DETECTOR
 const detectCodeLanguage = (text) => {
   const patterns = [
-    { regex: /import\s+.*from\s+['"].*['"]|export\s+(default\s+)?|const\s+.*=\s*\(|function\s+\w+\s*\(|=>\s*{/, name: 'JavaScript/React' },
-    { regex: /def\s+\w+\s*\(.*\):|import\s+\w+|from\s+\w+\s+import|print\s*\(/, name: 'Python' },
-    { regex: /public\s+class\s+\w+|System\.out\.println|import\s+java\.|public\s+static\s+void/, name: 'Java' },
-    { regex: /#include\s*<.*>|std::|int\s+main\s*\(|cout\s*<<|cin\s*>>/, name: 'C++' },
-    { regex: /<\?php|\$\w+\s*=|echo\s+|function\s+\w+\s*\(/, name: 'PHP' },
-    { regex: /SELECT\s+.*FROM|INSERT\s+INTO|UPDATE\s+.*SET|CREATE\s+TABLE/i, name: 'SQL' },
-    { regex: /<html|<div|<body|<head|<!DOCTYPE|<script|<style/, name: 'HTML' },
+    { regex: /import\s+.*from\s+['"].*['"]|export\s+(default\s+)?|const\s+.*=\s*\(/, name: 'JavaScript/React' },
+    { regex: /def\s+\w+\s*\(.*\):|import\s+\w+|from\s+\w+\s+import/, name: 'Python' },
+    { regex: /public\s+class\s+\w+|System\.out\.println|import\s+java\./, name: 'Java' },
+    { regex: /#include\s*<.*>|std::|int\s+main\s*\(/, name: 'C++' },
+    { regex: /<\?php|\$\w+\s*=|echo\s+/, name: 'PHP' },
+    { regex: /SELECT\s+.*FROM|INSERT\s+INTO|UPDATE\s+.*SET/i, name: 'SQL' },
+    { regex: /<html|<div|<body|<head|<!DOCTYPE/, name: 'HTML' },
     { regex: /\{\s*"[\w]+"\s*:|JSON\.parse|JSON\.stringify/, name: 'JSON' },
     { regex: /^\s*[\w-]+\s*:\s*.+$/m, name: 'YAML' }
   ]
@@ -51,13 +81,14 @@ const getNLLBLangCode = (code) => {
     'el': 'ell_Grek', 'hu': 'hun_Latn', 'ro': 'ron_Latn', 'uk': 'ukr_Cyrl',
     'id': 'ind_Latn', 'ms': 'zsm_Latn', 'fa': 'pes_Arab', 'bn': 'ben_Beng',
     'ta': 'tam_Taml', 'te': 'tel_Telu', 'mr': 'mar_Deva', 'ur': 'urd_Arab',
-    'sw': 'swh_Latn', 'fil': 'tgl_Latn'
+    'sw': 'swh_Latn', 'fil': 'tgl_Latn', 'tl': 'tgl_Latn'
   }
   return map[code] || 'eng_Latn'
 }
 
 export default function App() {
   const [user, setUser] = useState(null)
+  const [session, setSession] = useState(null)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
@@ -65,7 +96,6 @@ export default function App() {
   const [noteText, setNoteText] = useState('')
   const [isListening, setIsListening] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [detectedCode, setDetectedCode] = useState(null)
   const recognitionRef = useRef(null)
   const fileInputRef = useRef(null)
 
@@ -73,7 +103,8 @@ export default function App() {
   const [title, setTitle] = useState('')
   const [priority, setPriority] = useState('medium')
   const [editingNote, setEditingNote] = useState(null)
-  const [viewMode, setViewMode] = useState('list')
+  const [viewMode, setViewMode] = useState('home')
+  const [detectedCode, setDetectedCode] = useState(null)
 
   const [task, setTask] = useState('')
   const [tasks, setTasks] = useState([])
@@ -85,56 +116,9 @@ export default function App() {
   const [taskMinutes, setTaskMinutes] = useState(30)
   const [taskTag, setTaskTag] = useState('general')
   const [editingTask, setEditingTask] = useState(null)
-  const formatMinutes = (mins) => {
-    if (!mins || mins === 0) return '0m'
-    const hours = Math.floor(mins / 60)
-    const minutes = mins % 60
-    if (hours === 0) return `${minutes}m`
-    if (minutes === 0) return `${hours}h`
-    return `${hours}h ${minutes}m`
-  }
   const [activeCategory, setActiveCategory] = useState('all')
   const [targetLang, setTargetLang] = useState("fr")
-
-  const ALL_LANGUAGES = [
-    {code:"af",name:"Afrikaans"},{code:"sq",name:"Albanian"},{code:"am",name:"Amharic"},{code:"ar",name:"Arabic"},
-    {code:"hy",name:"Armenian"},{code:"az",name:"Azerbaijani"},{code:"eu",name:"Basque"},{code:"be",name:"Belarusian"},
-    {code:"bn",name:"Bengali"},{code:"bs",name:"Bosnian"},{code:"bg",name:"Bulgarian"},{code:"ca",name:"Catalan"},
-    {code:"ceb",name:"Cebuano"},{code:"ny",name:"Chichewa"},{code:"zh-CN",name:"Chinese Simplified"},{code:"zh-TW",name:"Chinese Traditional"},
-    {code:"co",name:"Corsican"},{code:"hr",name:"Croatian"},{code:"cs",name:"Czech"},{code:"da",name:"Danish"},
-    {code:"nl",name:"Dutch"},{code:"en",name:"English"},{code:"eo",name:"Esperanto"},{code:"et",name:"Estonian"},
-    {code:"tl",name:"Filipino"},{code:"fi",name:"Finnish"},{code:"fr",name:"French"},{code:"fy",name:"Frisian"},
-    {code:"gl",name:"Galician"},{code:"ka",name:"Georgian"},{code:"de",name:"German"},{code:"el",name:"Greek"},
-    {code:"gu",name:"Gujarati"},{code:"ht",name:"Haitian Creole"},{code:"ha",name:"Hausa"},{code:"haw",name:"Hawaiian"},
-    {code:"he",name:"Hebrew"},{code:"hi",name:"Hindi"},{code:"hmn",name:"Hmong"},{code:"hu",name:"Hungarian"},
-    {code:"is",name:"Icelandic"},{code:"ig",name:"Igbo"},{code:"id",name:"Indonesian"},{code:"ga",name:"Irish"},
-    {code:"it",name:"Italian"},{code:"ja",name:"Japanese"},{code:"jw",name:"Javanese"},{code:"kn",name:"Kannada"},
-    {code:"kk",name:"Kazakh"},{code:"km",name:"Khmer"},{code:"rw",name:"Kinyarwanda"},{code:"ko",name:"Korean"},
-    {code:"ku",name:"Kurdish"},{code:"ky",name:"Kyrgyz"},{code:"lo",name:"Lao"},{code:"la",name:"Latin"},
-    {code:"lv",name:"Latvian"},{code:"lt",name:"Lithuanian"},{code:"lb",name:"Luxembourgish"},{code:"mk",name:"Macedonian"},
-    {code:"mg",name:"Malagasy"},{code:"ms",name:"Malay"},{code:"ml",name:"Malayalam"},{code:"mt",name:"Maltese"},
-    {code:"mi",name:"Maori"},{code:"mr",name:"Marathi"},{code:"mn",name:"Mongolian"},{code:"my",name:"Myanmar"},
-    {code:"ne",name:"Nepali"},{code:"no",name:"Norwegian"},{code:"or",name:"Odia"},{code:"ps",name:"Pashto"},
-    {code:"fa",name:"Persian"},{code:"pl",name:"Polish"},{code:"pt",name:"Portuguese"},{code:"pa",name:"Punjabi"},
-    {code:"ro",name:"Romanian"},{code:"ru",name:"Russian"},{code:"sm",name:"Samoan"},{code:"gd",name:"Scots Gaelic"},
-    {code:"sr",name:"Serbian"},{code:"st",name:"Sesotho"},{code:"sn",name:"Shona"},{code:"sd",name:"Sindhi"},
-    {code:"si",name:"Sinhala"},{code:"sk",name:"Slovak"},{code:"sl",name:"Slovenian"},{code:"so",name:"Somali"},
-    {code:"es",name:"Spanish"},{code:"su",name:"Sundanese"},{code:"sw",name:"Swahili"},{code:"sv",name:"Swedish"},
-    {code:"tg",name:"Tajik"},{code:"ta",name:"Tamil"},{code:"tt",name:"Tatar"},{code:"te",name:"Telugu"},
-    {code:"th",name:"Thai"},{code:"tr",name:"Turkish"},{code:"tk",name:"Turkmen"},{code:"uk",name:"Ukrainian"},
-    {code:"ur",name:"Urdu"},{code:"ug",name:"Uyghur"},{code:"uz",name:"Uzbek"},{code:"vi",name:"Vietnamese"},
-    {code:"cy",name:"Welsh"},{code:"xh",name:"Xhosa"},{code:"yi",name:"Yiddish"},{code:"yo",name:"Yoruba"},{code:"zu",name:"Zulu"}
-  ]
   const [message, setMessage] = useState('')
-
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => {
-        setMessage('')
-      }, 2000)
-      return () => clearTimeout(timer)
-    }
-  }, [message])
   const [currentTime, setCurrentTime] = useState(new Date())
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -150,12 +134,42 @@ export default function App() {
   const [fontSize, setFontSize] = useState('16')
   const [titleFont, setTitleFont] = useState('Inter')
 
+  const formatMinutes = (mins) => {
+    if (!mins || mins === 0) return '0m'
+    const hours = Math.floor(mins / 60)
+    const minutes = mins % 60
+    if (hours === 0) return `${minutes}m`
+    if (minutes === 0) return `${hours}h`
+    return `${hours}h ${minutes}m`
+  }
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage('')
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [message])
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
       setUser(session?.user?? null)
+      if (session?.user) {
+        fetchNotes()
+        fetchTasks()
+        fetchPomodoroStats()
+      }
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
       setUser(session?.user?? null)
+      if (session?.user) {
+        fetchNotes()
+        fetchTasks()
+        fetchPomodoroStats()
+      }
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -178,14 +192,8 @@ export default function App() {
       interval = setInterval(() => {
         setPomodoroTime(prev => {
           if (prev <= 1) {
-            if (isBreak) {
-              setIsBreak(false)
-              setPomodoroSessions(prev => prev + 1)
-              return 25 * 60
-            } else {
-              setIsBreak(true)
-              return 5 * 60
-            }
+            handlePomodoroComplete()
+            return isBreak? 1500 : 300
           }
           return prev - 1
         })
@@ -236,18 +244,16 @@ export default function App() {
     recognitionRef.current = recognition
   }, [])
 
-  // CODE DETECTOR - runs in background, no UI
   useEffect(() => {
     if (noteText) {
       const codeLang = detectCodeLanguage(noteText)
       if (codeLang) {
         setDetectedCode(codeLang)
         setMessage(`💻 Code detected: ${codeLang}`)
+        setTimeout(() => setMessage(''), 2000)
       } else {
         setDetectedCode(null)
       }
-    } else {
-      setDetectedCode(null)
     }
   }, [noteText])
 
@@ -258,12 +264,12 @@ export default function App() {
       setIsListening(false)
     } else {
       navigator.mediaDevices.getUserMedia({ audio: true })
-     .then(() => {
+      .then(() => {
           recognitionRef.current.start()
           setIsListening(true)
           setMessage('🎤 Say comma, full stop, new line for punctuation')
         })
-     .catch((err) => {
+      .catch((err) => {
           console.error(err)
           setMessage('Microphone permission denied. Tap the lock icon in Brave/Chrome > Site settings > Microphone > Allow')
           setIsListening(false)
@@ -293,11 +299,11 @@ export default function App() {
     if (!user) return
     setLoading(true)
     const { data, error } = await supabase
-   .from('notes')
-   .select('*')
-   .eq('user_id', user.id)
-   .eq('date', selectedDate)
-   .order('created_at', { ascending: false })
+    .from('notes')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('date', selectedDate)
+    .order('created_at', { ascending: false })
     setLoading(false)
     if (error) {
       console.error('Fetch error:', error)
@@ -310,14 +316,23 @@ export default function App() {
   async function fetchTasks() {
     if (!user) return
     const { data, error } = await supabase
-   .from('tasks')
-   .select('*')
-   .eq('user_id', user.id)
-   .order('created_at', { ascending: false })
+    .from('tasks')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
     if (error) {
       console.error('Fetch tasks error:', error)
     } else {
       setTasks(data || [])
+    }
+  }
+
+  async function fetchPomodoroStats() {
+    const today = new Date().toISOString().split('T')[0]
+    const { data } = await supabase.from('pomodoro_sessions').select('*').eq('date', today).eq('user_id', user.id)
+    if (data && data[0]) {
+      setPomodoroSessions(data[0].sessions_completed || 0)
+      setTotalMinutes(data[0].total_minutes || 0)
     }
   }
 
@@ -343,7 +358,7 @@ export default function App() {
     setTitle('')
     setNoteText('')
     setEditingNote(null)
-    setViewMode('list')
+    setViewMode('home')
   }
 
   async function saveNote() {
@@ -354,16 +369,23 @@ export default function App() {
     setLoading(true)
     setMessage('')
 
+    const noteData = {
+      title: title.trim(),
+      content: noteText.trim(),
+      font_family: fontFamily,
+      title_font: titleFont,
+      font_size: parseInt(fontSize),
+      priority: priority || 'medium',
+      user_id: user.id,
+      date: selectedDate
+    }
+
     if (editingNote) {
       const { error } = await supabase
-     .from('notes')
-     .update({
-          title: title.trim(),
-          content: noteText.trim(),
-          priority
-        })
-     .eq('id', editingNote.id)
-     .eq('user_id', user.id)
+      .from('notes')
+      .update(noteData)
+      .eq('id', editingNote.id)
+      .eq('user_id', user.id)
 
       if (error) setMessage('Error: ' + error.message)
       else {
@@ -373,18 +395,12 @@ export default function App() {
         setNoteText('')
         setPriority('medium')
         await fetchNotes()
-        setViewMode('list')
+        setViewMode('home')
       }
     } else {
       const { error } = await supabase
-     .from('notes')
-     .insert({
-          user_id: user.id,
-          date: selectedDate,
-          title: title.trim(),
-          content: noteText.trim(),
-          priority
-        })
+      .from('notes')
+      .insert([noteData])
 
       if (error) setMessage('Error: ' + error.message)
       else {
@@ -393,7 +409,7 @@ export default function App() {
         setNoteText('')
         setPriority('medium')
         await fetchNotes()
-        setViewMode('list')
+        setViewMode('home')
       }
     }
     setLoading(false)
@@ -411,12 +427,15 @@ export default function App() {
     setEditingNote(note)
     setTitle(note.title)
     setNoteText(note.content)
+    setFontFamily(note.font_family || 'Inter')
+    setTitleFont(note.title_font || 'Inter')
+    setFontSize(note.font_size?.toString() || '16')
     setPriority(note.priority)
     setViewMode('edit')
   }
 
   function goBack() {
-    setViewMode('list')
+    setViewMode('home')
     setEditingNote(null)
     setTitle('')
     setNoteText('')
@@ -425,16 +444,16 @@ export default function App() {
 
   async function deleteNote(id) {
     const { error } = await supabase
-   .from('notes')
-   .delete()
-   .eq('id', id)
-   .eq('user_id', user.id)
+    .from('notes')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
     if (error) {
       setMessage('Delete failed: ' + error.message)
     } else {
       setMessage('🗑️ Note deleted')
       await fetchNotes()
-      setViewMode('list')
+      setViewMode('home')
     }
   }
 
@@ -510,19 +529,19 @@ export default function App() {
   async function toggleTask(id) {
     const task = tasks.find(t => t.id === id)
     const { error } = await supabase
-   .from('tasks')
-   .update({ done:!task.done })
-   .eq('id', id)
-   .eq('user_id', user.id)
+    .from('tasks')
+    .update({ done:!task.done, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .eq('user_id', user.id)
     if (!error) fetchTasks()
   }
 
   async function deleteTask(id) {
     const { error } = await supabase
-   .from('tasks')
-   .delete()
-   .eq('id', id)
-   .eq('user_id', user.id)
+    .from('tasks')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
     if (!error) {
       setMessage('🗑️ Task deleted')
       fetchTasks()
@@ -557,7 +576,24 @@ export default function App() {
     setPomodoroTime(25 * 60)
   }
 
-  // TRANSLATION WITH 5 APIs: HuggingFace #1, then Libre, MyMemory, Lingva, Google
+  const handlePomodoroComplete = async () => {
+    if (!isBreak) {
+      const newSessions = pomodoroSessions + 1
+      const newMinutes = totalMinutes + 25
+      setPomodoroSessions(newSessions)
+      setTotalMinutes(newMinutes)
+      const today = new Date().toISOString().split('T')[0]
+      await supabase.from('pomodoro_sessions').upsert({
+        user_id: user.id,
+        date: today,
+        sessions_completed: newSessions,
+        total_minutes: newMinutes
+      })
+    }
+    setIsBreak(!isBreak)
+  }
+
+  // TRANSLATION: HUGGING FACE FIRST, 4-LAYER FALLBACK
   async function translateNote() {
     if (!noteText.trim()) {
       setMessage("Note empty. Type something first.")
@@ -565,18 +601,20 @@ export default function App() {
     }
 
     setLoading(true)
+    setMessage("🌍 Translating with Hugging Face...")
+
+    const textToTranslate = noteText.trim()
     const langName = ALL_LANGUAGES.find(l => l.code === targetLang)?.name || targetLang
 
     // 1. Hugging Face NLLB-200 - FREE, NO KEY, STRONG
     try {
-      setMessage("🌍 Translating with Hugging Face...")
       const res = await fetch(
         "https://api-inference.huggingface.co/models/facebook/nllb-200-distilled-600M",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            inputs: noteText.trim(),
+            inputs: textToTranslate,
             parameters: {
               src_lang: "eng_Latn",
               tgt_lang: getNLLBLangCode(targetLang)
@@ -598,13 +636,13 @@ export default function App() {
     }
 
     // 2. LibreTranslate - FREE, NO KEY
+    setMessage("🌍 Trying LibreTranslate...")
     try {
-      setMessage("🌍 Trying LibreTranslate...")
       const response = await fetch("https://libretranslate.com/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          q: noteText.trim(),
+          q: textToTranslate,
           source: "auto",
           target: targetLang,
           format: "text"
@@ -621,41 +659,10 @@ export default function App() {
       }
     } catch {}
 
-    // 3. MyMemory - FREE, NO KEY
+    // 3. Google Free - FREE, NO KEY
+    setMessage("🌍 Trying Google...")
     try {
-      setMessage("🌍 Trying MyMemory...")
-      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(noteText.trim())}&langpair=en|${targetLang}`
-      const res = await fetch(url)
-      const data = await res.json()
-      if (data.responseStatus === 200 && data.responseData?.translatedText) {
-        const result = data.responseData.translatedText
-        if (!result.includes('Bună')) {
-          setNoteText(result)
-          setMessage(`✅ Translated to ${langName}!`)
-          setLoading(false)
-          return
-        }
-      }
-    } catch {}
-
-    // 4. Lingva - FREE, NO KEY
-    try {
-      setMessage("🌍 Trying Lingva...")
-      const url = `https://lingva.ml/api/v1/en/${targetLang}/${encodeURIComponent(noteText.trim())}`
-      const res = await fetch(url)
-      const data = await res.json()
-      if (data.translation &&!data.translation.includes('Bună')) {
-        setNoteText(data.translation)
-        setMessage(`✅ Translated to ${langName}!`)
-        setLoading(false)
-        return
-      }
-    } catch {}
-
-    // 5. Google Free - FREE, NO KEY
-    try {
-      setMessage("🌍 Trying Google...")
-      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(noteText.trim())}`
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(textToTranslate)}`
       const res = await fetch(url)
       const parsed = await res.json()
       const translated = parsed[0].map(item => item[0]).join('')
@@ -667,7 +674,26 @@ export default function App() {
       }
     } catch {}
 
-    setMessage("❌ All 5 translators failed. Check internet or try shorter text.")
+    // 4. MyMemory - FREE, NO KEY, last resort
+    setMessage("🌍 Trying MyMemory...")
+    try {
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=en|${targetLang}`
+      const res = await fetch(url)
+      const data = await res.json()
+      if (data.responseStatus === 200 && data.responseData?.translatedText) {
+        const result = data.responseData.translatedText
+        if (!result.includes('Bună')) {
+          setNoteText(result)
+          setMessage(`✅ Translated to ${langName}!`)
+        } else {
+          setMessage("❌ Translation failed. Try shorter text or different language.")
+        }
+      } else {
+        setMessage("❌ All translators failed. Check internet connection.")
+      }
+    } catch (e) {
+      setMessage("❌ No internet: " + e.message)
+    }
     setLoading(false)
   }
 
@@ -724,7 +750,7 @@ export default function App() {
           new Paragraph({
             children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
           }),
-       ...tasks.map(t => new Paragraph({
+        ...tasks.map(t => new Paragraph({
             children: [
               new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
               new TextRun({ text: t.content }),
@@ -740,28 +766,7 @@ export default function App() {
     setMessage('✅ Word file exported!')
   }
 
-  const getStreak = () => {
-    let streak = 0
-    const today = new Date()
-    for (let i = 0; i < 30; i++) {
-      const d = new Date(today)
-      d.setDate(today.getDate() - i)
-      const dateStr = d.toISOString().split('T')[0]
-      const dayHabits = tasks.filter(t => t.type === 'habit' && t.due_date === dateStr)
-      if (dayHabits.length === 0) continue
-      const dayCompleted = dayHabits.filter(t => t.done).length
-      if (dayCompleted === dayHabits.length && dayHabits.length > 0) {
-        streak++
-      } else {
-        break
-      }
-    }
-    return streak
-  }
-  const streak = getStreak()
-
   const exportWeeklyReport = async () => {
-    const jsPDF = (await import('jspdf')).default
     const autoTable = (await import('jspdf-autotable')).default
 
     const now = new Date()
@@ -770,7 +775,7 @@ export default function App() {
     startOfWeek.setHours(0,0,0,0)
     const endOfWeek = new Date(startOfWeek)
     endOfWeek.setDate(startOfWeek.getDate() + 6)
-    endOfWeek.setHours(23,59,999)
+    endOfWeek.setHours(23,59,59,999)
 
     const weekStr = `${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`
 
@@ -820,7 +825,27 @@ export default function App() {
     })
 
     doc.save(`Discypln_Weekly_Tasks_${weekStr.replace(/\//g, '-')}.pdf`)
+    setMessage('✅ Weekly report generated!')
   }
+
+      let streak = 0
+    const today = new Date()
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      const dateStr = d.toISOString().split('T')[0]
+      const dayHabits = tasks.filter(t => t.type === 'habit' && t.due_date === dateStr)
+      if (dayHabits.length === 0) continue
+      const dayCompleted = dayHabits.filter(t => t.done).length
+      if (dayCompleted === dayHabits.length && dayHabits.length > 0) {
+        streak++
+      } else {
+        break
+      }
+    }
+    return streak
+  }
+  const streak = getStreak()
 
   const getWeekDays = () => {
     const today = new Date()
@@ -836,15 +861,12 @@ export default function App() {
   const weekDays = getWeekDays()
   const todayStr = new Date().toISOString().split('T')[0]
   const todayTasks = tasks.filter(t => t.due_date === todayStr || (t.category === 'daily' && t.type === 'habit'))
-  .
-      const todayCompleted = todayTasks.filter(t => t.done).length
+  const todayCompleted = todayTasks.filter(t => t.done).length
   const todayScore = todayTasks.length > 0? Math.round((todayCompleted / todayTasks.length) * 100) : 0
 
   const weeklyTasks = tasks.filter(t => t.due_date && weekDays.includes(t.due_date))
   const weeklyCompleted = weeklyTasks.filter(t => t.done).length
   const weeklyScore = weeklyTasks.length > 0? Math.round((weeklyCompleted / weeklyTasks.length) * 100) : 0
-
-  const totalMinutes = tasks.filter(t => t.done).reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
 
   const getFailedDays = () => {
     const failed = []
@@ -871,10 +893,10 @@ export default function App() {
 
   const filteredTasks =
     activeCategory === 'all'
-  ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+   ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
       : tasks
-    .filter(t => t.category === activeCategory)
-    .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+     .filter(t => t.category === activeCategory)
+     .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
 
   const filteredNotes = notes.filter(note =>
     note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1064,7 +1086,7 @@ export default function App() {
         <h1 className="logo">Discypln</h1>
         <button onClick={signOut} className="btn logout">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M9 21H5a2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y1="12" />
           </svg>
@@ -1098,7 +1120,7 @@ export default function App() {
           <div className="stat-grid">
             <div className="stat-item">
               <span className="stat-label">Today</span>
-              <strong className="stat-value">{todayScore}%</strong>
+              <strong className="stat-value">{formatMinutes(totalMinutes)}</strong>
             </div>
             <div className="stat-item">
               <span className="stat-label">This Week</span>
@@ -1112,7 +1134,6 @@ export default function App() {
               <span className="stat-label">Deep Work</span>
               <strong className="stat-value">{Math.floor(totalMinutes/60)}h {totalMinutes%60}m</strong>
             </div>
-          </div>
           <div style={{marginTop:'20px'}}>
             <h3 style={{fontSize:'14px', color:'#ccc', marginBottom:'8px'}}>Heatmap</h3>
             <div style={{display:'grid', gridTemplateColumns:'repeat(10, 1fr)', gap:'3px', maxWidth:'400px'}}>
@@ -1129,7 +1150,7 @@ export default function App() {
 
                 const minutes = dayTasks.reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
                 const intensity = minutes === 0? 0 : minutes < 30? 1 : minutes < 60? 2 : minutes < 120? 3 : 4
-                const colors = ['#1a1a', '#0e4429', '#006d32', '#26a641', '#39d353']
+                const colors = ['#1a1a1a', '#0e4429', '#006d32', '#26a641', '#39d353']
 
                 return (
                   <button
@@ -1348,4 +1369,4 @@ export default function App() {
       )}
     </div>
   )
-    }
+        }
