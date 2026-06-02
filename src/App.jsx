@@ -258,12 +258,12 @@ export default function App() {
       setIsListening(false)
     } else {
       navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(() => {
+     .then(() => {
           recognitionRef.current.start()
           setIsListening(true)
           setMessage('🎤 Say comma, full stop, new line for punctuation')
         })
-      .catch((err) => {
+     .catch((err) => {
           console.error(err)
           setMessage('Microphone permission denied. Tap the lock icon in Brave/Chrome > Site settings > Microphone > Allow')
           setIsListening(false)
@@ -293,11 +293,11 @@ export default function App() {
     if (!user) return
     setLoading(true)
     const { data, error } = await supabase
-    .from('notes')
-    .select('*')
-    .eq('user_id', user.id)
-    .eq('date', selectedDate)
-    .order('created_at', { ascending: false })
+   .from('notes')
+   .select('*')
+   .eq('user_id', user.id)
+   .eq('date', selectedDate)
+   .order('created_at', { ascending: false })
     setLoading(false)
     if (error) {
       console.error('Fetch error:', error)
@@ -310,10 +310,10 @@ export default function App() {
   async function fetchTasks() {
     if (!user) return
     const { data, error } = await supabase
-    .from('tasks')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+   .from('tasks')
+   .select('*')
+   .eq('user_id', user.id)
+   .order('created_at', { ascending: false })
     if (error) {
       console.error('Fetch tasks error:', error)
     } else {
@@ -356,14 +356,14 @@ export default function App() {
 
     if (editingNote) {
       const { error } = await supabase
-      .from('notes')
-      .update({
+     .from('notes')
+     .update({
           title: title.trim(),
           content: noteText.trim(),
           priority
         })
-      .eq('id', editingNote.id)
-      .eq('user_id', user.id)
+     .eq('id', editingNote.id)
+     .eq('user_id', user.id)
 
       if (error) setMessage('Error: ' + error.message)
       else {
@@ -377,8 +377,8 @@ export default function App() {
       }
     } else {
       const { error } = await supabase
-      .from('notes')
-      .insert({
+     .from('notes')
+     .insert({
           user_id: user.id,
           date: selectedDate,
           title: title.trim(),
@@ -425,10 +425,10 @@ export default function App() {
 
   async function deleteNote(id) {
     const { error } = await supabase
-    .from('notes')
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user.id)
+   .from('notes')
+   .delete()
+   .eq('id', id)
+   .eq('user_id', user.id)
     if (error) {
       setMessage('Delete failed: ' + error.message)
     } else {
@@ -510,19 +510,19 @@ export default function App() {
   async function toggleTask(id) {
     const task = tasks.find(t => t.id === id)
     const { error } = await supabase
-    .from('tasks')
-    .update({ done:!task.done })
-    .eq('id', id)
-    .eq('user_id', user.id)
+   .from('tasks')
+   .update({ done:!task.done })
+   .eq('id', id)
+   .eq('user_id', user.id)
     if (!error) fetchTasks()
   }
 
   async function deleteTask(id) {
     const { error } = await supabase
-    .from('tasks')
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user.id)
+   .from('tasks')
+   .delete()
+   .eq('id', id)
+   .eq('user_id', user.id)
     if (!error) {
       setMessage('🗑️ Task deleted')
       fetchTasks()
@@ -724,7 +724,7 @@ export default function App() {
           new Paragraph({
             children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
           }),
-        ...tasks.map(t => new Paragraph({
+       ...tasks.map(t => new Paragraph({
             children: [
               new TextRun({ text: t.done? '✓ ' : '☐ ', bold: true }),
               new TextRun({ text: t.content }),
@@ -770,7 +770,7 @@ export default function App() {
     startOfWeek.setHours(0,0,0,0)
     const endOfWeek = new Date(startOfWeek)
     endOfWeek.setDate(startOfWeek.getDate() + 6)
-    endOfWeek.setHours(23,59,59,999)
+    endOfWeek.setHours(23,59,999)
 
     const weekStr = `${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`
 
@@ -836,7 +836,8 @@ export default function App() {
   const weekDays = getWeekDays()
   const todayStr = new Date().toISOString().split('T')[0]
   const todayTasks = tasks.filter(t => t.due_date === todayStr || (t.category === 'daily' && t.type === 'habit'))
-    const todayCompleted = todayTasks.filter(t => t.done).length
+  .
+      const todayCompleted = todayTasks.filter(t => t.done).length
   const todayScore = todayTasks.length > 0? Math.round((todayCompleted / todayTasks.length) * 100) : 0
 
   const weeklyTasks = tasks.filter(t => t.due_date && weekDays.includes(t.due_date))
@@ -870,10 +871,10 @@ export default function App() {
 
   const filteredTasks =
     activeCategory === 'all'
-   ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+  ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
       : tasks
-     .filter(t => t.category === activeCategory)
-     .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+    .filter(t => t.category === activeCategory)
+    .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
 
   const filteredNotes = notes.filter(note =>
     note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1063,7 +1064,7 @@ export default function App() {
         <h1 className="logo">Discypln</h1>
         <button onClick={signOut} className="btn logout">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <path d="M9 21H5a2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y1="12" />
           </svg>
@@ -1111,6 +1112,7 @@ export default function App() {
               <span className="stat-label">Deep Work</span>
               <strong className="stat-value">{Math.floor(totalMinutes/60)}h {totalMinutes%60}m</strong>
             </div>
+          </div>
           <div style={{marginTop:'20px'}}>
             <h3 style={{fontSize:'14px', color:'#ccc', marginBottom:'8px'}}>Heatmap</h3>
             <div style={{display:'grid', gridTemplateColumns:'repeat(10, 1fr)', gap:'3px', maxWidth:'400px'}}>
@@ -1127,7 +1129,7 @@ export default function App() {
 
                 const minutes = dayTasks.reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
                 const intensity = minutes === 0? 0 : minutes < 30? 1 : minutes < 60? 2 : minutes < 120? 3 : 4
-                const colors = ['#1a1a1a', '#0e4429', '#006d32', '#26a641', '#39d353']
+                const colors = ['#1a1a', '#0e4429', '#006d32', '#26a641', '#39d353']
 
                 return (
                   <button
