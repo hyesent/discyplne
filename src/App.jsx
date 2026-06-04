@@ -1199,31 +1199,29 @@ return (
     </div>
 
     <input
-  type="text"
-  placeholder="Search notes..."
-  value={searchQuery}
-  onChange={(e) => setSearchQuery(e.target.value)}
-  className="input"
-  style={{ 
-    width: '100%',
-    padding: '16px 20px',
-    fontSize: '16px',
-    marginBottom: '16px',
-    background: 'transparent',
-    border: '1px solid #374151',
-    borderRadius: '12px',
-    color: 'white'
-  }}
-/>
+      type="text"
+      placeholder="Search notes..."
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      style={{
+        width: '100%',
+        padding: '12px 16px',
+        borderRadius: '12px',
+        border: '1px solid #374151',
+        background: '#111827',
+        color: 'white',
+        marginBottom: '16px'
+      }}
+    />
 
-{/* Saved Notes Button - same size as Export Notes */}
-<div className="relative">
+    <div style={{ position: 'relative', marginBottom: '16px' }}>
+
+  {/* Toggle Button */}
   <button
     onClick={(e) => {
       e.stopPropagation()
-      setShowNotesDropdown(!showNotesDropdown)
+      setShowNotesDropdown(prev => !prev)
     }}
-    className="card"
     style={{
       width: '100%',
       padding: '16px 20px',
@@ -1236,79 +1234,61 @@ return (
       background: '#1f2937',
       border: '1px solid #374151',
       borderRadius: '12px',
-      color: 'white',
-      marginBottom: '16px'
+      color: 'white'
     }}
   >
-    <span>Saved Notes</span>
-    <span style={{ 
-      transform: showNotesDropdown? 'rotate(180deg)' : 'rotate(0deg)', 
-      transition: '0.2s',
-      fontSize: '14px'
-    }}>▼</span>
+    Saved Notes
+    <span>{showNotesDropdown ? '▲' : '▼'}</span>
   </button>
 
+  {/* Dropdown */}
   {showNotesDropdown && (
     <div
-      className="card"
       style={{
         position: 'absolute',
-        zIndex: 50,
         width: '100%',
-        marginTop: '-8px',
-        maxHeight: '300px',
-        overflowY: 'auto',
         background: '#1f2937',
         border: '1px solid #374151',
         borderRadius: '12px',
-        padding: '8px'
+        marginTop: '8px',
+        maxHeight: '300px',
+        overflowY: 'auto',
+        zIndex: 9999
       }}
-      onClick={(e) => e.stopPropagation()}
     >
-      {notes.length === 0? (
-        <p style={{ textAlign: 'center', padding: '16px', color: '#9ca3af' }}>No notes</p>
+
+      {notes.length === 0 ? (
+        <div style={{ padding: '16px', color: '#aaa' }}>
+          No notes yet
+        </div>
       ) : (
-        notes.filter(n => 
-          searchQuery === '' || 
-          n.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          n.content?.toLowerCase().includes(searchQuery.toLowerCase())
-        ).map(note => (
-          <button
+        notes.map(note => (
+          <div
             key={note.id}
-            onClick={(e) => {
-              e.stopPropagation()
-              setCurrentNote(note)
+            onClick={() => {
+              openEditNote(note)
               setShowNotesDropdown(false)
             }}
             style={{
-              width: '100%',
-              textAlign: 'left',
-              padding: '12px 16px',
-              marginBottom: '4px',
+              padding: '12px',
               cursor: 'pointer',
-              borderRadius: '8px',
-              background: currentNote?.id === note.id? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-              borderLeft: currentNote?.id === note.id? '4px solid #3b82f6' : '4px solid transparent',
-              color: 'white'
+              borderBottom: '1px solid #374151'
             }}
           >
-            <div style={{ fontWeight: 500, fontSize: '15px' }}>{note.title || 'Untitled'}</div>
-            <div style={{ fontSize: '13px', color: '#9ca3af', marginTop: '4px' }}>
-              {new Date(note.created_at).toLocaleDateString()} • {note.content?.slice(0, 40)}...
+            <div style={{ fontWeight: 'bold', color: 'white' }}>
+              {note.title || 'Untitled'}
             </div>
-          </button>
+            <div style={{ fontSize: '12px', color: '#aaa' }}>
+              {note.content?.slice(0, 50)}
+            </div>
+          </div>
         ))
       )}
-      {notes.length > 0 && notes.filter(n => 
-        searchQuery === '' || 
-        n.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        n.content?.toLowerCase().includes(searchQuery.toLowerCase())
-      ).length === 0 && (
-        <p style={{ textAlign: 'center', padding: '16px', color: '#9ca3af' }}>No notes match search</p>
-      )}
+
     </div>
   )}
-</div>
+</div>    
+  
     {showExport && notes.length > 0 && (
       <div className="card" style={{ marginBottom: '16px' }}>
         <h4>Select Notes to Export</h4>
@@ -1325,13 +1305,7 @@ return (
       </div>
     )}
 
-    {filteredNotes.map(note => (
-      <div key={note.id} className={`note-summary priority-${note.priority}`} onClick={() => openEditNote(note)}>
-        <h4>{note.title}</h4>
-        <small>{formatNoteTime(note.created_at)} • {note.priority}</small>
-      </div>
-    ))}
-
+    
     <div className="button-row" style={{display:'flex', gap:'10px'}}>
       <button onClick={() => setShowExport(!showExport)} className="btn full-width">{showExport? 'Hide' : 'Export Notes'}</button>
       <button onClick={exportTasksWord} className="btn full-width">Export Tasks Word</button>
