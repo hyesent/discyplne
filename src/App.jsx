@@ -211,46 +211,80 @@ const [showNotesDropdown, setShowNotesDropdown] = useState(false)
 }, [showNotesDropdown])
 
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SpeechRecognition) {
-      setMessage('Speech Recognition not supported. Use Chrome/Brave.')
-      return
-    }
-    const recognition = new SpeechRecognition()
-    recognition.continuous = true
-    recognition.interimResults = true
-    recognition.lang = 'en-US'
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+  if (!SpeechRecognition) {
+    setMessage('Speech Recognition not supported. Use Chrome/Safari')
+    return
+  }
 
-    recognition.onresult = (event) => {
-      let transcript = ''
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) {
-          transcript += event.results[i][0].transcript
-        }
+  const recognition = new SpeechRecognition()
+  recognition.lang = 'en-US'
+  recognition.continuous = true // No limit till user stops
+  recognition.interimResults = true // Show words as you speak
+  recognition.maxAlternatives = 1
+
+  let userStopped = false // flag so WebKit doesn't auto-restart after manual stop
+
+  recognition.onstart = () => {
+    setIsListening(true)
+    setMessage('🎤 Listening... Say: comma, full stop, new line')
+  }
+
+  recognition.onresult = (event) => {
+    let interim = ''
+    let final = ''
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const transcript = event.results[i][0].transcript.trim()
+      if (event.results[i].isFinal) {
+        final += transcript + ' '
+      } else {
+        interim += transcript + ' '
       }
-      if (!transcript) return
+    }
 
-      let processedText = transcript.toLowerCase()
+    const process = (text) => {
+      let out = text.toLowerCase()
       Object.keys(VOICE_COMMANDS).forEach(cmd => {
         const regex = new RegExp(`\\b${cmd}\\b`, 'gi')
-        processedText = processedText.replace(regex, VOICE_COMMANDS[cmd])
+        out = out.replace(regex, VOICE_COMMANDS[cmd])
       })
-      processedText = processedText.replace(/(^\w|\.\s+\w|\n\n\w)/g, (match) => match.toUpperCase())
-
-      setNoteText(prev => prev + (prev? ' ' : '') + processedText)
-      setMessage('')
+      return out
     }
 
-    recognition.onerror = (event) => {
-      console.error('Speech error:', event.error)
-      if (event.error!== 'no-speech') {
-        setMessage(`Mic error: ${event.error}`)
-      }
-      setIsListening(false)
+    setNoteText(prev => {
+      const base = prev.replace(/\s*\[[^\]]*\]$/, '') // strip last interim
+      const processedFinal = process(final)
+      const processedInterim = process(interim)
+      return base + processedFinal + (processedInterim? ` [${processedInterim}]` : '')
+    })
+  }
+
+  recognition.onerror = (event) => {
+    if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+      setMessage('Microphone denied. Allow mic permission')
+    } else if (event.error!== 'no-speech' && event.error!== 'aborted') {
+      setMessage(`Mic error: ${event.error}`)
     }
-    recognition.onend = () => setIsListening(false)
-    recognitionRef.current = recognition
-  }, [])
+    setIsListening(false)
+  }
+
+  recognition.onend = () => {
+    setIsListening(false)
+    if (!userStopped) { // WebKit/iOS auto-stops. Restart if user didn't stop it
+      setTimeout(() => {
+        try { recognition.start() } catch {}
+      }, 200)
+    }
+  }
+
+  recognitionRef.current = recognition
+
+  return () => {
+    userStopped = true
+    recognition.stop()
+  }
+}, [])
 
   useEffect(() => {
     if (noteText) {
