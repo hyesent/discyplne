@@ -1249,7 +1249,7 @@ export default function App() {
                 fontSize: '13px'
               }}
             >
-              🌍 Translate
+              🌍 
             </button>
             <button
               onClick={saveNote}
