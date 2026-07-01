@@ -1666,21 +1666,21 @@ export default function App() {
           ))}
         </div>
       </div>
-    {/* ===== POMODORO & STATS DASHBOARD ===== */}
+    {/* ===== POMODORO & STATS DASHBOARD - SINGLE COLUMN ===== */}
 <div style={{
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
+  display: 'flex',
+  flexDirection: 'column',
   gap: '16px',
   marginBottom: '20px'
 }}>
-  {/* Pomodoro Card - IMPROVED */}
+  {/* Pomodoro Card */}
   <div style={{
     background: theme.bgCard,
     borderRadius: '16px',
     padding: '24px',
     border: `1px solid ${theme.border}`
   }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
       <div>
         <div style={{ 
           fontSize: '12px', 
@@ -1706,7 +1706,7 @@ export default function App() {
         <button
           onClick={togglePomodoro}
           style={{
-            padding: '10px 18px',
+            padding: '10px 24px',
             borderRadius: '12px',
             border: 'none',
             background: pomodoroRunning ? '#ef4444' : '#22c55e',
@@ -1722,14 +1722,13 @@ export default function App() {
         <button
           onClick={resetPomodoro}
           style={{
-            padding: '10px 14px',
+            padding: '10px 16px',
             borderRadius: '12px',
             border: `1px solid ${theme.border}`,
             background: 'transparent',
             color: theme.textSecondary,
             cursor: 'pointer',
-            fontSize: '14px',
-            transition: 'all 0.2s'
+            fontSize: '14px'
           }}
         >
           ↺
@@ -1759,7 +1758,7 @@ export default function App() {
     <div style={{
       display: 'flex',
       justifyContent: 'space-between',
-      fontSize: '12px',
+      fontSize: '13px',
       color: theme.textMuted,
       marginTop: '8px'
     }}>
@@ -1768,57 +1767,57 @@ export default function App() {
     </div>
   </div>
 
-    {/* Stats Card - Single Row */}
-        <div style={{
-          background: theme.bgCard,
-          borderRadius: '16px',
-          padding: '20px 24px',
-          border: `1px solid ${theme.border}`
-        }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '12px'
-          }}>
-            <div style={{
-              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-              padding: '14px 12px',
-              borderRadius: '12px',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '24px', fontWeight: '700', color: '#f59e0b' }}>{streak}</div>
-              <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>🔥 Streak</div>
-            </div>
-            <div style={{
-              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-              padding: '14px 12px',
-              borderRadius: '12px',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '24px', fontWeight: '700', color: '#60a5fa' }}>{formatMinutes(totalMinutes)}</div>
-              <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>⏱️ Focus Time</div>
-            </div>
-            <div style={{
-              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-              padding: '14px 12px',
-              borderRadius: '12px',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '24px', fontWeight: '700', color: '#34d399' }}>{tasks.filter(t => t.done).length}</div>
-              <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>✅ Done</div>
-            </div>
-            <div style={{
-              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-              padding: '14px 12px',
-              borderRadius: '12px',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '24px', fontWeight: '700', color: '#a78bfa' }}>{weeklyScore}%</div>
-              <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>📊 Weekly</div>
-            </div>
-          </div>
-        </div>
+  {/* Stats Card - Single Row */}
+  <div style={{
+    background: theme.bgCard,
+    borderRadius: '16px',
+    padding: '20px 24px',
+    border: `1px solid ${theme.border}`
+  }}>
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(4, 1fr)',
+      gap: '12px'
+    }}>
+      <div style={{
+        background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+        padding: '14px 12px',
+        borderRadius: '12px',
+        textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '24px', fontWeight: '700', color: '#f59e0b' }}>{streak}</div>
+        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>🔥 Streak</div>
       </div>
+      <div style={{
+        background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+        padding: '14px 12px',
+        borderRadius: '12px',
+        textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '24px', fontWeight: '700', color: '#60a5fa' }}>{formatMinutes(totalMinutes)}</div>
+        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>⏱️ Focus Time</div>
+      </div>
+      <div style={{
+        background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+        padding: '14px 12px',
+        borderRadius: '12px',
+        textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '24px', fontWeight: '700', color: '#34d399' }}>{tasks.filter(t => t.done).length}</div>
+        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>✅ Done</div>
+      </div>
+      <div style={{
+        background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+        padding: '14px 12px',
+        borderRadius: '12px',
+        textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '24px', fontWeight: '700', color: '#a78bfa' }}>{weeklyScore}%</div>
+        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>📊 Weekly</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 {/* ===== HEATMAP - FIXED TO FIT CARD ===== */}
 <div style={{
