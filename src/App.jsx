@@ -1218,7 +1218,7 @@ export default function App() {
               fontSize: '14px'
             }}
           >
-            ← Back
+            ⬅
           </button>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <select
