@@ -1689,7 +1689,7 @@ export default function App() {
           letterSpacing: '0.5px',
           fontWeight: '600'
         }}>
-          {isBreak ? '☕ Break' : '🍅 Focus'}
+          {isBreak ? '☕ Break' : ' Focus'}
         </div>
         <div style={{
           fontSize: '48px',
@@ -1795,7 +1795,7 @@ export default function App() {
         textAlign: 'center'
       }}>
         <div style={{ fontSize: '24px', fontWeight: '700', color: '#60a5fa' }}>{formatMinutes(totalMinutes)}</div>
-        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>⏱️ Focus Time</div>
+        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}> Focus Time</div>
       </div>
       <div style={{
         background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
@@ -1804,7 +1804,7 @@ export default function App() {
         textAlign: 'center'
       }}>
         <div style={{ fontSize: '24px', fontWeight: '700', color: '#34d399' }}>{tasks.filter(t => t.done).length}</div>
-        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>✅ Done</div>
+        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>Tasks Completed</div>
       </div>
       <div style={{
         background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
@@ -1813,7 +1813,7 @@ export default function App() {
         textAlign: 'center'
       }}>
         <div style={{ fontSize: '24px', fontWeight: '700', color: '#a78bfa' }}>{weeklyScore}%</div>
-        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>📊 Weekly</div>
+        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}> Weekly Task Completion</div>
       </div>
     </div>
   </div>
@@ -1833,7 +1833,7 @@ export default function App() {
     color: theme.text, 
     marginBottom: '12px'
   }}>
-    📊 Heatmap
+     Heatmap
     <span style={{ 
       fontSize: '12px', 
       fontWeight: '400', 
@@ -1955,7 +1955,7 @@ export default function App() {
                 margin: 0,
                 color: theme.text
               }}>
-                📝 Notes
+                 Notes
                 <span style={{
                   fontSize: '13px',
                   color: theme.textMuted,
@@ -2089,7 +2089,7 @@ export default function App() {
                 margin: 0,
                 color: theme.text
               }}>
-                ✅ Tasks
+                 Tasks
                 <span style={{
                   fontSize: '13px',
                   color: theme.textMuted,
@@ -2490,7 +2490,7 @@ export default function App() {
                 margin: 0,
                 color: theme.text
               }}>
-                📖 Journal
+                 Journal
                 <span style={{
                   fontSize: '13px',
                   color: theme.textMuted,
