@@ -1632,9 +1632,9 @@ export default function App() {
           border: `1px solid ${theme.border}`
         }}>
           {[
-            { id: 'notes', label: '📝 Notes' },
-            { id: 'tasks', label: '✅ Tasks' },
-            { id: 'journal', label: '📖 Journal' }
+            { id: 'notes', label: ' Notes' },
+            { id: 'tasks', label: ' Tasks' },
+            { id: 'journal', label: ' Journal' }
           ].map(tab => (
             <button
               key={tab.id}
