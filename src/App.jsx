@@ -1768,57 +1768,57 @@ export default function App() {
     </div>
   </div>
 
-  {/* Stats Card - IMPROVED */}
-  <div style={{
-    background: theme.bgCard,
-    borderRadius: '16px',
-    padding: '24px',
-    border: `1px solid ${theme.border}`
-  }}>
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '12px'
-    }}>
-      <div style={{
-        background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-        padding: '16px',
-        borderRadius: '12px',
-        textAlign: 'center'
-      }}>
-        <div style={{ fontSize: '28px', fontWeight: '700', color: '#f59e0b' }}>{streak}</div>
-        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>🔥 Streak</div>
+    {/* Stats Card - Single Row */}
+        <div style={{
+          background: theme.bgCard,
+          borderRadius: '16px',
+          padding: '20px 24px',
+          border: `1px solid ${theme.border}`
+        }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '12px'
+          }}>
+            <div style={{
+              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+              padding: '14px 12px',
+              borderRadius: '12px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '24px', fontWeight: '700', color: '#f59e0b' }}>{streak}</div>
+              <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>🔥 Streak</div>
+            </div>
+            <div style={{
+              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+              padding: '14px 12px',
+              borderRadius: '12px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '24px', fontWeight: '700', color: '#60a5fa' }}>{formatMinutes(totalMinutes)}</div>
+              <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>⏱️ Focus Time</div>
+            </div>
+            <div style={{
+              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+              padding: '14px 12px',
+              borderRadius: '12px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '24px', fontWeight: '700', color: '#34d399' }}>{tasks.filter(t => t.done).length}</div>
+              <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>✅ Done</div>
+            </div>
+            <div style={{
+              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+              padding: '14px 12px',
+              borderRadius: '12px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '24px', fontWeight: '700', color: '#a78bfa' }}>{weeklyScore}%</div>
+              <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>📊 Weekly</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div style={{
-        background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-        padding: '16px',
-        borderRadius: '12px',
-        textAlign: 'center'
-      }}>
-        <div style={{ fontSize: '28px', fontWeight: '700', color: '#60a5fa' }}>{formatMinutes(totalMinutes)}</div>
-        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>⏱️ Focus Time</div>
-      </div>
-      <div style={{
-        background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-        padding: '16px',
-        borderRadius: '12px',
-        textAlign: 'center'
-      }}>
-        <div style={{ fontSize: '28px', fontWeight: '700', color: '#34d399' }}>{tasks.filter(t => t.done).length}</div>
-        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>✅ Done</div>
-      </div>
-      <div style={{
-        background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-        padding: '16px',
-        borderRadius: '12px',
-        textAlign: 'center'
-      }}>
-        <div style={{ fontSize: '28px', fontWeight: '700', color: '#a78bfa' }}>{weeklyScore}%</div>
-        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>📊 Weekly Score</div>
-      </div>
-    </div>
-  </div>
-</div>
 
 {/* ===== HEATMAP - FIXED TO FIT CARD ===== */}
 <div style={{
