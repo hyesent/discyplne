@@ -1,0 +1,3935 @@
+==========================================================
+STUDY SQUAD AI
+PRODUCT FEATURE BIBLE
+VOLUME 1A
+CORE VISION • TIERS • AUTH • SUBSCRIPTIONS • PARENT MODE
+==========================================================
+
+==========================================================
+1. CORE VISION
+==========================================================
+
+Study Squad AI is an educational platform that follows students
+through three stages of education.
+
+Stage 1
+SSCE
+(JAMB • WAEC • NECO)
+
+Stage 2
+University
+(100L - Final Year)
+
+Stage 3
+Professional Certifications
+(Law • Nursing • Computer Science • Accounting)
+
+The app is not simply a CBT app.
+
+It is an AI-powered learning platform with competitive learning,
+career guidance and professional simulations.
+
+Everything revolves around one thing:
+
+Learn
+↓
+
+Practice
+
+↓
+
+Analyze
+
+↓
+
+Improve
+
+↓
+
+Compete
+
+↓
+
+Graduate
+
+↓
+
+Become Employable
+
+==========================================================
+2. TIER SYSTEM
+==========================================================
+
+Tier 1
+--------------------
+SSCE
+
+Target
+
+• SS3
+• JAMB Students
+• WAEC
+• NECO
+
+Subscription
+
+₦1,500 Monthly
+
+Main Goal
+
+Pass entrance examinations.
+
+Main Features
+
+• CBT
+• AI explanations
+• Practice
+• Weakness detection
+• Multiplayer
+• Analytics
+• Career guidance
+
+----------------------------------------------------------
+
+Tier 2
+--------------------
+
+Campus
+
+Target
+
+100L
+200L
+300L
+400L
+500L
+
+Subscription
+
+₦3,500 Monthly
+
+Main Goal
+
+Help university students graduate with better grades.
+
+Main Features
+
+Department CBT
+
+Past Questions
+
+Semester Planner
+
+To-do List
+
+TMA Tracker
+
+Lecture Notes
+
+Study Groups
+
+Internships
+
+Department Leaderboards
+
+FYP Ideas
+
+----------------------------------------------------------
+
+Tier 3
+
+Professional Academy
+
+Subscription
+
+₦5,000 Monthly
+
+Target
+
+Law
+
+Nursing
+
+Computer Science
+
+Accounting
+
+Main Goal
+
+Prepare students for professional examinations and interviews.
+
+==========================================================
+3. USER TYPES
+==========================================================
+
+Normal Student
+
+Uses CBT
+
+Uses Multiplayer
+
+Tracks Progress
+
+Uses AI
+
+Pays Subscription
+
+----------------------------------------------------------
+
+Parent
+
+Can monitor student.
+
+Cannot write exams.
+
+Cannot change scores.
+
+Can view
+
+Study Hours
+
+Weak Topics
+
+Daily Streak
+
+Exam Progress
+
+Subscription
+
+----------------------------------------------------------
+
+Administrator
+
+Uploads Questions
+
+Approves Questions
+
+Approves Notes
+
+Views Analytics
+
+Creates Exams
+
+Moderates Content
+
+==========================================================
+4. AUTHENTICATION
+==========================================================
+
+Purpose
+
+Every user owns one account.
+
+The account stores
+
+Progress
+
+XP
+
+Mistake Book
+
+Subscription
+
+Leaderboard
+
+Achievements
+
+Career Progress
+
+==========================================================
+Registration
+==========================================================
+
+Student enters
+
+First Name
+
+Last Name
+
+Username
+
+Email
+
+Password
+
+School
+
+Exam
+
+Country
+
+Optional Referral Code
+
+----------------------------------------------------------
+
+Validation
+
+Username unique
+
+Email unique
+
+Password minimum length
+
+Valid email
+
+==========================================================
+Login
+==========================================================
+
+Email
+
+Password
+
+Remember Me
+
+Forgot Password
+
+==========================================================
+Forgot Password
+==========================================================
+
+User enters email.
+
+Reset email sent.
+
+Creates new password.
+
+Old sessions revoked.
+
+==========================================================
+Sessions
+==========================================================
+
+Keep user logged in.
+
+Logout from all devices.
+
+Secure refresh tokens.
+
+==========================================================
+Profile
+==========================================================
+
+Editable
+
+Photo
+
+Username
+
+School
+
+Bio
+
+Goal
+
+Preferred Exam
+
+==========================================================
+Referral
+==========================================================
+
+Each user receives
+
+Referral Code
+
+Referral Link
+
+Reward after successful subscription.
+
+==========================================================
+5. SUBSCRIPTIONS
+==========================================================
+
+Payment Provider
+
+Paystack
+
+Supported Methods
+
+Card
+
+Bank Transfer
+
+USSD
+
+OPay
+
+Mobile Banking
+
+==========================================================
+Subscription Plans
+==========================================================
+
+SSCE
+
+₦1,500 Monthly
+
+Campus
+
+₦3,500 Monthly
+
+Professional
+
+₦5,000 Monthly
+
+==========================================================
+Rules
+==========================================================
+
+Subscription required.
+
+Expired subscription locks premium features.
+
+User keeps
+
+Progress
+
+XP
+
+Scores
+
+History
+
+Nothing is deleted.
+
+Renewing unlocks instantly.
+
+==========================================================
+Upgrade
+==========================================================
+
+Student can upgrade
+
+SSCE
+
+↓
+
+Campus
+
+↓
+
+Professional
+
+Immediately.
+
+==========================================================
+Downgrade
+==========================================================
+
+Downgrade keeps data.
+
+Locked features become read-only.
+
+Nothing deleted.
+
+==========================================================
+Cancellation
+==========================================================
+
+User may cancel renewal.
+
+Subscription remains active until expiry.
+
+==========================================================
+Payment History
+==========================================================
+
+Every payment stores
+
+Date
+
+Amount
+
+Plan
+
+Reference
+
+Status
+
+Method
+
+==========================================================
+Feature Locking
+==========================================================
+
+Every feature checks
+
+Subscription Tier
+
+Before opening.
+
+Locked features display
+
+Feature
+
+Description
+
+Benefits
+
+Upgrade Button
+
+==========================================================
+6. PARENT DASHBOARD
+==========================================================
+
+Purpose
+
+Allow parents monitor progress instead of asking
+"Have you read today?"
+
+==========================================================
+Parent Linking
+==========================================================
+
+Student generates Parent Code.
+
+Parent enters code.
+
+Connection request sent.
+
+Student approves.
+
+Linked.
+
+==========================================================
+Dashboard Home
+==========================================================
+
+Displays
+
+Student Name
+
+Current Streak
+
+Current Level
+
+Total XP
+
+Subscription
+
+Study Time
+
+==========================================================
+Study Analytics
+==========================================================
+
+Hours today
+
+Hours this week
+
+Hours this month
+
+Most active day
+
+Average session
+
+==========================================================
+Performance
+==========================================================
+
+Average score
+
+Recent exams
+
+Weak subjects
+
+Strong subjects
+
+Improvement graph
+
+==========================================================
+Topic Heatmap
+==========================================================
+
+Green
+
+Strong
+
+Yellow
+
+Average
+
+Red
+
+Weak
+
+Grey
+
+Never studied
+
+==========================================================
+Exam Readiness
+==========================================================
+
+AI estimates readiness.
+
+Example
+
+Mathematics
+
+85%
+
+Physics
+
+71%
+
+Chemistry
+
+63%
+
+English
+
+92%
+
+==========================================================
+Notifications
+==========================================================
+
+Parent receives
+
+Daily Study Completed
+
+7 Day Streak
+
+Subscription Expiry
+
+Major Improvement
+
+Long Inactivity
+
+==========================================================
+Restrictions
+==========================================================
+
+Parent CANNOT
+
+Write exams
+
+Change answers
+
+Reset streak
+
+Edit scores
+
+Claim rewards
+
+==========================================================
+Privacy
+==========================================================
+
+Student controls
+
+Link
+
+Unlink
+
+Permissions
+
+==========================================================
+Future Expansion
+==========================================================
+
+Multiple Parents
+
+Guardian Accounts
+
+Weekly Email Reports
+
+SMS Reports
+
+Monthly Performance PDF
+
+Teacher Portal
+
+School Dashboard
+
+==========================================================
+END OF VOLUME 1A
+==========================================================
+
+==========================================================
+STUDY SQUAD AI
+PRODUCT FEATURE BIBLE
+VOLUME 1B
+CBT ENGINE
+==========================================================
+
+The CBT Engine is the heart of Study Squad AI.
+
+Every exam mode in the app is built on the same engine.
+
+Examples
+
+• Practice Mode
+• Topic Practice
+• Weakness Mode
+• JAMB CBT
+• Exam Simulation
+• Department CBT (Campus)
+• Professional Academy CBT
+
+Everything shares
+
+• Question Engine
+• Timer Engine
+• Scoring Engine
+• Analytics Engine
+• Mistake Engine
+
+==========================================================
+1. PRACTICE MODE
+==========================================================
+
+Purpose
+
+Allow students practice without exam pressure.
+
+==========================================================
+
+Question Amount
+
+20 Questions
+
+40 Questions
+
+50 Questions
+
+(Admin can add more later.)
+
+==========================================================
+
+Question Selection
+
+Student chooses
+
+• Subject
+• Topic (optional)
+• Difficulty (optional)
+• Number of Questions
+
+The engine randomly selects questions.
+
+No repeated questions in one session.
+
+==========================================================
+
+Timer
+
+Timer is optional.
+
+Student can
+
+• Untimed Practice
+
+or
+
+• Timed Practice
+
+==========================================================
+
+Navigation
+
+Previous
+
+Next
+
+Question Palette
+
+Jump to any question
+
+==========================================================
+
+Answering
+
+Tap option
+
+Answer saves instantly
+
+User can change answer before submission
+
+==========================================================
+
+Submission
+
+Manual submit
+
+or
+
+Auto submit when timer ends
+
+==========================================================
+
+Results
+
+Immediately after submission
+
+Display
+
+Score
+
+Percentage
+
+Correct
+
+Wrong
+
+Skipped
+
+Time Used
+
+Accuracy
+
+==========================================================
+
+Solutions
+
+Every question displays
+
+Correct answer
+
+Explanation
+
+Reason every wrong option is wrong (if available)
+
+Reference
+
+Topic
+
+Difficulty
+
+==========================================================
+
+Retry
+
+Retry only wrong questions
+
+Retry whole paper
+
+Bookmark difficult questions
+
+==========================================================
+
+Saved Data
+
+Subject
+
+Topic
+
+Questions
+
+Score
+
+Time
+
+Accuracy
+
+Mistakes
+
+==========================================================
+
+==========================================================
+2. JAMB CBT MODE
+==========================================================
+
+Purpose
+
+Simulate real JAMB examination.
+
+==========================================================
+
+Subjects
+
+Student selects
+
+Four subjects
+
+==========================================================
+
+Questions
+
+180 Questions
+
+Exactly like JAMB
+
+==========================================================
+
+Timer
+
+2 Hours
+
+Starts immediately
+
+Cannot pause
+
+==========================================================
+
+Interface
+
+JAMB-style layout
+
+Question palette
+
+Subject switch
+
+Timer
+
+Progress indicator
+
+==========================================================
+
+Navigation
+
+Next
+
+Previous
+
+Jump
+
+Subject Tabs
+
+==========================================================
+
+Rules
+
+Timer never stops
+
+No hints
+
+No AI
+
+No explanations
+
+No internet search
+
+==========================================================
+
+Submission
+
+Manual
+
+or
+
+Automatic when timer expires
+
+==========================================================
+
+Results
+
+Subject Scores
+
+Overall Score
+
+Percentage
+
+Speed
+
+Accuracy
+
+Estimated JAMB Score
+
+==========================================================
+
+Review
+
+Available after submission only.
+
+==========================================================
+
+Saved
+
+Full session history.
+
+==========================================================
+3. TOPIC MODE
+==========================================================
+
+Purpose
+
+Master one topic repeatedly.
+
+==========================================================
+
+Example
+
+Mathematics
+
+↓
+
+Indices
+
+↓
+
+40 Questions
+
+==========================================================
+
+Question Pool
+
+Randomly selected.
+
+No immediate repetition.
+
+==========================================================
+
+Difficulty
+
+Easy
+
+Medium
+
+Hard
+
+Mixed
+
+==========================================================
+
+Learning Style
+
+Student studies one topic until mastery.
+
+==========================================================
+
+Mastery
+
+AI tracks
+
+Attempts
+
+Accuracy
+
+Improvement
+
+Mastery %
+
+==========================================================
+
+Completion
+
+Topic becomes
+
+Green
+
+when mastery threshold is reached.
+
+==========================================================
+4. WEAKNESS MODE
+==========================================================
+
+Purpose
+
+Automatically improve weakest topics.
+
+==========================================================
+
+AI Analysis
+
+Reads
+
+Last exams
+
+Mistake Book
+
+Accuracy
+
+Time
+
+Skipped questions
+
+==========================================================
+
+Finds
+
+Worst Topics
+
+Example
+
+Vectors
+
+Probability
+
+Organic Chemistry
+
+==========================================================
+
+Creates
+
+Personalized Practice
+
+==========================================================
+
+Adaptive
+
+Improves as student improves.
+
+Weak topics change automatically.
+
+==========================================================
+
+Recommendations
+
+Study first
+
+Estimated study time
+
+Practice count
+
+Difficulty recommendation
+
+==========================================================
+5. EXAM SIMULATION
+==========================================================
+
+Purpose
+
+Short realistic examination.
+
+==========================================================
+
+Questions
+
+Usually
+
+50 Questions
+
+(Randomized)
+
+==========================================================
+
+Timer
+
+Strict countdown.
+
+==========================================================
+
+Rules
+
+No back button
+
+No hints
+
+No explanations
+
+Auto submit
+
+==========================================================
+
+Focus
+
+Simulates examination pressure.
+
+==========================================================
+
+Score
+
+Displayed only after completion.
+
+==========================================================
+
+Analytics
+
+Time per question
+
+Accuracy
+
+Weak topics
+
+==========================================================
+6. ROUGH SHEET
+==========================================================
+
+Purpose
+
+Allow calculations without leaving the exam.
+
+==========================================================
+
+Features
+
+Blank canvas
+
+Draw
+
+Erase
+
+Clear
+
+Undo
+
+Redo
+
+==========================================================
+
+Usage
+
+Mostly
+
+Mathematics
+
+Physics
+
+Chemistry
+
+Accounting
+
+==========================================================
+
+Rules
+
+Cannot be exported.
+
+Automatically cleared after exam.
+
+==========================================================
+7. QUESTION ENGINE
+==========================================================
+
+Purpose
+
+Power every CBT mode.
+
+==========================================================
+
+Question Structure
+
+Question
+
+Options
+
+Correct Answer
+
+Explanation
+
+Topic
+
+Subject
+
+Difficulty
+
+Tags
+
+==========================================================
+
+Randomization
+
+Random order
+
+No duplicates
+
+Balanced difficulty
+
+==========================================================
+
+Question Types
+
+Single Choice
+
+(Multiple choice support later.)
+
+==========================================================
+
+Integrity
+
+Every question has
+
+Unique ID
+
+Topic ID
+
+Subject ID
+
+==========================================================
+8. SCORING ENGINE
+==========================================================
+
+Tracks
+
+Correct
+
+Wrong
+
+Skipped
+
+Accuracy
+
+Speed
+
+Average time
+
+==========================================================
+
+Calculates
+
+Score
+
+Percentage
+
+Grade
+
+Performance
+
+==========================================================
+9. SESSION ENGINE
+==========================================================
+
+Stores
+
+Start Time
+
+End Time
+
+Duration
+
+Questions
+
+Answers
+
+Results
+
+==========================================================
+
+Resume
+
+Only available for Practice Mode.
+
+Never available for
+
+JAMB CBT
+
+Exam Simulation
+
+Professional Exams
+
+==========================================================
+10. FUTURE UPGRADES
+==========================================================
+
+Image Questions
+
+Audio Questions
+
+Diagram Questions
+
+Formula Sheets
+
+Scientific Calculator
+(Only for supported exams)
+
+Question Flagging
+
+Adaptive Difficulty
+
+Daily Practice Challenges
+
+==========================================================
+END OF VOLUME 1B
+==========================================================
+
+
+
+==========================================================
+STUDY SQUAD AI
+PRODUCT FEATURE BIBLE
+VOLUME 1C
+AI • ANALYTICS • GAMIFICATION • CAREER INTELLIGENCE
+==========================================================
+
+This volume is the “brain layer” of the app.
+
+It does NOT create exams.
+
+It observes everything the CBT engine produces:
+
+- answers
+- timing
+- mistakes
+- streaks
+- behaviour patterns
+
+Then it turns it into:
+
+→ meaning  
+→ strategy  
+→ motivation  
+→ predictions  
+
+==========================================================
+1. AI EXPLANATION ENGINE
+==========================================================
+
+Purpose
+--------
+Turn every question into a learning moment.
+
+==========================================================
+
+When triggered
+--------------
+After:
+
+• Practice Mode
+• Topic Mode
+• Exam Review
+• Weakness Mode
+
+NOT during:
+
+• JAMB CBT (strict mode)
+• Exam Simulation (strict mode)
+
+==========================================================
+
+What it generates
+-----------------
+
+For every question:
+
+1. Correct Answer Explanation
+- Simple breakdown
+- Step-by-step reasoning
+- No jargon overload
+
+2. Why wrong options are wrong
+- Option A: why incorrect
+- Option B: why incorrect
+- Option C: why incorrect
+
+3. Shortcut Method (if applicable)
+- faster exam method
+- trick pattern recognition
+
+4. Topic Insight
+- “This question is from: Indices”
+
+==========================================================
+
+AI Tone Modes
+-------------
+• Beginner Mode (simple)
+• Exam Mode (fast)
+• Coach Mode (motivational)
+• Strict Mode (no fluff)
+
+==========================================================
+2. TOPIC HEATMAP SYSTEM
+==========================================================
+
+Purpose
+-------
+Show exactly what student knows vs doesn’t know.
+
+==========================================================
+
+Data sources
+------------
+
+• CBT results
+• Mistake Book
+• Time spent per topic
+• Accuracy per topic
+• Revision frequency
+
+==========================================================
+
+Visualization
+-------------
+
+Each topic = color:
+
+🟢 Strong (80–100%)
+🟡 Average (50–79%)
+🔴 Weak (0–49%)
+⚪ Not studied
+
+==========================================================
+
+Behavior
+--------
+
+Heatmap updates in real-time after:
+
+• each exam
+• each practice session
+
+==========================================================
+
+AI insight layer
+----------------
+
+System also generates:
+
+• “Your weakest topic is Probability”
+• “You lose 40% marks in Algebra”
+• “Revise Indices before JAMB Mode”
+
+==========================================================
+3. SMART STUDY PLAN ENGINE
+==========================================================
+
+Purpose
+-------
+Replace random studying with AI structure.
+
+==========================================================
+
+Input signals
+-------------
+
+• available hours/day
+• exam date
+• weak topics
+• strong topics
+• past performance
+• attention pattern (time analytics)
+
+==========================================================
+
+Output
+------
+
+Daily plan like:
+
+MONDAY
+------
+
+Mathematics
+• Indices (40 min)
+• Algebra (30 min)
+
+Physics
+• Motion (30 min)
+
+English
+• Comprehension (20 min)
+
+Total: 2h 00m
+
+==========================================================
+
+Adaptive behavior
+-----------------
+
+Plan changes automatically when:
+
+• student improves
+• student fails repeatedly
+• time decreases before exam
+
+==========================================================
+4. JAMB PERFORMANCE PREDICTOR
+==========================================================
+
+Purpose
+-------
+Predict exam performance BEFORE real exam.
+
+==========================================================
+
+Inputs
+------
+
+• mock exam scores
+• accuracy trend
+• speed per question
+• topic mastery
+• historical cut-off data
+
+==========================================================
+
+Output
+------
+
+Example:
+
+JAMB Prediction:
+
+• Score: 268
+• Confidence: 72%
+
+University Chances:
+
+• UNILAG: 68%
+• UI: 74%
+• FUTA: 81%
+
+==========================================================
+
+Important
+---------
+
+This is NOT a guarantee.
+
+It is a probability model.
+
+==========================================================
+5. GPA PROJECTION ENGINE (BASIC VERSION)
+==========================================================
+
+Purpose
+-------
+Link SSCE performance → university expectations.
+
+==========================================================
+
+Input
+-----
+
+• WAEC grades
+• SSCE CBT performance
+• consistency score
+
+==========================================================
+
+Output
+------
+
+• predicted GPA range
+• academic risk level
+• suggested improvement areas
+
+==========================================================
+6. TIME ANALYTICS ENGINE
+==========================================================
+
+Purpose
+-------
+Reveal hidden study habits.
+
+==========================================================
+
+Tracks
+------
+
+• best study time
+• worst study time
+• average speed per subject
+• fatigue patterns
+• accuracy by time of day
+
+==========================================================
+
+Example insight
+---------------
+
+“You perform best at 9:00PM–11:00PM (78% accuracy)”
+
+“You perform worst at 2:00PM–4:00PM (42% accuracy)”
+
+==========================================================
+
+Usage
+-----
+
+Feeds Smart Study Plan Engine.
+
+==========================================================
+7. GAMIFICATION ENGINE
+==========================================================
+
+Purpose
+-------
+Keep users addicted to progress (healthy competition loop).
+
+==========================================================
+
+Core systems
+------------
+
+XP System
+---------
+• correct answer = XP
+• streak bonus
+• multiplayer bonus
+• speed bonus
+
+==========================================================
+
+Levels
+------
+
+Level increases based on XP thresholds.
+
+Unlocks:
+
+• new modes
+• badges
+• ranked battles
+
+==========================================================
+
+Streak System
+-------------
+
+• daily login streak
+• study streak
+• exam streak
+
+If broken:
+
+• partial reset
+• recovery bonus (optional feature)
+
+==========================================================
+
+Badges
+------
+
+Examples:
+
+• “First 100 Questions”
+• “7-Day Streak”
+• “Weakness Destroyer”
+• “Speed Demon”
+
+==========================================================
+8. LEADERBOARDS
+==========================================================
+
+Types
+-----
+
+• Global leaderboard
+• School leaderboard
+• Buddy leaderboard
+• Subject leaderboard
+
+==========================================================
+
+Rules
+-----
+
+• updated daily or real-time batch
+• anti-cheat filtered
+• ghost bot excluded
+
+==========================================================
+9. REFERRAL SYSTEM
+==========================================================
+
+Purpose
+-------
+Organic growth engine.
+
+==========================================================
+
+Flow
+----
+
+• user gets referral code
+• shares link
+• friend signs up + subscribes
+• referrer gets reward
+
+==========================================================
+
+Rewards
+-------
+
+• XP boost
+• subscription discount
+• badge unlock
+• leaderboard boost (optional)
+
+==========================================================
+10. NOTIFICATION ENGINE
+==========================================================
+
+Purpose
+-------
+Bring users back daily.
+
+==========================================================
+
+Triggers
+--------
+
+• streak about to break
+• weak topic detected
+• exam reminder
+• study plan update
+• leaderboard change
+• subscription expiry
+
+==========================================================
+
+Tone system
+-----------
+
+• motivational
+• warning
+• achievement
+• competitive
+
+==========================================================
+11. FUTURE AI UPGRADES
+==========================================================
+
+Planned expansions:
+
+• Voice tutor mode
+• AI exam conversation
+• Real-time coaching during practice
+• Personalized question generation
+• Emotion-based difficulty adjustment
+• Study fatigue detection via interaction speed
+
+==========================================================
+END OF VOLUME 1C
+=========================================================
+
+
+==========================================================
+STUDY SQUAD AI
+PRODUCT FEATURE BIBLE
+VOLUME 1D
+CAREER INTELLIGENCE SYSTEM
+==========================================================
+
+This layer connects:
+SSCE success → University entry → Real-world career paths
+
+It answers one question:
+
+“What do I become after I pass?”
+
+==========================================================
+1. COURSE FINDER ENGINE
+==========================================================
+
+Purpose
+-------
+Help students choose university courses correctly.
+
+==========================================================
+
+User Flow
+---------
+
+Student enters:
+
+• JAMB score
+• Subjects combination
+• Interest area (optional)
+
+System returns:
+
+• Recommended courses
+• Suitable universities
+• Competition level
+• Required cut-off range
+
+==========================================================
+
+Example Output
+--------------
+
+Score: 250
+
+Recommended:
+
+• Computer Science (UNILAG) — Medium risk
+• Software Engineering (FUTA) — Safe
+• Information Tech (LASU) — Very safe
+
+==========================================================
+2. CUT-OFF TRACKER
+==========================================================
+
+Purpose
+-------
+Prevent students from wasting application money.
+
+==========================================================
+
+Data sources
+------------
+
+• Past 3–5 years cut-offs
+• Department trends
+• Admission difficulty
+
+==========================================================
+
+Features
+--------
+
+• Course cut-off history
+• Trend prediction (rising/falling)
+• Admission difficulty label
+
+==========================================================
+
+Difficulty Labels
+-----------------
+
+🟢 Safe
+🟡 Competitive
+🔴 Highly Competitive
+
+==========================================================
+3. CAREER PATH ENGINE
+==========================================================
+
+Purpose
+-------
+Show real-life outcome of each course.
+
+==========================================================
+
+Flow
+----
+
+Course → Career Path → Salary range → Skills needed
+
+==========================================================
+
+Example
+-------
+
+Computer Science →
+
+• Junior Developer → ₦150k–₦300k
+• Data Analyst → ₦250k–₦500k
+• Backend Engineer → ₦400k+
+
+==========================================================
+
+Includes
+--------
+
+• Step-by-step roadmap
+• Skill stack
+• Timeline estimate
+• Entry-level jobs
+
+==========================================================
+4. CERTIFICATION PLANNER
+==========================================================
+
+Purpose
+-------
+Show shortcuts to earning skills while studying.
+
+==========================================================
+
+Example
+
+Computer Science student:
+
+Suggested:
+
+• Google IT Support (6 weeks)
+• AWS Cloud Basics (8 weeks)
+• Data Analysis (8–10 weeks)
+
+==========================================================
+
+Output includes:
+
+• Duration
+• Difficulty
+• Cost estimate
+• Job relevance score
+
+==========================================================
+5. CV BUILDER ENGINE
+==========================================================
+
+Purpose
+-------
+Help students prepare for internships and jobs early.
+
+==========================================================
+
+Features
+--------
+
+• ATS-friendly templates
+• One-page CV generator
+• Export PDF
+
+==========================================================
+
+User inputs:
+
+• Name
+• Education
+• Skills
+• Projects
+• Experience (optional)
+
+==========================================================
+
+Output:
+
+• Clean CV PDF
+• Downloadable format
+• Editable structure
+
+==========================================================
+6. AI MOCK INTERVIEW SYSTEM
+==========================================================
+
+Purpose
+-------
+Train students for real interviews.
+
+==========================================================
+
+Flow
+----
+
+AI asks:
+
+• “Tell me about yourself”
+• “Why should we hire you?”
+• “What are your weaknesses?”
+
+User responds (text or voice)
+
+==========================================================
+
+AI evaluates:
+
+• clarity
+• confidence
+• structure
+• keyword usage
+• communication strength
+
+==========================================================
+
+Score Output:
+
+• Communication: 72%
+• Confidence: 65%
+• Structure: 80%
+
+==========================================================
+7. INTERNSHIP BOARD
+==========================================================
+
+Purpose
+-------
+Connect students to real opportunities.
+
+==========================================================
+
+Types
+-----
+
+• SIWES programs
+• Remote internships
+• Entry-level roles
+• Freelance gigs
+
+==========================================================
+
+Filters
+-------
+
+• Level (100L–400L)
+• Field (CS, Business, etc.)
+• Paid / unpaid
+• Remote / onsite
+
+==========================================================
+Example Listings
+----------------
+
+• NITDA Internship Program
+• Andela Bootcamp
+• Remote Developer Internship (₦100k/month)
+
+==========================================================
+8. FINAL YEAR PROJECT (FYP) ENGINE
+==========================================================
+
+Purpose
+-------
+Remove “I don’t have project idea” problem.
+
+==========================================================
+
+User input:
+
+• Course
+• Interest area
+• Tech stack preference
+
+==========================================================
+
+Output:
+
+• 10 project ideas
+• Problem statement
+• Scope definition
+• Suggested tools
+• Difficulty level
+
+==========================================================
+Example
+-------
+
+Project:
+
+“AI Study Performance Predictor”
+
+Stack:
+
+• React
+• Node.js
+• Python ML API
+
+==========================================================
+9. CAREER DECISION ENGINE
+==========================================================
+
+Purpose
+-------
+Help students avoid wrong career paths.
+
+==========================================================
+
+Analyzes:
+
+• performance patterns
+• subject strengths
+• interest choices
+• consistency
+
+==========================================================
+
+Output:
+
+• Recommended career direction
+• Risk warnings
+• Alternative paths
+
+==========================================================
+10. FUTURE UPGRADES
+==========================================================
+
+Planned additions:
+
+• Salary negotiation AI
+• Real job marketplace integration
+• University comparison tool
+• Alumni tracking system
+• Skill certification blockchain verification
+
+==========================================================
+END OF VOLUME 1D
+==========================================================
+
+
+==========================================================
+STUDY SQUAD AI
+PRODUCT FEATURE BIBLE
+VOLUME 1E
+PRODUCTIVITY • SYSTEM TOOLS • LOCKER LAYER
+==========================================================
+
+This volume is NOT about learning content.
+
+It is about:
+making the learning system usable every day without friction.
+
+==========================================================
+1. BOOKMARK SYSTEM
+==========================================================
+
+Purpose
+-------
+Save anything important for later revision.
+
+==========================================================
+
+User can bookmark:
+
+• Questions
+• Topics
+• Mistakes
+• Exams
+• Explanations
+
+==========================================================
+
+Features
+--------
+
+• Save bookmark
+• Tag bookmark
+• Search bookmarks
+• Filter by subject/topic
+
+==========================================================
+
+Use case
+--------
+
+“I don’t understand this question yet”
+
+→ Bookmark it
+→ Come back later in revision mode
+
+==========================================================
+2. EXPORT MISTAKE BOOK (PDF ENGINE)
+==========================================================
+
+Purpose
+-------
+Turn mistakes into offline revision material.
+
+==========================================================
+
+What it contains:
+
+• Wrong questions
+• Correct answers
+• AI explanation
+• Topic grouping
+
+==========================================================
+
+Export options:
+
+• PDF format
+• Mobile-friendly layout
+• Print-ready format
+
+==========================================================
+
+Use case:
+
+Before exam:
+
+• revise only mistakes
+• no internet needed
+
+==========================================================
+3. OFFLINE MODE
+==========================================================
+
+Purpose
+-------
+Allow study without internet.
+
+==========================================================
+
+Offline available:
+
+• previously loaded questions
+• saved bookmarks
+• mistake book
+• basic CBT mode
+
+==========================================================
+
+Offline NOT available:
+
+• AI explanations (unless cached)
+• multiplayer
+• live updates
+• leaderboard sync
+
+==========================================================
+
+Sync system:
+
+• auto sync when online
+• conflict resolution based on latest timestamp
+
+==========================================================
+4. PUSH NOTIFICATIONS SYSTEM
+==========================================================
+
+Purpose
+-------
+Bring users back consistently.
+
+==========================================================
+
+Triggers:
+
+• streak about to break
+• missed study time
+• weak topic alert
+• leaderboard changes
+• exam reminders
+• subscription expiry
+
+==========================================================
+
+Types:
+
+• motivational
+• competitive
+• warning
+• achievement
+
+==========================================================
+5. DARK MODE SYSTEM
+==========================================================
+
+Purpose
+-------
+Reduce eye strain and improve retention sessions.
+
+==========================================================
+
+Features:
+
+• Light mode
+• Dark mode
+• Auto mode (system-based)
+
+==========================================================
+
+Stored per user preference.
+
+==========================================================
+6. PWA INSTALL SYSTEM
+==========================================================
+
+Purpose
+-------
+Make app behave like a native mobile app.
+
+==========================================================
+
+Features:
+
+• Add to Home Screen
+• Offline cache
+• Splash screen
+• App-like navigation
+
+==========================================================
+
+Benefit:
+
+Users treat it like:
+
+“JAMB app on my phone”
+
+not a website
+
+==========================================================
+7. BOOKMARKED REVISION MODE
+==========================================================
+
+Purpose
+-------
+Turn saved content into revision sessions.
+
+==========================================================
+
+Flow:
+
+User selects:
+
+• bookmarks
+• mistakes
+• topics
+
+System generates:
+
+• mini exam
+• revision quiz
+• targeted practice
+
+==========================================================
+8. ANALYTICS EXPORT SYSTEM
+==========================================================
+
+Purpose
+-------
+Let users see progress outside app.
+
+==========================================================
+
+Exports:
+
+• Study report PDF
+• Weekly performance report
+• Mistake breakdown report
+
+==========================================================
+
+Used by:
+
+• parents
+• students
+• tutors
+
+==========================================================
+9. NOTIFICATION INTELLIGENCE LAYER
+==========================================================
+
+Purpose
+-------
+Make notifications smart instead of spam.
+
+==========================================================
+
+Logic:
+
+System learns:
+
+• when user studies
+• when user ignores app
+• when user performs best
+
+==========================================================
+
+Then adjusts:
+
+• timing
+• tone
+• frequency
+
+==========================================================
+10. SYSTEM SETTINGS ENGINE
+==========================================================
+
+Purpose
+-------
+Control entire app experience.
+
+==========================================================
+
+User controls:
+
+• notification frequency
+• study goals
+• exam mode behavior
+• AI explanation level
+• difficulty preference
+
+==========================================================
+11. FUTURE SYSTEM UPGRADES
+==========================================================
+
+Planned:
+
+• Voice notifications (“It’s time to revise Algebra”)
+• Smart lock mode during study hours
+• Focus session timer (Pomodoro CBT)
+• AI distraction blocker mode
+• Wearable sync (future)
+• Family report automation (SMS/Email)
+
+==========================================================
+END OF VOLUME 1E
+==========================================================
+
+
+==========================================================
+STUDY SQUAD AI
+PRODUCT FEATURE BIBLE
+VOLUME 2
+ASYNC MULTIPLAYER • COMPETITIVE SYSTEM • SOCIAL ENGINE
+==========================================================
+
+This volume defines the COMPETITIVE CORE.
+
+Not “chat app multiplayer”.
+
+But:
+
+→ structured competition  
+→ async battles  
+→ controlled interaction  
+→ anti-chaos social system  
+→ ranked learning pressure  
+
+Everything is TURN-BASED or SESSION-BASED.
+
+NO live websockets required.
+
+==========================================================
+1. CORE MULTIPLAYER PHILOSOPHY
+==========================================================
+
+No real-time dependency.
+
+All battles are:
+
+• synchronized start time
+• same question set OR equivalent seed set
+• same duration
+• independent answering
+• server evaluates at end
+
+Then results are merged.
+
+==========================================================
+
+Key principle:
+
+You are not playing together.
+
+You are playing the SAME EXAM separately.
+
+==========================================================
+
+2. DUO MODE (1v1 ASYNC RACE)
+==========================================================
+
+Purpose
+-------
+Head-to-head competition without live connection.
+
+==========================================================
+
+Flow
+----
+
+1. Player A creates duel room
+2. Player B joins
+3. Both receive:
+   • identical question set OR same seed generator
+   • same timer (e.g. 10 questions / 5 mins)
+4. Countdown starts per user locally synced
+5. Each user answers independently
+
+==========================================================
+
+Rules
+-----
+
+• no seeing opponent answers
+• no score visibility during match
+• no hints allowed
+• no pause after start
+
+==========================================================
+
+Completion
+----------
+
+When finished:
+
+System shows:
+
+• Player A score
+• Player B score
+• Accuracy
+• Time taken
+• Winner
+
+==========================================================
+
+Rematch
+-------
+
+1-click rematch:
+
+• same opponent
+• new question seed
+• instant restart
+
+==========================================================
+3. BATTLE ROYALE MODE (ASYNC LOBBY)
+==========================================================
+
+Purpose
+-------
+10 players compete in same session.
+
+==========================================================
+
+Flow
+----
+
+1. 10 players join lobby
+2. countdown begins
+3. each receives same structured exam
+4. each completes independently
+
+==========================================================
+
+Scoring
+-------
+
+Based on:
+
+• accuracy
+• speed
+• difficulty weighting
+
+==========================================================
+
+Leaderboard Behavior
+--------------------
+
+Hidden for most of match.
+
+Only revealed:
+
+• last 10 seconds OR
+• after submission
+
+==========================================================
+
+Winner
+------
+
+Highest score wins.
+
+==========================================================
+
+Ghost System (IMPORTANT)
+------------------------
+
+If player leaves early:
+
+→ replaced by “ghost bot”
+
+==========================================================
+
+Ghost bot rules:
+
+• uses player’s current score snapshot
+• DOES NOT answer further questions
+• final score is frozen projection
+
+Example:
+
+Player leaves at 3/10 correct
+
+Ghost = locked 3/10
+
+This prevents farming exploits.
+
+==========================================================
+4. GHOST BOT SYSTEM
+==========================================================
+
+Purpose
+-------
+Prevent cheating + preserve fairness.
+
+==========================================================
+
+Trigger conditions:
+
+• disconnect
+• tab abuse detection
+• forced exit
+• inactivity timeout
+
+==========================================================
+
+Behavior:
+
+• freezes score at exit state
+• prevents replay manipulation
+• still counts in leaderboard
+
+==========================================================
+
+IMPORTANT:
+
+Ghost bot is NOT an AI competitor.
+
+It is a SCORE LOCKER.
+
+==========================================================
+5. ANTI-CHEAT SYSTEM
+==========================================================
+
+Purpose
+-------
+Prevent external assistance.
+
+==========================================================
+
+Rules:
+
+• tab switch detection
+• focus loss tracking
+• copy/paste monitoring (limited)
+• timing drift detection
+
+==========================================================
+
+Violations:
+
+1st warning:
+• soft penalty
+
+2nd warning:
+• auto submit current question
+
+3rd violation:
+• full session lock
+
+==========================================================
+6. PRESET PINGS SYSTEM
+==========================================================
+
+Purpose
+-------
+Controlled social interaction.
+
+==========================================================
+
+NO free chat allowed.
+
+Only fixed messages:
+
+• 🔥 Let’s go
+• 😤 Focus up
+• ⚡ Rematch
+• 🙌 Good job
+• 😮‍💨 That was hard
+
+==========================================================
+
+Why:
+
+• prevent toxicity
+• reduce moderation burden
+• keep focus on learning
+
+==========================================================
+7. STUDY BUDDY SYSTEM
+==========================================================
+
+Purpose
+-------
+Create accountability pairs.
+
+==========================================================
+
+Flow:
+
+• user adds buddy via code
+• buddy request must be accepted
+• no random DM system
+
+==========================================================
+
+Features:
+
+• compare scores
+• compare streaks
+• challenge buddy directly
+• shared progress view
+
+==========================================================
+8. SQUAD MODE (ASYNC TEAM CHALLENGE)
+==========================================================
+
+Purpose
+-------
+Group competition without live sync.
+
+==========================================================
+
+Flow:
+
+• 3–5 users form squad
+• receive same challenge pack
+• complete independently
+• results aggregated
+
+==========================================================
+
+Squad Score:
+
+Sum of:
+
+• individual scores
+• bonus for consistency
+
+==========================================================
+9. LEADERBOARD SYSTEM
+==========================================================
+
+Types:
+
+• Global leaderboard
+• School leaderboard
+• Buddy leaderboard
+• Squad leaderboard
+• Subject leaderboard
+
+==========================================================
+
+Update frequency:
+
+• batch updated after sessions
+• not real-time streaming
+
+==========================================================
+10. RANKING SYSTEM
+==========================================================
+
+Ranks based on:
+
+• XP
+• accuracy
+• consistency
+• participation in multiplayer
+
+==========================================================
+
+Rank tiers:
+
+• Bronze
+• Silver
+• Gold
+• Diamond
+• Legend
+
+==========================================================
+11. MATCH HISTORY SYSTEM
+==========================================================
+
+Purpose
+-------
+Let users track competition growth.
+
+==========================================================
+
+Stores:
+
+• opponent
+• score
+• accuracy
+• time
+• result
+
+==========================================================
+12. REWARD SYSTEM
+==========================================================
+
+Purpose
+-------
+Make competition addictive (healthy loop).
+
+==========================================================
+
+Rewards:
+
+• XP boost
+• streak bonus
+• badge unlocks
+• leaderboard climb bonuses
+
+==========================================================
+13. FUTURE MULTIPLAYER UPGRADES
+==========================================================
+
+Planned expansions:
+
+• tournament brackets (async)
+• seasonal leagues
+• school vs school wars
+• AI referee commentary
+• replay system (question review battles)
+
+==========================================================
+END OF VOLUME 2
+==========================================================
+
+
+==========================================================
+STUDY SQUAD AI
+PRODUCT FEATURE BIBLE
+VOLUME 3
+CAMPUS SYSTEM (100L–500L UNIVERSITY ENGINE)
+==========================================================
+
+This volume upgrades the product from:
+
+“exam prep app”
+TO
+“full university survival system”
+
+It is designed for:
+
+• 100L → adjustment phase
+• 200L → foundation phase
+• 300L → pressure phase
+• 400L → survival phase
+• 500L → graduation phase
+
+==========================================================
+1. CORE CAMPUS PHILOSOPHY
+==========================================================
+
+University is not CBT anymore.
+
+It becomes:
+
+• coursework survival
+• GPA management
+• deadlines control
+• department competition
+• group learning pressure
+
+==========================================================
+
+Everything revolves around:
+
+PASS COURSES → BOOST GPA → GRADUATE WITH HONOR
+
+==========================================================
+2. COURSEWORK BANK SYSTEM
+==========================================================
+
+Purpose
+-------
+Central repository of past coursework and test questions.
+
+==========================================================
+
+Features:
+
+• Past CATs
+• Midterms
+• Department exams
+• Tagged by:
+  - course code
+  - lecturer
+  - semester
+  - year
+
+==========================================================
+
+Flow:
+
+Student selects:
+
+• Course (e.g. CSC101)
+→ sees full question history
+
+==========================================================
+
+Usage:
+
+• revision
+• pattern spotting
+• exam preparation
+
+==========================================================
+3. GPA SIMULATOR ENGINE (PRO CAMPUS CORE)
+==========================================================
+
+Purpose
+-------
+Let students simulate academic outcomes.
+
+==========================================================
+
+Input:
+
+• current GPA
+• course units
+• expected grades
+
+==========================================================
+
+Output:
+
+• “If you score B in CSC303 → GPA becomes 3.42”
+• “If you fail MTH201 → drop to 2.85”
+
+==========================================================
+
+Features:
+
+• real-time GPA recalculation
+• grade prediction sliders
+• risk alerts
+
+==========================================================
+4. STUDY GROUP ROOMS (ASYNC)
+==========================================================
+
+Purpose
+-------
+Structured group collaboration.
+
+==========================================================
+
+Flow:
+
+• create group (3–5 members)
+• assign topic or course
+• everyone works independently
+
+==========================================================
+
+Rules:
+
+• no live chat required
+• shared progress only
+• deadline-based completion
+
+==========================================================
+
+Example:
+
+MAT201 Squad:
+
+• 50 questions assigned
+• each member completes individually
+• group score = combined average
+
+==========================================================
+5. TMA / CAT TRACKER
+==========================================================
+
+Purpose
+-------
+Prevent missed deadlines.
+
+==========================================================
+
+Features:
+
+• add assignments
+• due date tracking
+• reminder system
+• priority tagging
+
+==========================================================
+
+AI Layer:
+
+• breaks TMA into study steps
+• suggests daily workload
+
+==========================================================
+6. LECTURE NOTES ENGINE
+==========================================================
+
+Purpose
+-------
+Replace scattered PDF notes.
+
+==========================================================
+
+Features:
+
+• upload notes (PDF)
+• categorize by course
+• highlight key points
+• search inside notes
+
+==========================================================
+
+XP Reward:
+
+Users earn XP for uploading useful notes.
+
+==========================================================
+7. DEPARTMENT LEADERBOARD
+==========================================================
+
+Purpose
+-------
+Competition within same department.
+
+==========================================================
+
+Unlike global leaderboard:
+
+• only your department counts
+• more realistic competition
+
+==========================================================
+
+Metrics:
+
+• GPA proxy score
+• study activity
+• coursework completion
+
+==========================================================
+8. INTERNSHIP BOARD (CAMPUS TARGETED)
+==========================================================
+
+Purpose
+-------
+Bridge school → job experience.
+
+==========================================================
+
+Listings:
+
+• SIWES programs
+• internships
+• remote gigs
+• entry-level roles
+
+==========================================================
+
+Filters:
+
+• course relevance
+• year (200L–500L)
+• paid/unpaid
+• remote/onsite
+
+==========================================================
+9. FINAL YEAR PROJECT (FYP ENGINE)
+==========================================================
+
+Purpose
+-------
+Eliminate idea paralysis in final year.
+
+==========================================================
+
+Flow:
+
+User selects:
+
+• department
+• interest area
+
+System generates:
+
+• 10 project ideas
+• problem statement
+• scope
+• tools
+• difficulty level
+
+==========================================================
+
+Example:
+
+“AI Student Performance Predictor”
+
+Stack:
+
+• React
+• Node.js
+• Python ML
+
+==========================================================
+10. CAMPUS PROGRESSION SYSTEM
+==========================================================
+
+Purpose
+-------
+Track academic maturity.
+
+==========================================================
+
+Stages:
+
+100L → onboarding
+200L → foundation mastery
+300L → specialization pressure
+400L → project + survival
+500L → graduation readiness
+
+==========================================================
+
+System tracks:
+
+• GPA trend
+• course completion
+• consistency
+• workload handling
+
+==========================================================
+11. CAMPUS REWARD LOOP
+==========================================================
+
+Purpose
+-------
+Keep students engaged beyond exams.
+
+==========================================================
+
+Rewards:
+
+• XP for coursework completion
+• badges per semester
+• department rank boosts
+• internship unlocks
+
+==========================================================
+12. FUTURE CAMPUS UPGRADES
+==========================================================
+
+Planned:
+
+• lecturer rating system
+• exam timetable sync
+• AI study roommate matching
+• automatic lecture summarizer
+• campus-wide hackathon mode
+
+==========================================================
+END OF VOLUME 3
+==========================================================
+
+
+==========================================================
+STUDY SQUAD AI
+PRODUCT FEATURE BIBLE
+VOLUME 4
+PROFESSIONAL ACADEMIES
+(LAW • NURSING • COMPUTER SCIENCE • ACCOUNTING)
+==========================================================
+
+This volume is the “high-ticket brain layer”.
+
+It targets users who are no longer just studying to pass exams.
+
+They are studying to:
+
+• pass professional certifications
+• pass licensing exams
+• pass interviews
+• survive real-world scenarios
+• build career identity
+
+==========================================================
+CORE DESIGN RULE
+==========================================================
+
+No random quizzes.
+
+Everything is:
+
+• scenario-based
+• judgment-based
+• structured response-based
+• AI-evaluated
+• level-based progression
+
+==========================================================
+SECTION A: LAW ACADEMY
+==========================================================
+
+==========================================================
+1. CORE LAW SYSTEM
+==========================================================
+
+Purpose
+-------
+Train legal thinking, not memorization.
+
+==========================================================
+
+All tasks are:
+
+• case-based
+• issue-based
+• argument-based
+
+==========================================================
+2. CASE BATTLE MODE (ASYNC)
+==========================================================
+
+Flow:
+
+• two users receive same case
+• they do NOT see each other
+• they write structured arguments separately
+
+==========================================================
+
+Structure:
+
+• Issue
+• Rule
+• Application
+• Conclusion (IRAC)
+
+==========================================================
+
+AI Judge:
+
+After submission:
+
+• evaluates arguments
+• assigns score
+• declares winner
+
+==========================================================
+3. ARGUMENT DUEL MODE
+==========================================================
+
+Purpose
+-------
+Simulate courtroom debate.
+
+==========================================================
+
+Flow:
+
+• Player 1 posts “Point A”
+• Player 2 posts “Counter A”
+• continues in structured turns
+
+==========================================================
+
+Rules:
+
+• no free chat
+• only structured argument blocks
+• AI judges at end
+
+==========================================================
+4. PRECEDENT LINK GAME
+==========================================================
+
+Purpose
+-------
+Memory + legal matching training.
+
+==========================================================
+
+Flow:
+
+• user matches case → legal principle
+• drag and drop system
+• timed challenge
+
+==========================================================
+5. ORAL LAW MOCK AI
+==========================================================
+
+Purpose
+-------
+Train verbal legal reasoning.
+
+==========================================================
+
+Flow:
+
+• AI acts as examiner
+• asks legal questions
+• user responds (text or voice)
+
+==========================================================
+
+Weekly cycle:
+
+Day 1:
+• case assigned
+
+Day 2–5:
+• preparation mode
+
+Day 6:
+• practice submissions
+
+Day 7:
+• final AI grading
+
+==========================================================
+SECTION B: NURSING ACADEMY
+==========================================================
+==========================================================
+
+1. CORE NURSING SYSTEM
+==========================================================
+
+Purpose
+-------
+Train clinical reasoning + patient handling.
+
+==========================================================
+
+2. PATIENT SCENARIO MODE
+==========================================================
+
+Flow:
+
+User enters:
+
+• ward environment
+• symptoms
+• vitals
+• patient history
+
+==========================================================
+
+Task:
+
+• diagnose condition
+• propose treatment
+• fill structured nursing form
+
+==========================================================
+
+AI Response:
+
+• correct diagnosis
+• correction notes
+• missed symptoms
+• risk warnings
+
+==========================================================
+3. CLINICAL LEVEL SYSTEM
+==========================================================
+
+Levels:
+
+• Basic Care
+• Intermediate Care
+• Emergency Care
+• ICU Simulation
+
+==========================================================
+
+Each level unlocks:
+
+• harder patients
+• faster decision-making
+• more complex symptoms
+
+==========================================================
+4. PRE-CASE STUDY MODE
+==========================================================
+
+Before entering simulation:
+
+User gets:
+
+• short medical briefing
+• condition overview
+• warning: “enter with stable network + focus”
+
+User can:
+
+• download PDF notes
+• revise offline
+
+==========================================================
+5. NURSING DIAGNOSIS ENGINE
+==========================================================
+
+System evaluates:
+
+• symptom recognition
+• correct diagnosis
+• treatment plan accuracy
+• safety awareness
+
+==========================================================
+SECTION C: COMPUTER SCIENCE ACADEMY
+==========================================================
+==========================================================
+
+1. DEBUG CHALLENGE MODE
+==========================================================
+
+Flow:
+
+• broken code is given
+• user must fix logic
+• AI evaluates correctness
+
+==========================================================
+
+2. ALGORITHM BATTLE MODE
+==========================================================
+
+Flow:
+
+• problem given (e.g. sorting, graphs)
+• user writes solution steps
+• AI checks efficiency + correctness
+
+==========================================================
+3. INTERVIEW SIMULATOR
+==========================================================
+
+AI asks:
+
+• “Explain recursion”
+• “Design a cache system”
+
+User responds:
+
+• text or voice
+
+AI scores:
+
+• clarity
+• correctness
+• depth
+
+==========================================================
+4. LEVEL SYSTEM
+==========================================================
+
+• Beginner (logic basics)
+• Intermediate (DSA)
+• Advanced (system design)
+• Expert (real-world architecture)
+
+==========================================================
+SECTION D: ACCOUNTING ACADEMY
+==========================================================
+==========================================================
+
+1. CORE ACCOUNTING SYSTEM
+==========================================================
+
+Focus:
+
+• accuracy
+• calculation speed
+• structure discipline
+
+==========================================================
+2. FINANCIAL STATEMENT MODE
+==========================================================
+
+User builds:
+
+• income statement
+• balance sheet
+• cash flow
+
+AI checks:
+
+• errors
+• missing entries
+• miscalculations
+
+==========================================================
+3. ERROR DETECTION GAME
+==========================================================
+
+Flow:
+
+• wrong financial statement is shown
+• user finds mistakes
+
+Scoring:
+
+• speed
+• accuracy
+
+==========================================================
+4. CASE ACCOUNTING MODE
+==========================================================
+
+Scenario:
+
+• business transaction case
+• user records entries
+• AI evaluates correctness
+
+==========================================================
+SECTION E: CROSS-ACADEMY SYSTEMS
+==========================================================
+==========================================================
+
+1. LEVEL PROGRESSION SYSTEM
+==========================================================
+
+All academies share:
+
+• XP system
+• ranks
+• badges
+
+==========================================================
+
+2. DIFFICULTY SCALING AI
+==========================================================
+
+System adapts difficulty based on:
+
+• success rate
+• speed
+• consistency
+
+==========================================================
+3. AI JUDGE ENGINE
+==========================================================
+
+Used across:
+
+• Law
+• Nursing
+• CS
+• Accounting
+
+Evaluates:
+
+• correctness
+• structure
+• reasoning
+• efficiency
+
+==========================================================
+4. FUTURE UPGRADES
+==========================================================
+
+• multiplayer courtroom tournaments
+• hospital simulation multiplayer
+• coding hack battles
+• accounting audit wars
+• AI mentor personalities per academy
+
+==========================================================
+END OF VOLUME 4
+==========================================================
+
+
+
+==========================================================
+STUDY SQUAD AI
+PRODUCT FEATURE BIBLE
+VOLUME 5
+SYSTEM ENGINEERING • ADMIN • AI CORE • DATA • SCALE
+==========================================================
+
+This is the “builder layer”.
+
+Everything above (Volumes 1–4) depends on this.
+
+If Volumes 1–4 are the GAME…
+
+Volume 5 is the ENGINE.
+
+==========================================================
+1. CORE ARCHITECTURE OVERVIEW
+==========================================================
+
+System is split into 5 major engines:
+
+• Question Engine
+• AI Engine
+• Gamification Engine
+• Analytics Engine
+• Subscription Engine
+
+All features plug into these.
+
+==========================================================
+2. QUESTION ENGINE (CORE DATA BRAIN)
+==========================================================
+
+Purpose
+-------
+Stores, serves, and structures ALL questions.
+
+==========================================================
+
+Question Schema
+---------------
+
+Each question contains:
+
+• id
+• subject
+• topic
+• difficulty
+• question text
+• options
+• correct answer
+• explanation
+• tags
+• exam type (SSCE / Campus / Pro)
+
+==========================================================
+
+Rules
+-----
+
+• no duplicate questions in session
+• deterministic randomization (seeded)
+• balanced difficulty per session
+
+==========================================================
+
+Question Sources
+----------------
+
+• Admin upload (CSV)
+• Manual creation
+• AI generation (future)
+• Student submissions (approved)
+
+==========================================================
+3. AI ENGINE (CORE INTELLIGENCE)
+==========================================================
+
+Purpose
+-------
+Power ALL intelligence features.
+
+==========================================================
+
+AI Modules
+----------
+
+• Explanation Generator
+• Study Plan Generator
+• Performance Predictor
+• Case Evaluator (Law/Nursing/CS/Accounting)
+• Mistake Analyzer
+• Question Difficulty Tagger
+
+==========================================================
+
+AI Usage Rules
+--------------
+
+AI is ONLY triggered:
+
+• after sessions (default)
+• on request (premium features)
+• during simulations (limited rules)
+
+==========================================================
+
+Cost Control Strategy
+---------------------
+
+To prevent high cost:
+
+• batch processing
+• cached explanations
+• reuse explanations per question ID
+• pre-generate common questions
+
+==========================================================
+4. GAMIFICATION ENGINE
+==========================================================
+
+Purpose
+-------
+Keep users engaged long-term.
+
+==========================================================
+
+Core Systems
+------------
+
+XP System:
+• correct answers
+• streak bonus
+• speed bonus
+• multiplayer bonus
+
+==========================================================
+
+Level System:
+• Level increases via XP thresholds
+• unlocks new modes
+
+==========================================================
+
+Badges:
+• consistency
+• mastery
+• competition wins
+• streak milestones
+
+==========================================================
+
+Streak System:
+• daily study tracking
+• decay logic
+• recovery bonus
+
+==========================================================
+5. ANALYTICS ENGINE
+==========================================================
+
+Purpose
+-------
+Turn raw activity into insight.
+
+==========================================================
+
+Tracks:
+
+• time spent per topic
+• accuracy per subject
+• weak topics
+• speed per question
+• drop-off points
+
+==========================================================
+
+Outputs:
+
+• heatmaps
+• progress graphs
+• AI insights
+• predictions
+
+==========================================================
+6. SUBSCRIPTION ENGINE
+==========================================================
+
+Purpose
+-------
+Control access to features.
+
+==========================================================
+
+Tiers:
+
+SSCE → Campus → Pro
+
+==========================================================
+
+Rules:
+
+• feature-level locking
+• upgrade/downgrade safe
+• no data loss
+• instant unlock after payment
+
+==========================================================
+
+Payment Systems:
+
+• Paystack
+• Bank transfer
+• USSD
+• OPay
+
+==========================================================
+7. ADMIN PANEL ENGINE
+==========================================================
+
+Purpose
+-------
+Control content ecosystem.
+
+==========================================================
+
+Functions:
+
+• upload questions (CSV bulk)
+• approve user submissions
+• manage categories
+• moderate content
+• view analytics
+• manage subscriptions
+
+==========================================================
+8. NOTIFICATION ENGINE
+==========================================================
+
+Purpose
+-------
+User retention system.
+
+==========================================================
+
+Triggers:
+
+• streak risk
+• weak topic alert
+• leaderboard changes
+• subscription expiry
+• study plan updates
+
+==========================================================
+
+Types:
+
+• motivational
+• warning
+• competitive
+• achievement
+
+==========================================================
+9. OFFLINE ENGINE
+==========================================================
+
+Purpose
+-------
+Allow study without internet.
+
+==========================================================
+
+Offline stores:
+
+• cached questions
+• bookmarks
+• mistake book
+• last sessions
+
+==========================================================
+
+Sync logic:
+
+• merge on reconnect
+• timestamp priority resolution
+
+==========================================================
+10. DATABASE DESIGN OVERVIEW
+==========================================================
+
+Core tables:
+
+• users
+• subscriptions
+• questions
+• sessions
+• answers
+• mistakes
+• xp_logs
+• leaderboard
+• buddies
+• squads
+
+==========================================================
+11. SCALE STRATEGY
+==========================================================
+
+System designed for:
+
+• 1,000 users (MVP)
+• 100,000 users (growth)
+• 1,000,000+ users (scale)
+
+Scaling methods:
+
+• caching question sets
+• precomputed analytics
+• async processing for AI
+• batching leaderboard updates
+
+==========================================================
+12. COST CONTROL (IMPORTANT)
+==========================================================
+
+AI cost reduction strategies:
+
+• reuse explanations
+• pre-generate popular questions
+• limit AI per session
+• premium AI tier gating
+• cache all evaluations
+
+==========================================================
+13. FUTURE SYSTEM EXPANSION
+==========================================================
+
+Planned:
+
+• AI-generated question engine
+• voice tutor system
+• real-time exam proctor AI
+• global exam tournaments
+• school licensing dashboard
+• API for institutions
+
+==========================================================
+END OF VOLUME 5
+==========================================================
