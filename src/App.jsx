@@ -344,7 +344,7 @@ const [showNotesDropdown, setShowNotesDropdown] = useState(false)
     .from('notes')
     .select('*')
     .eq('user_id', user.id)
-    .eq('date', selectedDate)
+    //  .eq('date', selectedDate). //
     .order('created_at', { ascending: false })
     setLoading(false)
     if (error) {
