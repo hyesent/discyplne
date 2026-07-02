@@ -2544,7 +2544,7 @@ export default function App() {
         color: theme.textMuted, 
         minWidth: '80px',
         flexShrink: 0 
-      }}>📋 Subtask</label>
+      }}></label>
       <input
         value={newSubTask}
         onChange={e => setNewSubTask(e.target.value)}
@@ -2588,7 +2588,7 @@ export default function App() {
           flexShrink: 0
         }}
       >
-        Add Subtask
+        Add
       </button>
     </div>
 
