@@ -724,53 +724,61 @@ export default function App() {
   }
 
   async function addTask() {
-    if (!task.trim() || !user) return
-    let dueDate = selectedDate
-    let taskType = 'task'
+  if (!task.trim() || !user) return
+  let dueDate = selectedDate
+  let taskType = 'task'
 
-    if (taskCategory === 'daily') {
-      taskType = 'habit'
-      dueDate = new Date().toISOString().split('T')[0]
-    } else if (taskCategory === 'weekly') {
-      taskType = 'habit'
-      const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-      const targetDay = days.indexOf(taskWeekDay)
-      const today = new Date()
-      const diff = (targetDay - today.getDay() + 7) % 7
-      const nextDate = new Date(today)
-      nextDate.setDate(today.getDate() + diff)
-      dueDate = nextDate.toISOString().split('T')[0]
-    } else if (taskCategory === 'custom') {
-      dueDate = taskDueDate || selectedDate
-    }
-
-    const { error } = await supabase.from('tasks').insert({
-      user_id: user.id,
-      content: task.trim(),
-      category: taskCategory,
-      type: taskType,
-      weekday: taskCategory === 'weekly' ? taskWeekDay : null,
-      time: taskCategory === 'daily' ? taskTime : null,
-      due_date: dueDate,
-      difficulty: taskDifficulty,
-      estimated_minutes: taskMinutes,
-      category_tag: taskTag,
-      done: false,
-      subtasks: []
-    })
-
-    if (error) {
-      setMessage('Error adding task: ' + error.message)
-    } else {
-      setTask('')
-      setTaskTime('')
-      setTaskDueDate('')
-      setTaskMinutes(30)
-      setTaskTag('general')
-      setMessage('✅ Task added')
-      fetchTasks()
-    }
+  if (taskCategory === 'daily') {
+    taskType = 'habit'
+    dueDate = new Date().toISOString().split('T')[0]
+  } else if (taskCategory === 'weekly') {
+    taskType = 'habit'
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+    const targetDay = days.indexOf(taskWeekDay)
+    const today = new Date()
+    const diff = (targetDay - today.getDay() + 7) % 7
+    const nextDate = new Date(today)
+    nextDate.setDate(today.getDate() + diff)
+    dueDate = nextDate.toISOString().split('T')[0]
+  } else if (taskCategory === 'custom') {
+    dueDate = taskDueDate || selectedDate
   }
+
+  // Build subtasks array
+  const subtasksArray = []
+  if (subTaskToAdd) {
+    subtasksArray.push({ id: Date.now().toString(), text: subTaskToAdd, done: false })
+  }
+
+  const { error } = await supabase.from('tasks').insert({
+    user_id: user.id,
+    content: task.trim(),
+    category: taskCategory,
+    type: taskType,
+    weekday: taskCategory === 'weekly' ? taskWeekDay : null,
+    time: taskCategory === 'daily' ? taskTime : null,
+    due_date: dueDate,
+    difficulty: taskDifficulty,
+    estimated_minutes: taskMinutes,
+    category_tag: taskTag,
+    done: false,
+    subtasks: subtasksArray
+  })
+
+  if (error) {
+    setMessage('Error adding task: ' + error.message)
+  } else {
+    setTask('')
+    setTaskTime('')
+    setTaskDueDate('')
+    setTaskMinutes(30)
+    setTaskTag('general')
+    setSubTaskToAdd('')
+    setNewSubTask('')
+    setMessage('✅ Task added!')
+    fetchTasks()
+  }
+      }
 
   async function toggleTask(id) {
     const task = tasks.find(t => t.id === id)
