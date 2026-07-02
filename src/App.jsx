@@ -1683,68 +1683,75 @@ export default function App() {
   marginBottom: '20px'
 }}>
   {/* Pomodoro Card */}
-  <div style={{
-    background: theme.bgCard,
-    borderRadius: '16px',
-    padding: '24px',
-    border: `1px solid ${theme.border}`
-  }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <div>
-        <div style={{ 
-          fontSize: '12px', 
-          color: theme.textMuted,
-          textTransform: 'uppercase',
-          letterSpacing: '0.5px',
-          fontWeight: '600'
-        }}>
-          {isBreak ? '☕ Break' : ' Focus'}
-        </div>
-        <div style={{
-          fontSize: '48px',
-          fontWeight: '700',
-          color: theme.text,
-          fontVariantNumeric: 'tabular-nums',
-          lineHeight: '1.1',
-          marginTop: '4px'
-        }}>
-          {formatTime(pomodoroTime)}
-        </div>
-      </div>
-      <div style={{ display: 'flex', gap: '8px' }}>
-        <button
-          onClick={togglePomodoro}
-          style={{
-            padding: '8px 16px',
-            borderRadius: '12px',
-            border: 'none',
-            background: pomodoroRunning ? '#ef4444' : '#22c55e',
-            color: '#fff',
-            fontWeight: '600',
-            cursor: 'pointer',
-            fontSize: '12px',
-            transition: 'all 0.2s'
-          }}
-        >
-          {pomodoroRunning ? '⏸ Pause' : '▶ Start'}
-        </button>
-        <button
-          onClick={resetPomodoro}
-          style={{
-            padding: '10px 16px',
-            borderRadius: '12px',
-            border: `1px solid ${theme.border}`,
-            background: 'transparent',
-            color: theme.textSecondary,
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
-        >
-          ↺
-        </button>
-      </div>
+<div style={{
+  background: theme.bgCard,
+  borderRadius: '16px',
+  padding: '24px',
+  border: `1px solid ${theme.border}`
+}}>
+  {/* Line 1: FOCUS + Buttons */}
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+    <div style={{ 
+      fontSize: '12px', 
+      color: theme.textMuted,
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      fontWeight: '600'
+    }}>
+      {isBreak ? '☕ Break' : 'Focus'}
     </div>
-    
+    <div style={{ display: 'flex', gap: '8px' }}>
+      <button
+        onClick={togglePomodoro}
+        style={{
+          padding: '8px 14px', // made it smaller so it fits
+          borderRadius: '12px',
+          border: 'none',
+          background: pomodoroRunning ? '#ef4444' : '#22c55e',
+          color: '#fff',
+          fontWeight: '600',
+          cursor: 'pointer',
+          fontSize: '12px',
+          display: 'flex',      // put icon + text inline
+          alignItems: 'center',
+          gap: '6px',
+          height: '36px'        // lock height
+        }}
+      >
+        <span>▶</span> {pomodoroRunning ? 'Pause' : 'Start'}
+      </button>
+      <button
+        onClick={resetPomodoro}
+        style={{
+          width: '36px',        // square instead of wide padding
+          height: '36px',
+          borderRadius: '12px',
+          border: `1px solid ${theme.border}`,
+          background: 'transparent',
+          color: theme.textSecondary,
+          cursor: 'pointer',
+          fontSize: '14px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        ↺
+      </button>
+    </div>
+  </div>
+
+  {/* Line 2: 25:00 Timer only */}
+  <div style={{
+    fontSize: '48px',
+    fontWeight: '700',
+    color: theme.text,
+    fontVariantNumeric: 'tabular-nums',
+    lineHeight: '1'
+  }}>
+    {formatTime(pomodoroTime)}
+  </div>
+</div>
     {/* Progress Bar */}
     <div style={{
       marginTop: '14px',
