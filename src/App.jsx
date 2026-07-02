@@ -2552,7 +2552,7 @@ export default function App() {
       }
     }}
     style={{
-      padding: '6px 12px',
+      padding: '6px 10px',
       borderRadius: '6px',
       border: `1px solid ${theme.border}`,
       background: theme.bgInput,
@@ -2572,7 +2572,7 @@ export default function App() {
       }
     }}
     style={{
-      padding: '6px 14px',
+      padding: '4px 12px',
       borderRadius: '6px',
       border: 'none',
       background: theme.accent,
