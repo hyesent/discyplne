@@ -2543,7 +2543,7 @@ export default function App() {
   <input
     value={newSubTask}
     onChange={e => setNewSubTask(e.target.value)}
-    placeholder="Add a subtask (optional)"
+    placeholder="Add a subtask"
     onKeyDown={(e) => {
       if (e.key === 'Enter' && newSubTask.trim()) {
         setSubTaskToAdd(newSubTask.trim())
@@ -2552,15 +2552,15 @@ export default function App() {
       }
     }}
     style={{
-      padding: '8px 14px',
-      borderRadius: '8px',
+      padding: '6px 12px',
+      borderRadius: '6px',
       border: `1px solid ${theme.border}`,
       background: theme.bgInput,
       color: theme.text,
-      fontSize: '13px',
+      fontSize: '12px',
       outline: 'none',
       flex: 1,
-      maxWidth: '280px'
+      maxWidth: '200px'
     }}
   />
   <button
@@ -2572,12 +2572,12 @@ export default function App() {
       }
     }}
     style={{
-      padding: '8px 18px',
-      borderRadius: '8px',
+      padding: '6px 14px',
+      borderRadius: '6px',
       border: 'none',
       background: theme.accent,
       color: '#fff',
-      fontSize: '13px',
+      fontSize: '12px',
       cursor: 'pointer',
       whiteSpace: 'nowrap',
       flexShrink: 0
