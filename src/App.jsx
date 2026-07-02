@@ -2058,30 +2058,33 @@ const filteredNotes = notes.filter(note => {
   flexWrap: 'wrap'
 }}>
   {allCategories.map(cat => (
-    <button
-      key={cat}
-      onClick={() => setActiveCategory(cat)}
-      style={{
-        padding: '6px 16px',
-        borderRadius: '20px',
-        border: activeCategory === cat 
-          ? `1px solid ${theme.accent}`
-          : `1px solid ${theme.border}`,
-        background: activeCategory === cat 
-          ? (isDarkMode ? '#1a3a5c' : '#e8f0fe')
-          : 'transparent',
-        color: activeCategory === cat 
-          ? (isDarkMode ? '#60a5fa' : theme.accent)
-          : theme.textSecondary,
-        fontSize: '12px',
-        fontWeight: activeCategory === cat ? '600' : '400',
-        cursor: 'pointer',
-        transition: 'all 0.2s ease'
-      }}
-    >
-      {cat} ({notes.filter(n => (n.category || 'Uncategorized') === cat).length})
-    </button>
-  ))}
+  <button
+    key={cat}
+    onClick={() => setActiveCategory(cat)}
+    style={{
+      padding: '6px 16px',
+      borderRadius: '20px',
+      border: activeCategory === cat 
+        ? `1px solid ${theme.accent}`
+        : `1px solid ${theme.border}`,
+      background: activeCategory === cat 
+        ? (isDarkMode ? '#1a3a5c' : '#e8f0fe')
+        : 'transparent',
+      color: activeCategory === cat 
+        ? (isDarkMode ? '#60a5fa' : theme.accent)
+        : theme.textSecondary,
+      fontSize: '12px',
+      fontWeight: activeCategory === cat ? '600' : '400',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease'
+    }}
+  >
+    {cat} ({cat === 'All' 
+      ? notes.length 
+      : notes.filter(n => (n.category || 'Uncategorized') === cat).length
+    })
+  </button>
+))}
 </div>
     {filteredNotes.length > 0 ? (
       <div style={{
