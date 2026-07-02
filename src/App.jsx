@@ -126,7 +126,7 @@ export default function App() {
   const [taskMinutes, setTaskMinutes] = useState(30)
   const [taskTag, setTaskTag] = useState('general')
   const [editingTask, setEditingTask] = useState(null)
-  const [activeCategory, setActiveCategory] = useState('all')
+  
   
   // ========== TODO SUBTASKS STATE ==========
   const [subTasks, setSubTasks] = useState({})
