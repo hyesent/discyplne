@@ -1367,7 +1367,7 @@ export default function App() {
               cursor: 'pointer'
             }}
           >
-            {isListening ? '⏹️ Stop' : '🎤 Voice'}
+            {isListening ? 'Stop' : '🎤 Voice'}
           </button>
           <button
             onClick={() => fileInputRef.current.click()}
@@ -1718,7 +1718,7 @@ export default function App() {
           height: '36px'
         }}
       >
-        <span>{pomodoroRunning ? '⏸' : '▶'}</span> {pomodoroRunning ? 'Pause' : 'Start'}
+        <span>{pomodoroRunning ? '' : '▶'}</span> {pomodoroRunning ? 'Pause' : 'Start'}
       </button>
       <button
         onClick={resetPomodoro}
