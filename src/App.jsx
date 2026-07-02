@@ -503,7 +503,7 @@ export default function App() {
   font_family: fontFamily,
   title_font: titleFont,
   font_size: parseInt(fontSize),
-  priority: priority || 'medium',
+  category: category.trim() || 'Uncategorized',
   user_id: user.id,
   date: selectedDate
     }
@@ -544,11 +544,11 @@ export default function App() {
   }
 
   function openAddNote() {
-    setEditingNote(null)
-    setTitle('')
-    setNoteText('')
-    setPriority('medium')
-    setViewMode('add')
+  setEditingNote(null)
+  setTitle('')
+  setNoteText('')
+  setCategory('')  
+  setViewMode('add')
   }
 
   function openEditNote(note) {
@@ -558,9 +558,9 @@ export default function App() {
   setFontFamily(note.font_family || 'Inter')
   setTitleFont(note.title_font || 'Inter')
   setFontSize(note.font_size?.toString() || '16')
-  setPriority(note.priority)
+  setCategory(note.category || '')
   setViewMode('edit')
-    }
+  }
 
   function goBack() {
   setViewMode('home')
