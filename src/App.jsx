@@ -1523,30 +1523,39 @@ export default function App() {
         flexWrap: 'wrap',
         gap: '12px'
       }}>
-        {/* Clock */}
-        <div>
-          <div style={{
-            fontSize: '36px',
-            fontWeight: '700',
-            letterSpacing: '-0.5px',
-            color: theme.text
-          }}>
-            {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </div>
-          <div style={{
-            fontSize: '14px',
-            color: theme.textSecondary,
-            marginTop: '2px'
-          }}>
-            {currentTime.toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              month: 'long', 
-              day: 'numeric',
-              year: 'numeric'
-            })}
-          </div>
-        </div>
-
+        {/* Clock with App Name */}
+<div>
+  <div style={{
+    fontSize: '14px',
+    fontWeight: '700',
+    color: theme.accent,
+    letterSpacing: '0.5px',
+    textTransform: 'uppercase',
+    marginBottom: '2px'
+  }}>
+    Discypln
+  </div>
+  <div style={{
+    fontSize: '36px',
+    fontWeight: '700',
+    letterSpacing: '-0.5px',
+    color: theme.text
+  }}>
+    {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+  </div>
+  <div style={{
+    fontSize: '14px',
+    color: theme.textSecondary,
+    marginTop: '2px'
+  }}>
+    {currentTime.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      month: 'long', 
+      day: 'numeric',
+      year: 'numeric'
+    })}
+  </div>
+</div>
         {/* Right controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <input
