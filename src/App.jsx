@@ -2283,7 +2283,7 @@ export default function App() {
                 </button>
               ))}
             </div>
-                  {/* Task Input - VERTICAL WITH SUBTASK FIELD */}
+                  {/* Task Input - CORRECT LAYOUT */}
 <div style={{
   background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
   borderRadius: '12px',
@@ -2291,12 +2291,10 @@ export default function App() {
   border: `1px solid ${theme.border}`,
   marginBottom: '16px'
 }}>
-  {/* Row 1: Task name + Category + Add button */}
+  {/* Row 1: Task name (full width, on its own line) */}
   <div style={{
-    display: 'grid',
-    gridTemplateColumns: '1fr auto auto',
-    gap: '10px',
-    marginBottom: '16px'
+    width: '100%',
+    marginBottom: '12px'
   }}>
     <input
       value={task}
@@ -2314,6 +2312,14 @@ export default function App() {
         width: '100%'
       }}
     />
+  </div>
+
+  {/* Row 2: Category + Add button (on their own line) */}
+  <div style={{
+    display: 'flex',
+    gap: '10px',
+    marginBottom: '16px'
+  }}>
     <select
       value={taskCategory}
       onChange={e => setTaskCategory(e.target.value)}
@@ -2324,7 +2330,9 @@ export default function App() {
         background: theme.bgInput,
         color: theme.text,
         fontSize: '13px',
-        outline: 'none'
+        outline: 'none',
+        flex: 1,
+        maxWidth: '200px'
       }}
     >
       <option value="daily">Daily</option>
@@ -2334,7 +2342,7 @@ export default function App() {
     <button
       onClick={addTask}
       style={{
-        padding: '12px 28px',
+        padding: '12px 32px',
         borderRadius: '10px',
         border: 'none',
         background: theme.accent,
@@ -2349,7 +2357,7 @@ export default function App() {
     </button>
   </div>
 
-  {/* Row 2: Extra fields - VERTICAL with spacing */}
+  {/* Row 3: Extra fields - VERTICAL */}
   <div style={{
     display: 'flex',
     flexDirection: 'column',
@@ -2377,8 +2385,7 @@ export default function App() {
             color: theme.text,
             fontSize: '13px',
             outline: 'none',
-            flex: 1,
-            maxWidth: '160px'
+            width: '160px'
           }}
         />
       </div>
@@ -2403,8 +2410,7 @@ export default function App() {
             color: theme.text,
             fontSize: '13px',
             outline: 'none',
-            flex: 1,
-            maxWidth: '160px'
+            width: '160px'
           }}
         >
           <option value="monday">Monday</option>
@@ -2438,8 +2444,7 @@ export default function App() {
             color: theme.text,
             fontSize: '13px',
             outline: 'none',
-            flex: 1,
-            maxWidth: '160px'
+            width: '160px'
           }}
         />
       </div>
@@ -2463,8 +2468,7 @@ export default function App() {
           color: theme.text,
           fontSize: '13px',
           outline: 'none',
-          flex: 1,
-          maxWidth: '160px'
+          width: '160px'
         }}
       >
         <option value="easy">Easy</option>
@@ -2493,8 +2497,7 @@ export default function App() {
           color: theme.text,
           fontSize: '13px',
           outline: 'none',
-          flex: 1,
-          maxWidth: '100px'
+          width: '100px'
         }}
       />
     </div>
@@ -2517,8 +2520,7 @@ export default function App() {
           color: theme.text,
           fontSize: '13px',
           outline: 'none',
-          flex: 1,
-          maxWidth: '160px'
+          width: '160px'
         }}
       >
         <option value="general">General</option>
@@ -2529,7 +2531,7 @@ export default function App() {
       </select>
     </div>
 
-    {/* 🔥 SUBTASK FIELD - Always visible in the form */}
+    {/* 🔥 SUBTASK FIELD */}
     <div style={{
       display: 'flex',
       alignItems: 'center',
@@ -2558,7 +2560,7 @@ export default function App() {
           fontSize: '13px',
           outline: 'none',
           flex: 1,
-          maxWidth: '240px'
+          maxWidth: '260px'
         }}
       />
       <button
@@ -2570,13 +2572,14 @@ export default function App() {
           }
         }}
         style={{
-          padding: '6px 16px',
+          padding: '8px 20px',
           borderRadius: '8px',
           border: 'none',
           background: theme.accent,
           color: '#fff',
-          fontSize: '12px',
-          cursor: 'pointer'
+          fontSize: '13px',
+          cursor: 'pointer',
+          whiteSpace: 'nowrap'
         }}
       >
         Add Subtask
@@ -2589,10 +2592,11 @@ export default function App() {
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        padding: '6px 12px',
+        padding: '6px 14px',
         background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
         borderRadius: '8px',
-        marginTop: '4px'
+        marginLeft: '92px',
+        width: 'fit-content'
       }}>
         <span style={{ fontSize: '13px', color: theme.text }}>📋 {subTaskToAdd}</span>
         <button
@@ -2613,10 +2617,6 @@ export default function App() {
     )}
   </div>
 </div>
-
-
-
-          
             {/* Task List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {filteredTasks.length > 0 ? (
