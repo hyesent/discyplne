@@ -2283,7 +2283,7 @@ export default function App() {
                 </button>
               ))}
             </div>
-                  {/* Task Input - CORRECT LAYOUT */}
+                  {/* Task Input - CORRECT LAYOUT (FIXED) */}
 <div style={{
   background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
   borderRadius: '12px',
@@ -2372,7 +2372,7 @@ export default function App() {
         alignItems: 'center',
         gap: '12px'
       }}>
-        <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px' }}>⏰ Time</label>
+        <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>⏰ Time</label>
         <input
           type="time"
           value={taskTime}
@@ -2398,7 +2398,7 @@ export default function App() {
         alignItems: 'center',
         gap: '12px'
       }}>
-        <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px' }}>📅 Day</label>
+        <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>📅 Day</label>
         <select
           value={taskWeekDay}
           onChange={e => setTaskWeekDay(e.target.value)}
@@ -2431,7 +2431,7 @@ export default function App() {
         alignItems: 'center',
         gap: '12px'
       }}>
-        <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px' }}>📆 Date</label>
+        <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>📆 Date</label>
         <input
           type="date"
           value={taskDueDate}
@@ -2456,7 +2456,7 @@ export default function App() {
       alignItems: 'center',
       gap: '12px'
     }}>
-      <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px' }}>📊 Difficulty</label>
+      <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>📊 Difficulty</label>
       <select
         value={taskDifficulty}
         onChange={e => setTaskDifficulty(e.target.value)}
@@ -2483,7 +2483,7 @@ export default function App() {
       alignItems: 'center',
       gap: '12px'
     }}>
-      <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px' }}>⏱️ Minutes</label>
+      <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>⏱️ Minutes</label>
       <input
         type="number"
         value={taskMinutes}
@@ -2508,7 +2508,7 @@ export default function App() {
       alignItems: 'center',
       gap: '12px'
     }}>
-      <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px' }}>🏷️ Tag</label>
+      <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>🏷️ Tag</label>
       <select
         value={taskTag}
         onChange={e => setTaskTag(e.target.value)}
@@ -2531,7 +2531,7 @@ export default function App() {
       </select>
     </div>
 
-    {/* 🔥 SUBTASK FIELD */}
+    {/* 🔥 SUBTASK FIELD - FIXED */}
     <div style={{
       display: 'flex',
       alignItems: 'center',
@@ -2539,7 +2539,12 @@ export default function App() {
       paddingTop: '8px',
       borderTop: `1px dashed ${theme.border}`
     }}>
-      <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px' }}>📋 Subtask</label>
+      <label style={{ 
+        fontSize: '13px', 
+        color: theme.textMuted, 
+        minWidth: '80px',
+        flexShrink: 0 
+      }}>📋 Subtask</label>
       <input
         value={newSubTask}
         onChange={e => setNewSubTask(e.target.value)}
@@ -2560,7 +2565,7 @@ export default function App() {
           fontSize: '13px',
           outline: 'none',
           flex: 1,
-          maxWidth: '260px'
+          maxWidth: '300px'
         }}
       />
       <button
@@ -2579,7 +2584,8 @@ export default function App() {
           color: '#fff',
           fontSize: '13px',
           cursor: 'pointer',
-          whiteSpace: 'nowrap'
+          whiteSpace: 'nowrap',
+          flexShrink: 0
         }}
       >
         Add Subtask
@@ -2596,9 +2602,10 @@ export default function App() {
         background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
         borderRadius: '8px',
         marginLeft: '92px',
-        width: 'fit-content'
+        width: 'fit-content',
+        maxWidth: '100%'
       }}>
-        <span style={{ fontSize: '13px', color: theme.text }}>📋 {subTaskToAdd}</span>
+        <span style={{ fontSize: '13px', color: theme.text, wordBreak: 'break-word' }}>📋 {subTaskToAdd}</span>
         <button
           onClick={() => setSubTaskToAdd('')}
           style={{
@@ -2608,7 +2615,8 @@ export default function App() {
             background: 'transparent',
             color: theme.textMuted,
             cursor: 'pointer',
-            fontSize: '14px'
+            fontSize: '14px',
+            flexShrink: 0
           }}
         >
           ×
@@ -2617,6 +2625,7 @@ export default function App() {
     )}
   </div>
 </div>
+        
             {/* Task List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {filteredTasks.length > 0 ? (
