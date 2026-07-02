@@ -1821,8 +1821,8 @@ export default function App() {
         borderRadius: '12px',
         textAlign: 'center'
       }}>
-        <div style={{ fontSize: '24px', fontWeight: '700', color: '#a78bfa' }}>{weeklyScore}%</div>
-        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}> Weekly Task Completion</div>
+        <div style={{ fontSize: '12px', fontWeight: '700', color: '#a78bfa' }}>{weeklyScore}%</div>
+        <div style={{ fontSize: '6px', color: theme.textMuted, marginTop: '2px' }}> Weekly Task Completion</div>
       </div>
     </div>
   </div>
@@ -1964,7 +1964,7 @@ export default function App() {
         margin: 0,
         color: theme.text
       }}>
-        📝 Notes
+         Notes
         <span style={{
           fontSize: '13px',
           color: theme.textMuted,
