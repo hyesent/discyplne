@@ -105,7 +105,7 @@ export default function App() {
   const [notes, setNotes] = useState([])
   const [title, setTitle] = useState('')
   const [noteText, setNoteText] = useState('')
-  const [priority, setPriority] = useState('medium')
+  const [category, setCategory] = useState('')
   const [editingNote, setEditingNote] = useState(null)
   const [viewMode, setViewMode] = useState('home') // 'home' | 'add' | 'edit'
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
@@ -498,14 +498,14 @@ export default function App() {
     setMessage('')
 
     const noteData = {
-      title: title.trim(),
-      content: noteText.trim(),
-      font_family: fontFamily,
-      title_font: titleFont,
-      font_size: parseInt(fontSize),
-      priority: priority || 'medium',
-      user_id: user.id,
-      date: selectedDate
+  title: title.trim(),
+  content: noteText.trim(),
+  font_family: fontFamily,
+  title_font: titleFont,
+  font_size: parseInt(fontSize),
+  priority: priority || 'medium',
+  user_id: user.id,
+  date: selectedDate
     }
 
     if (editingNote) {
@@ -552,22 +552,22 @@ export default function App() {
   }
 
   function openEditNote(note) {
-    setEditingNote(note)
-    setTitle(note.title)
-    setNoteText(note.content)
-    setFontFamily(note.font_family || 'Inter')
-    setTitleFont(note.title_font || 'Inter')
-    setFontSize(note.font_size?.toString() || '16')
-    setPriority(note.priority)
-    setViewMode('edit')
-  }
+  setEditingNote(note)
+  setTitle(note.title)
+  setNoteText(note.content)
+  setFontFamily(note.font_family || 'Inter')
+  setTitleFont(note.title_font || 'Inter')
+  setFontSize(note.font_size?.toString() || '16')
+  setPriority(note.priority)
+  setViewMode('edit')
+    }
 
   function goBack() {
-    setViewMode('home')
-    setEditingNote(null)
-    setTitle('')
-    setNoteText('')
-    setPriority('medium')
+  setViewMode('home')
+  setEditingNote(null)
+  setTitle('')
+  setNoteText('')
+  setCategory('')
   }
 
     async function deleteNote(id) {
@@ -1045,11 +1045,17 @@ export default function App() {
     setMessage('✅ Weekly report generated!')
   }
 
-  // ========== FILTERED DATA ==========
-  const filteredNotes = notes.filter(note =>
-    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    note.content.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  // Get all unique categories from notes
+const allCategories = ['All', ...new Set(notes.map(n => n.category || 'Uncategorized'))]
+const [activeCategory, setActiveCategory] = useState('All')
+
+const filteredNotes = notes.filter(note => {
+  const matchesSearch = note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        note.content.toLowerCase().includes(searchQuery.toLowerCase())
+  const matchesCategory = activeCategory === 'All' || 
+                         (note.category || 'Uncategorized') === activeCategory
+  return matchesSearch && matchesCategory
+})
 
   const filteredTasks = activeCategory === 'all'
     ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
@@ -2010,7 +2016,39 @@ export default function App() {
         + New Note
       </button>
     </div>
-
+{/* Category Tabs */}
+<div style={{
+  display: 'flex',
+  gap: '6px',
+  marginBottom: '16px',
+  flexWrap: 'wrap'
+}}>
+  {allCategories.map(cat => (
+    <button
+      key={cat}
+      onClick={() => setActiveCategory(cat)}
+      style={{
+        padding: '6px 16px',
+        borderRadius: '20px',
+        border: activeCategory === cat 
+          ? `1px solid ${theme.accent}`
+          : `1px solid ${theme.border}`,
+        background: activeCategory === cat 
+          ? (isDarkMode ? '#1a3a5c' : '#e8f0fe')
+          : 'transparent',
+        color: activeCategory === cat 
+          ? (isDarkMode ? '#60a5fa' : theme.accent)
+          : theme.textSecondary,
+        fontSize: '12px',
+        fontWeight: activeCategory === cat ? '600' : '400',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease'
+      }}
+    >
+      {cat} ({notes.filter(n => (n.category || 'Uncategorized') === cat).length})
+    </button>
+  ))}
+</div>
     {filteredNotes.length > 0 ? (
       <div style={{
         display: 'grid',
@@ -2053,16 +2091,15 @@ export default function App() {
                 {note.title || 'Untitled'}
               </h4>
               <span style={{
-                fontSize: '9px',
-                padding: '1px 10px',
-                borderRadius: '12px',
-                background: note.priority === 'high' ? '#dc2626' :
-                           note.priority === 'medium' ? '#f59e0b' : '#22c55e',
-                color: '#fff',
-                flexShrink: 0
-              }}>
-                {note.priority}
-              </span>
+  fontSize: '9px',
+  padding: '1px 10px',
+  borderRadius: '12px',
+  background: '#2563eb',
+  color: '#fff',
+  flexShrink: 0
+}}>
+  {note.category || 'Uncategorized'}
+</span>
             </div>
             <p style={{
               fontSize: '13px',
