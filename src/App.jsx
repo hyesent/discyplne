@@ -2164,16 +2164,13 @@ export default function App() {
                 </button>
               ))}
             </div>
-{/* Task Input - WITH ALL FIELDS BACK */}
+                  {/* Task Input - CLEAN VERSION */}
 <div style={{
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '10px',
-  marginBottom: '16px',
   background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-  padding: '16px',
   borderRadius: '12px',
-  border: `1px solid ${theme.border}`
+  padding: '16px',
+  border: `1px solid ${theme.border}`,
+  marginBottom: '16px'
 }}>
   {/* Row 1: Task name + Category + Add button */}
   <div style={{
@@ -2188,12 +2185,13 @@ export default function App() {
       onKeyDown={(e) => e.key === 'Enter' && addTask()}
       style={{
         padding: '10px 14px',
-        borderRadius: '10px',
+        borderRadius: '8px',
         border: `1px solid ${theme.border}`,
         background: theme.bgInput,
         color: theme.text,
         fontSize: '14px',
-        outline: 'none'
+        outline: 'none',
+        width: '100%'
       }}
     />
     <select
@@ -2201,7 +2199,7 @@ export default function App() {
       onChange={e => setTaskCategory(e.target.value)}
       style={{
         padding: '10px 14px',
-        borderRadius: '10px',
+        borderRadius: '8px',
         border: `1px solid ${theme.border}`,
         background: theme.bgInput,
         color: theme.text,
@@ -2216,37 +2214,40 @@ export default function App() {
     <button
       onClick={addTask}
       style={{
-        padding: '10px 20px',
-        borderRadius: '10px',
+        padding: '10px 24px',
+        borderRadius: '8px',
         border: 'none',
         background: theme.accent,
         color: '#fff',
         fontWeight: '600',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        whiteSpace: 'nowrap'
       }}
     >
       Add
     </button>
   </div>
 
-  {/* Row 2: All the extra fields */}
+  {/* Row 2: Extra fields - CLEAN */}
   <div style={{
     display: 'flex',
     gap: '8px',
     flexWrap: 'wrap',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginTop: '10px',
+    paddingTop: '10px',
+    borderTop: `1px solid ${theme.border}`
   }}>
-    {/* Daily: Time picker */}
     {taskCategory === 'daily' && (
       <>
-        <span style={{ fontSize: '12px', color: theme.textMuted }}>⏰</span>
+        <label style={{ fontSize: '12px', color: theme.textMuted }}>⏰ Time</label>
         <input
           type="time"
           value={taskTime}
           onChange={e => setTaskTime(e.target.value)}
           style={{
             padding: '6px 10px',
-            borderRadius: '8px',
+            borderRadius: '6px',
             border: `1px solid ${theme.border}`,
             background: theme.bgInput,
             color: theme.text,
@@ -2258,16 +2259,15 @@ export default function App() {
       </>
     )}
 
-    {/* Weekly: Day selector */}
     {taskCategory === 'weekly' && (
       <>
-        <span style={{ fontSize: '12px', color: theme.textMuted }}>📅</span>
+        <label style={{ fontSize: '12px', color: theme.textMuted }}>📅 Day</label>
         <select
           value={taskWeekDay}
           onChange={e => setTaskWeekDay(e.target.value)}
           style={{
             padding: '6px 10px',
-            borderRadius: '8px',
+            borderRadius: '6px',
             border: `1px solid ${theme.border}`,
             background: theme.bgInput,
             color: theme.text,
@@ -2286,17 +2286,16 @@ export default function App() {
       </>
     )}
 
-    {/* Custom: Date picker */}
     {taskCategory === 'custom' && (
       <>
-        <span style={{ fontSize: '12px', color: theme.textMuted }}>📆</span>
+        <label style={{ fontSize: '12px', color: theme.textMuted }}>📆 Date</label>
         <input
           type="date"
           value={taskDueDate}
           onChange={e => setTaskDueDate(e.target.value)}
           style={{
             padding: '6px 10px',
-            borderRadius: '8px',
+            borderRadius: '6px',
             border: `1px solid ${theme.border}`,
             background: theme.bgInput,
             color: theme.text,
@@ -2307,14 +2306,13 @@ export default function App() {
       </>
     )}
 
-    {/* Difficulty */}
-    <span style={{ fontSize: '12px', color: theme.textMuted }}>📊</span>
+    <label style={{ fontSize: '12px', color: theme.textMuted }}>📊 Difficulty</label>
     <select
       value={taskDifficulty}
       onChange={e => setTaskDifficulty(e.target.value)}
       style={{
         padding: '6px 10px',
-        borderRadius: '8px',
+        borderRadius: '6px',
         border: `1px solid ${theme.border}`,
         background: theme.bgInput,
         color: theme.text,
@@ -2327,33 +2325,31 @@ export default function App() {
       <option value="hard">Hard</option>
     </select>
 
-    {/* Minutes */}
-    <span style={{ fontSize: '12px', color: theme.textMuted }}>⏱️</span>
+    <label style={{ fontSize: '12px', color: theme.textMuted }}>⏱️ Mins</label>
     <input
       type="number"
       value={taskMinutes}
       onChange={e => setTaskMinutes(Number(e.target.value))}
-      placeholder="mins"
+      placeholder="30"
       style={{
         padding: '6px 10px',
-        borderRadius: '8px',
+        borderRadius: '6px',
         border: `1px solid ${theme.border}`,
         background: theme.bgInput,
         color: theme.text,
         fontSize: '12px',
         outline: 'none',
-        width: '70px'
+        width: '60px'
       }}
     />
 
-    {/* Tag */}
-    <span style={{ fontSize: '12px', color: theme.textMuted }}>🏷️</span>
+    <label style={{ fontSize: '12px', color: theme.textMuted }}>🏷️ Tag</label>
     <select
       value={taskTag}
       onChange={e => setTaskTag(e.target.value)}
       style={{
         padding: '6px 10px',
-        borderRadius: '8px',
+        borderRadius: '6px',
         border: `1px solid ${theme.border}`,
         background: theme.bgInput,
         color: theme.text,
@@ -2370,6 +2366,8 @@ export default function App() {
   </div>
 </div>
 
+
+          
             {/* Task List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {filteredTasks.length > 0 ? (
@@ -2711,7 +2709,7 @@ export default function App() {
                     fontSize: '13px'
                   }}
                 >
-                  Save Entry 💾
+                  Save Entry 
                 </button>
               </div>
             </div>
