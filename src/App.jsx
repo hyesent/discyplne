@@ -132,8 +132,8 @@ export default function App() {
   const [subTasks, setSubTasks] = useState({})
   const [newSubTask, setNewSubTask] = useState('')
   const [activeTaskId, setActiveTaskId] = useState(null)
-
-  // ========== JOURNAL STATE ==========
+  const [subTaskToAdd, setSubTaskToAdd] = useState('')
+   // ========== JOURNAL STATE ==========
   const [journalEntries, setJournalEntries] = useState([])
   const [journalEntry, setJournalEntry] = useState('')
 
@@ -2275,11 +2275,11 @@ export default function App() {
                 </button>
               ))}
             </div>
-                  {/* Task Input - CLEAN VERSION */}
+                  {/* Task Input - VERTICAL WITH SUBTASK FIELD */}
 <div style={{
   background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
   borderRadius: '12px',
-  padding: '16px',
+  padding: '20px',
   border: `1px solid ${theme.border}`,
   marginBottom: '16px'
 }}>
@@ -2287,7 +2287,8 @@ export default function App() {
   <div style={{
     display: 'grid',
     gridTemplateColumns: '1fr auto auto',
-    gap: '8px'
+    gap: '10px',
+    marginBottom: '16px'
   }}>
     <input
       value={task}
@@ -2295,8 +2296,8 @@ export default function App() {
       placeholder="Add a task..."
       onKeyDown={(e) => e.key === 'Enter' && addTask()}
       style={{
-        padding: '10px 14px',
-        borderRadius: '8px',
+        padding: '12px 16px',
+        borderRadius: '10px',
         border: `1px solid ${theme.border}`,
         background: theme.bgInput,
         color: theme.text,
@@ -2309,8 +2310,8 @@ export default function App() {
       value={taskCategory}
       onChange={e => setTaskCategory(e.target.value)}
       style={{
-        padding: '10px 14px',
-        borderRadius: '8px',
+        padding: '12px 16px',
+        borderRadius: '10px',
         border: `1px solid ${theme.border}`,
         background: theme.bgInput,
         color: theme.text,
@@ -2325,65 +2326,77 @@ export default function App() {
     <button
       onClick={addTask}
       style={{
-        padding: '10px 24px',
-        borderRadius: '8px',
+        padding: '12px 28px',
+        borderRadius: '10px',
         border: 'none',
         background: theme.accent,
         color: '#fff',
         fontWeight: '600',
         cursor: 'pointer',
-        whiteSpace: 'nowrap'
+        whiteSpace: 'nowrap',
+        fontSize: '14px'
       }}
     >
       Add
     </button>
   </div>
 
-  {/* Row 2: Extra fields - CLEAN */}
+  {/* Row 2: Extra fields - VERTICAL with spacing */}
   <div style={{
     display: 'flex',
-    gap: '8px',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    marginTop: '10px',
-    paddingTop: '10px',
+    flexDirection: 'column',
+    gap: '12px',
+    paddingTop: '16px',
     borderTop: `1px solid ${theme.border}`
   }}>
+    {/* Time (only for daily) */}
     {taskCategory === 'daily' && (
-      <>
-        <label style={{ fontSize: '12px', color: theme.textMuted }}>⏰ Time</label>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px'
+      }}>
+        <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px' }}>⏰ Time</label>
         <input
           type="time"
           value={taskTime}
           onChange={e => setTaskTime(e.target.value)}
           style={{
-            padding: '6px 10px',
-            borderRadius: '6px',
+            padding: '8px 14px',
+            borderRadius: '8px',
             border: `1px solid ${theme.border}`,
             background: theme.bgInput,
             color: theme.text,
-            fontSize: '12px',
+            fontSize: '13px',
             outline: 'none',
-            width: '100px'
+            flex: 1,
+            maxWidth: '160px'
           }}
         />
-      </>
+      </div>
     )}
 
+    {/* Day (only for weekly) */}
     {taskCategory === 'weekly' && (
-      <>
-        <label style={{ fontSize: '12px', color: theme.textMuted }}>📅 Day</label>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px'
+      }}>
+        <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px' }}>📅 Day</label>
         <select
           value={taskWeekDay}
           onChange={e => setTaskWeekDay(e.target.value)}
           style={{
-            padding: '6px 10px',
-            borderRadius: '6px',
+            padding: '8px 14px',
+            borderRadius: '8px',
             border: `1px solid ${theme.border}`,
             background: theme.bgInput,
             color: theme.text,
-            fontSize: '12px',
-            outline: 'none'
+            fontSize: '13px',
+            outline: 'none',
+            flex: 1,
+            maxWidth: '160px'
           }}
         >
           <option value="monday">Monday</option>
@@ -2394,88 +2407,205 @@ export default function App() {
           <option value="saturday">Saturday</option>
           <option value="sunday">Sunday</option>
         </select>
-      </>
+      </div>
     )}
 
+    {/* Date (only for custom) */}
     {taskCategory === 'custom' && (
-      <>
-        <label style={{ fontSize: '12px', color: theme.textMuted }}>📆 Date</label>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px'
+      }}>
+        <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px' }}>📆 Date</label>
         <input
           type="date"
           value={taskDueDate}
           onChange={e => setTaskDueDate(e.target.value)}
           style={{
-            padding: '6px 10px',
-            borderRadius: '6px',
+            padding: '8px 14px',
+            borderRadius: '8px',
             border: `1px solid ${theme.border}`,
             background: theme.bgInput,
             color: theme.text,
-            fontSize: '12px',
-            outline: 'none'
+            fontSize: '13px',
+            outline: 'none',
+            flex: 1,
+            maxWidth: '160px'
           }}
         />
-      </>
+      </div>
     )}
 
-    <label style={{ fontSize: '12px', color: theme.textMuted }}>📊 Difficulty</label>
-    <select
-      value={taskDifficulty}
-      onChange={e => setTaskDifficulty(e.target.value)}
-      style={{
-        padding: '6px 10px',
-        borderRadius: '6px',
-        border: `1px solid ${theme.border}`,
-        background: theme.bgInput,
-        color: theme.text,
-        fontSize: '12px',
-        outline: 'none'
-      }}
-    >
-      <option value="easy">Easy</option>
-      <option value="medium">Medium</option>
-      <option value="hard">Hard</option>
-    </select>
+    {/* Difficulty */}
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px'
+    }}>
+      <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px' }}>📊 Difficulty</label>
+      <select
+        value={taskDifficulty}
+        onChange={e => setTaskDifficulty(e.target.value)}
+        style={{
+          padding: '8px 14px',
+          borderRadius: '8px',
+          border: `1px solid ${theme.border}`,
+          background: theme.bgInput,
+          color: theme.text,
+          fontSize: '13px',
+          outline: 'none',
+          flex: 1,
+          maxWidth: '160px'
+        }}
+      >
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+    </div>
 
-    <label style={{ fontSize: '12px', color: theme.textMuted }}>⏱️ Mins</label>
-    <input
-      type="number"
-      value={taskMinutes}
-      onChange={e => setTaskMinutes(Number(e.target.value))}
-      placeholder="30"
-      style={{
-        padding: '6px 10px',
-        borderRadius: '6px',
-        border: `1px solid ${theme.border}`,
-        background: theme.bgInput,
-        color: theme.text,
-        fontSize: '12px',
-        outline: 'none',
-        width: '60px'
-      }}
-    />
+    {/* Minutes */}
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px'
+    }}>
+      <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px' }}>⏱️ Minutes</label>
+      <input
+        type="number"
+        value={taskMinutes}
+        onChange={e => setTaskMinutes(Number(e.target.value))}
+        placeholder="30"
+        style={{
+          padding: '8px 14px',
+          borderRadius: '8px',
+          border: `1px solid ${theme.border}`,
+          background: theme.bgInput,
+          color: theme.text,
+          fontSize: '13px',
+          outline: 'none',
+          flex: 1,
+          maxWidth: '100px'
+        }}
+      />
+    </div>
 
-    <label style={{ fontSize: '12px', color: theme.textMuted }}>🏷️ Tag</label>
-    <select
-      value={taskTag}
-      onChange={e => setTaskTag(e.target.value)}
-      style={{
-        padding: '6px 10px',
-        borderRadius: '6px',
-        border: `1px solid ${theme.border}`,
-        background: theme.bgInput,
-        color: theme.text,
-        fontSize: '12px',
-        outline: 'none'
-      }}
-    >
-      <option value="general">General</option>
-      <option value="school">School</option>
-      <option value="work">Work</option>
-      <option value="health">Health</option>
-      <option value="personal">Personal</option>
-    </select>
+    {/* Tag */}
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px'
+    }}>
+      <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px' }}>🏷️ Tag</label>
+      <select
+        value={taskTag}
+        onChange={e => setTaskTag(e.target.value)}
+        style={{
+          padding: '8px 14px',
+          borderRadius: '8px',
+          border: `1px solid ${theme.border}`,
+          background: theme.bgInput,
+          color: theme.text,
+          fontSize: '13px',
+          outline: 'none',
+          flex: 1,
+          maxWidth: '160px'
+        }}
+      >
+        <option value="general">General</option>
+        <option value="school">School</option>
+        <option value="work">Work</option>
+        <option value="health">Health</option>
+        <option value="personal">Personal</option>
+      </select>
+    </div>
+
+    {/* 🔥 SUBTASK FIELD - Always visible in the form */}
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      paddingTop: '8px',
+      borderTop: `1px dashed ${theme.border}`
+    }}>
+      <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px' }}>📋 Subtask</label>
+      <input
+        value={newSubTask}
+        onChange={e => setNewSubTask(e.target.value)}
+        placeholder="Add a subtask (optional)"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && newSubTask.trim()) {
+            setSubTaskToAdd(newSubTask.trim())
+            setNewSubTask('')
+            setMessage('✅ Subtask ready!')
+          }
+        }}
+        style={{
+          padding: '8px 14px',
+          borderRadius: '8px',
+          border: `1px solid ${theme.border}`,
+          background: theme.bgInput,
+          color: theme.text,
+          fontSize: '13px',
+          outline: 'none',
+          flex: 1,
+          maxWidth: '240px'
+        }}
+      />
+      <button
+        onClick={() => {
+          if (newSubTask.trim()) {
+            setSubTaskToAdd(newSubTask.trim())
+            setNewSubTask('')
+            setMessage('✅ Subtask ready!')
+          }
+        }}
+        style={{
+          padding: '6px 16px',
+          borderRadius: '8px',
+          border: 'none',
+          background: theme.accent,
+          color: '#fff',
+          fontSize: '12px',
+          cursor: 'pointer'
+        }}
+      >
+        Add Subtask
+      </button>
+    </div>
+
+    {/* Show subtask that will be added with the task */}
+    {subTaskToAdd && (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '6px 12px',
+        background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
+        borderRadius: '8px',
+        marginTop: '4px'
+      }}>
+        <span style={{ fontSize: '13px', color: theme.text }}>📋 {subTaskToAdd}</span>
+        <button
+          onClick={() => setSubTaskToAdd('')}
+          style={{
+            padding: '2px 6px',
+            borderRadius: '4px',
+            border: 'none',
+            background: 'transparent',
+            color: theme.textMuted,
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}
+        >
+          ×
+        </button>
+      </div>
+    )}
   </div>
 </div>
+
 
 
           
