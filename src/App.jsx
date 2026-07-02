@@ -2164,61 +2164,211 @@ export default function App() {
                 </button>
               ))}
             </div>
+{/* Task Input - WITH ALL FIELDS BACK */}
+<div style={{
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '10px',
+  marginBottom: '16px',
+  background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+  padding: '16px',
+  borderRadius: '12px',
+  border: `1px solid ${theme.border}`
+}}>
+  {/* Row 1: Task name + Category + Add button */}
+  <div style={{
+    display: 'grid',
+    gridTemplateColumns: '1fr auto auto',
+    gap: '8px'
+  }}>
+    <input
+      value={task}
+      onChange={e => setTask(e.target.value)}
+      placeholder="Add a task..."
+      onKeyDown={(e) => e.key === 'Enter' && addTask()}
+      style={{
+        padding: '10px 14px',
+        borderRadius: '10px',
+        border: `1px solid ${theme.border}`,
+        background: theme.bgInput,
+        color: theme.text,
+        fontSize: '14px',
+        outline: 'none'
+      }}
+    />
+    <select
+      value={taskCategory}
+      onChange={e => setTaskCategory(e.target.value)}
+      style={{
+        padding: '10px 14px',
+        borderRadius: '10px',
+        border: `1px solid ${theme.border}`,
+        background: theme.bgInput,
+        color: theme.text,
+        fontSize: '13px',
+        outline: 'none'
+      }}
+    >
+      <option value="daily">Daily</option>
+      <option value="weekly">Weekly</option>
+      <option value="custom">One-time</option>
+    </select>
+    <button
+      onClick={addTask}
+      style={{
+        padding: '10px 20px',
+        borderRadius: '10px',
+        border: 'none',
+        background: theme.accent,
+        color: '#fff',
+        fontWeight: '600',
+        cursor: 'pointer'
+      }}
+    >
+      Add
+    </button>
+  </div>
 
-            {/* Task Input */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr auto auto',
-              gap: '8px',
-              marginBottom: '16px'
-            }}>
-              <input
-                value={task}
-                onChange={e => setTask(e.target.value)}
-                placeholder="Add a task..."
-                onKeyDown={(e) => e.key === 'Enter' && addTask()}
-                style={{
-                  padding: '10px 14px',
-                  borderRadius: '12px',
-                  border: `1px solid ${theme.border}`,
-                  background: theme.bgInput,
-                  color: theme.text,
-                  fontSize: '14px',
-                  outline: 'none'
-                }}
-              />
-              <select
-                value={taskCategory}
-                onChange={e => setTaskCategory(e.target.value)}
-                style={{
-                  padding: '10px 14px',
-                  borderRadius: '12px',
-                  border: `1px solid ${theme.border}`,
-                  background: theme.bgInput,
-                  color: theme.text,
-                  fontSize: '13px',
-                  outline: 'none'
-                }}
-              >
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="custom">One-time</option>
-              </select>
-              <button
-                onClick={addTask}
-                style={{
-                  padding: '10px 20px',
-                  borderRadius: '12px',
-                  border: 'none',
-                  background: theme.accent,
-                  color: '#fff',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                Add
-              </button>
-            </div>
+  {/* Row 2: All the extra fields */}
+  <div style={{
+    display: 'flex',
+    gap: '8px',
+    flexWrap: 'wrap',
+    alignItems: 'center'
+  }}>
+    {/* Daily: Time picker */}
+    {taskCategory === 'daily' && (
+      <>
+        <span style={{ fontSize: '12px', color: theme.textMuted }}>⏰</span>
+        <input
+          type="time"
+          value={taskTime}
+          onChange={e => setTaskTime(e.target.value)}
+          style={{
+            padding: '6px 10px',
+            borderRadius: '8px',
+            border: `1px solid ${theme.border}`,
+            background: theme.bgInput,
+            color: theme.text,
+            fontSize: '12px',
+            outline: 'none',
+            width: '100px'
+          }}
+        />
+      </>
+    )}
+
+    {/* Weekly: Day selector */}
+    {taskCategory === 'weekly' && (
+      <>
+        <span style={{ fontSize: '12px', color: theme.textMuted }}>📅</span>
+        <select
+          value={taskWeekDay}
+          onChange={e => setTaskWeekDay(e.target.value)}
+          style={{
+            padding: '6px 10px',
+            borderRadius: '8px',
+            border: `1px solid ${theme.border}`,
+            background: theme.bgInput,
+            color: theme.text,
+            fontSize: '12px',
+            outline: 'none'
+          }}
+        >
+          <option value="monday">Monday</option>
+          <option value="tuesday">Tuesday</option>
+          <option value="wednesday">Wednesday</option>
+          <option value="thursday">Thursday</option>
+          <option value="friday">Friday</option>
+          <option value="saturday">Saturday</option>
+          <option value="sunday">Sunday</option>
+        </select>
+      </>
+    )}
+
+    {/* Custom: Date picker */}
+    {taskCategory === 'custom' && (
+      <>
+        <span style={{ fontSize: '12px', color: theme.textMuted }}>📆</span>
+        <input
+          type="date"
+          value={taskDueDate}
+          onChange={e => setTaskDueDate(e.target.value)}
+          style={{
+            padding: '6px 10px',
+            borderRadius: '8px',
+            border: `1px solid ${theme.border}`,
+            background: theme.bgInput,
+            color: theme.text,
+            fontSize: '12px',
+            outline: 'none'
+          }}
+        />
+      </>
+    )}
+
+    {/* Difficulty */}
+    <span style={{ fontSize: '12px', color: theme.textMuted }}>📊</span>
+    <select
+      value={taskDifficulty}
+      onChange={e => setTaskDifficulty(e.target.value)}
+      style={{
+        padding: '6px 10px',
+        borderRadius: '8px',
+        border: `1px solid ${theme.border}`,
+        background: theme.bgInput,
+        color: theme.text,
+        fontSize: '12px',
+        outline: 'none'
+      }}
+    >
+      <option value="easy">Easy</option>
+      <option value="medium">Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+
+    {/* Minutes */}
+    <span style={{ fontSize: '12px', color: theme.textMuted }}>⏱️</span>
+    <input
+      type="number"
+      value={taskMinutes}
+      onChange={e => setTaskMinutes(Number(e.target.value))}
+      placeholder="mins"
+      style={{
+        padding: '6px 10px',
+        borderRadius: '8px',
+        border: `1px solid ${theme.border}`,
+        background: theme.bgInput,
+        color: theme.text,
+        fontSize: '12px',
+        outline: 'none',
+        width: '70px'
+      }}
+    />
+
+    {/* Tag */}
+    <span style={{ fontSize: '12px', color: theme.textMuted }}>🏷️</span>
+    <select
+      value={taskTag}
+      onChange={e => setTaskTag(e.target.value)}
+      style={{
+        padding: '6px 10px',
+        borderRadius: '8px',
+        border: `1px solid ${theme.border}`,
+        background: theme.bgInput,
+        color: theme.text,
+        fontSize: '12px',
+        outline: 'none'
+      }}
+    >
+      <option value="general">General</option>
+      <option value="school">School</option>
+      <option value="work">Work</option>
+      <option value="health">Health</option>
+      <option value="personal">Personal</option>
+    </select>
+  </div>
+</div>
 
             {/* Task List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
