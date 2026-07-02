@@ -1285,61 +1285,95 @@ const filteredNotes = notes.filter(note => {
 
         <div>
           {viewMode === 'add' && (
-            <>
-              <select
-                value={titleFont}
-                onChange={(e) => setTitleFont(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  borderRadius: '12px',
-                  border: `1px solid ${theme.border}`,
-                  background: theme.bgInput,
-                  color: theme.text,
-                  marginBottom: '10px',
-                  fontSize: '14px'
-                }}
-              >
-                <option value="Inter">Inter - Clean</option>
-                <option value="Georgia">Georgia - Book</option>
-                <option value="Poppins">Poppins - Modern</option>
-                <option value="Merriweather">Merriweather - Readable</option>
-                <option value="'Times New Roman'">Times - Classic</option>
-                <option value="Arial">Arial - Simple</option>
-                <option value="Pacifico">Pacifico - Cursive ✨</option>
-                <option value="Caveat">Caveat - Handwriting</option>
-              </select>
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Title"
-                style={{
-                  width: '100%',
-                  padding: '14px 16px',
-                  borderRadius: '12px',
-                  border: `1px solid ${theme.border}`,
-                  background: theme.bgInput,
-                  color: theme.text,
-                  fontSize: '24px',
-                  fontWeight: '600',
-                  marginBottom: '12px',
-                  outline: 'none',
-                  fontFamily: titleFont.includes(' ') ? `'${titleFont}', serif` : titleFont
-                }}
-              />
-            </>
-          )}
+  <>
+    <select
+      value={titleFont}
+      onChange={(e) => setTitleFont(e.target.value)}
+      style={{
+        width: '100%',
+        padding: '10px 14px',
+        borderRadius: '12px',
+        border: `1px solid ${theme.border}`,
+        background: theme.bgInput,
+        color: theme.text,
+        marginBottom: '10px',
+        fontSize: '14px'
+      }}
+    >
+      <option value="Inter">Inter - Clean</option>
+      <option value="Georgia">Georgia - Book</option>
+      <option value="Poppins">Poppins - Modern</option>
+      <option value="Merriweather">Merriweather - Readable</option>
+      <option value="'Times New Roman'">Times - Classic</option>
+      <option value="Arial">Arial - Simple</option>
+      <option value="Pacifico">Pacifico - Cursive ✨</option>
+      <option value="Caveat">Caveat - Handwriting</option>
+    </select>
+    <input
+      value={title}
+      onChange={(e) => setTitle(e.target.value)}
+      placeholder="Title"
+      style={{
+        width: '100%',
+        padding: '14px 16px',
+        borderRadius: '12px',
+        border: `1px solid ${theme.border}`,
+        background: theme.bgInput,
+        color: theme.text,
+        fontSize: '24px',
+        fontWeight: '600',
+        marginBottom: '12px',
+        outline: 'none',
+        fontFamily: titleFont.includes(' ') ? `'${titleFont}', serif` : titleFont
+      }}
+    />
+    {/* 🔥 ADD THIS CATEGORY INPUT 🔥 */}
+    <input
+      value={category}
+      onChange={(e) => setCategory(e.target.value)}
+      placeholder="Add a category (e.g., Discypln, Hyezen, Work)"
+      style={{
+        width: '100%',
+        padding: '10px 14px',
+        borderRadius: '8px',
+        border: `1px solid ${theme.border}`,
+        background: theme.bgInput,
+        color: theme.text,
+        fontSize: '14px',
+        outline: 'none',
+        marginBottom: '10px'
+      }}
+    />
+  </>
+)}
           {viewMode === 'edit' && (
-            <h2 style={{
-              fontSize: '24px',
-              fontWeight: '600',
-              marginBottom: '12px',
-              fontFamily: titleFont.includes(' ') ? `'${titleFont}', serif` : titleFont
-            }}>
-              {title}
-            </h2>
-          )}
-
+  <>
+    <h2 style={{
+      fontSize: '24px',
+      fontWeight: '600',
+      marginBottom: '12px',
+      fontFamily: titleFont.includes(' ') ? `'${titleFont}', serif` : titleFont
+    }}>
+      {title}
+    </h2>
+    <input
+      value={category}
+      onChange={(e) => setCategory(e.target.value)}
+      placeholder="Add a category (e.g., Discypln, Hyezen, Work)"
+      style={{
+        width: '100%',
+        padding: '10px 14px',
+        borderRadius: '8px',
+        border: `1px solid ${theme.border}`,
+        background: theme.bgInput,
+        color: theme.text,
+        fontSize: '14px',
+        outline: 'none',
+        marginBottom: '10px'
+      }}
+    />
+  </>
+)}
           <textarea
             value={noteText}
             onChange={(e) => setNoteText(e.target.value)}
