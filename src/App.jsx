@@ -1682,7 +1682,7 @@ export default function App() {
   gap: '16px',
   marginBottom: '20px'
 }}>
-  {/* Pomodoro Card */}
+ {/* Pomodoro Card */}
 <div style={{
   background: theme.bgCard,
   borderRadius: '16px',
@@ -1690,7 +1690,7 @@ export default function App() {
   border: `1px solid ${theme.border}`
 }}>
   {/* Line 1: FOCUS + Buttons */}
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
     <div style={{ 
       fontSize: '12px', 
       color: theme.textMuted,
@@ -1704,33 +1704,33 @@ export default function App() {
       <button
         onClick={togglePomodoro}
         style={{
-          padding: '8px 14px', // made it smaller so it fits
+          padding: '8px 16px',
           borderRadius: '12px',
           border: 'none',
           background: pomodoroRunning ? '#ef4444' : '#22c55e',
           color: '#fff',
           fontWeight: '600',
           cursor: 'pointer',
-          fontSize: '12px',
-          display: 'flex',      // put icon + text inline
+          fontSize: '13px',
+          display: 'flex',
           alignItems: 'center',
           gap: '6px',
-          height: '36px'        // lock height
+          height: '36px'
         }}
       >
-        <span>▶</span> {pomodoroRunning ? 'Pause' : 'Start'}
+        <span>{pomodoroRunning ? '⏸' : '▶'}</span> {pomodoroRunning ? 'Pause' : 'Start'}
       </button>
       <button
         onClick={resetPomodoro}
         style={{
-          width: '36px',        // square instead of wide padding
+          width: '36px',
           height: '36px',
           borderRadius: '12px',
           border: `1px solid ${theme.border}`,
           background: 'transparent',
           color: theme.textSecondary,
           cursor: 'pointer',
-          fontSize: '14px',
+          fontSize: '16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -1741,47 +1741,52 @@ export default function App() {
     </div>
   </div>
 
-  {/* Line 2: 25:00 Timer only */}
+  {/* Line 2: Timer */}
   <div style={{
     fontSize: '48px',
     fontWeight: '700',
     color: theme.text,
     fontVariantNumeric: 'tabular-nums',
-    lineHeight: '1'
+    lineHeight: '1.2',
+    marginTop: '4px'
   }}>
     {formatTime(pomodoroTime)}
   </div>
-</div>
-    {/* Progress Bar */}
+
+  {/* Progress Bar */}
+  <div style={{
+    marginTop: '14px',
+    height: '4px',
+    background: isDarkMode ? '#2a2a2a' : '#e0e0e0',
+    borderRadius: '4px',
+    overflow: 'hidden'
+  }}>
     <div style={{
-      marginTop: '14px',
-      height: '4px',
-      background: isDarkMode ? '#2a2a2a' : '#e0e0e0',
-      borderRadius: '4px',
-      overflow: 'hidden'
-    }}>
-      <div style={{
-        width: `${((25 * 60 - pomodoroTime) / (25 * 60)) * 100}%`,
-        height: '100%',
-        background: pomodoroRunning 
-          ? (isBreak ? '#f59e0b' : '#22c55e')
-          : isDarkMode ? '#444' : '#ccc',
-        transition: 'width 1s linear',
-        borderRadius: '4px'
-      }} />
-    </div>
-    
-    <div style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      fontSize: '13px',
-      color: theme.textMuted,
-      marginTop: '8px'
-    }}>
-      <span>{pomodoroSessions} sessions completed</span>
-      <span>{formatMinutes(totalMinutes)} total</span>
-    </div>
+      width: `${((25 * 60 - pomodoroTime) / (25 * 60)) * 100}%`,
+      height: '100%',
+      background: pomodoroRunning 
+        ? (isBreak ? '#f59e0b' : '#22c55e')
+        : isDarkMode ? '#444' : '#ccc',
+      transition: 'width 1s linear',
+      borderRadius: '4px'
+    }} />
   </div>
+  
+  <div style={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: '13px',
+    color: theme.textMuted,
+    marginTop: '8px'
+  }}>
+    <span>{pomodoroSessions} sessions completed</span>
+    <span>{formatMinutes(totalMinutes)} total</span>
+  </div>
+</div>
+
+          
+    
+    
 
   {/* Stats Card - Single Row */}
   <div style={{
