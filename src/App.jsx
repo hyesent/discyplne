@@ -2531,98 +2531,94 @@ export default function App() {
       </select>
     </div>
 
-    {/* 🔥 SUBTASK FIELD - FIXED */}
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-      paddingTop: '8px',
-      borderTop: `1px dashed ${theme.border}`
-    }}>
-      <label style={{ 
-        fontSize: '13px', 
-        color: theme.textMuted, 
-        minWidth: '80px',
-        flexShrink: 0 
-      }}></label>
-      <input
-        value={newSubTask}
-        onChange={e => setNewSubTask(e.target.value)}
-        placeholder="Add a subtask (optional)"
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && newSubTask.trim()) {
-            setSubTaskToAdd(newSubTask.trim())
-            setNewSubTask('')
-            setMessage('✅ Subtask ready!')
-          }
-        }}
-        style={{
-          padding: '8px 14px',
-          borderRadius: '8px',
-          border: `1px solid ${theme.border}`,
-          background: theme.bgInput,
-          color: theme.text,
-          fontSize: '13px',
-          outline: 'none',
-          flex: 1,
-          maxWidth: '300px'
-        }}
-      />
-      <button
-        onClick={() => {
-          if (newSubTask.trim()) {
-            setSubTaskToAdd(newSubTask.trim())
-            setNewSubTask('')
-            setMessage('✅ Subtask ready!')
-          }
-        }}
-        style={{
-          padding: '8px 20px',
-          borderRadius: '8px',
-          border: 'none',
-          background: theme.accent,
-          color: '#fff',
-          fontSize: '13px',
-          cursor: 'pointer',
-          whiteSpace: 'nowrap',
-          flexShrink: 0
-        }}
-      >
-        Add
-      </button>
-    </div>
+    {/* 🔥 SUBTASK FIELD - NO LABEL */}
+<div style={{
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px',
+  paddingTop: '8px',
+  borderTop: `1px dashed ${theme.border}`,
+  width: '100%'
+}}>
+  <input
+    value={newSubTask}
+    onChange={e => setNewSubTask(e.target.value)}
+    placeholder="Add a subtask (optional)"
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' && newSubTask.trim()) {
+        setSubTaskToAdd(newSubTask.trim())
+        setNewSubTask('')
+        setMessage('✅ Subtask ready!')
+      }
+    }}
+    style={{
+      padding: '8px 14px',
+      borderRadius: '8px',
+      border: `1px solid ${theme.border}`,
+      background: theme.bgInput,
+      color: theme.text,
+      fontSize: '13px',
+      outline: 'none',
+      flex: 1,
+      maxWidth: '280px'
+    }}
+  />
+  <button
+    onClick={() => {
+      if (newSubTask.trim()) {
+        setSubTaskToAdd(newSubTask.trim())
+        setNewSubTask('')
+        setMessage('✅ Subtask ready!')
+      }
+    }}
+    style={{
+      padding: '8px 18px',
+      borderRadius: '8px',
+      border: 'none',
+      background: theme.accent,
+      color: '#fff',
+      fontSize: '13px',
+      cursor: 'pointer',
+      whiteSpace: 'nowrap',
+      flexShrink: 0
+    }}
+  >
+    Add
+  </button>
+</div>
 
-    {/* Show subtask that will be added with the task */}
-    {subTaskToAdd && (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        padding: '6px 14px',
-        background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
-        borderRadius: '8px',
-        marginLeft: '92px',
-        width: 'fit-content',
-        maxWidth: '100%'
-      }}>
-        <span style={{ fontSize: '13px', color: theme.text, wordBreak: 'break-word' }}>📋 {subTaskToAdd}</span>
-        <button
-          onClick={() => setSubTaskToAdd('')}
-          style={{
-            padding: '2px 6px',
-            borderRadius: '4px',
-            border: 'none',
-            background: 'transparent',
-            color: theme.textMuted,
-            cursor: 'pointer',
-            fontSize: '14px',
-            flexShrink: 0
-          }}
-        >
-          ×
-        </button>
-      </div>
-    )}
+{/* Show subtask that will be added with the task */}
+{subTaskToAdd && (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '6px 14px',
+    background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
+    borderRadius: '8px',
+    marginLeft: '0px',
+    width: 'fit-content',
+    maxWidth: '100%'
+  }}>
+    <span style={{ fontSize: '13px', color: theme.text, wordBreak: 'break-word' }}>📋 {subTaskToAdd}</span>
+    <button
+      onClick={() => setSubTaskToAdd('')}
+      style={{
+        padding: '2px 6px',
+        borderRadius: '4px',
+        border: 'none',
+        background: 'transparent',
+        color: theme.textMuted,
+        cursor: 'pointer',
+        fontSize: '14px',
+        flexShrink: 0
+      }}
+    >
+      ×
+    </button>
+  </div>
+)}
+            
   </div>
 </div>
         
