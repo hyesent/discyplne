@@ -1950,139 +1950,229 @@ export default function App() {
       }}>
 
         {/* ===== NOTES TAB ===== */}
-        {activeTab === 'notes' && (
-          <div>
+{activeTab === 'notes' && (
+  <div>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '16px'
+    }}>
+      <h2 style={{
+        fontSize: '18px',
+        fontWeight: '600',
+        margin: 0,
+        color: theme.text
+      }}>
+        📝 Notes
+        <span style={{
+          fontSize: '13px',
+          color: theme.textMuted,
+          marginLeft: '10px',
+          fontWeight: '400'
+        }}>
+          {notes.length}
+        </span>
+      </h2>
+      <button
+        onClick={openAddNote}
+        style={{
+          padding: '8px 18px',
+          borderRadius: '20px',
+          border: 'none',
+          background: theme.accent,
+          color: '#fff',
+          fontSize: '13px',
+          fontWeight: '500',
+          cursor: 'pointer'
+        }}
+      >
+        + New Note
+      </button>
+    </div>
+
+    {filteredNotes.length > 0 ? (
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+        gap: '12px'
+      }}>
+        {filteredNotes.map(note => (
+          <div
+            key={note.id}
+            onClick={() => openEditNote(note)}
+            style={{
+              padding: '16px',
+              borderRadius: '14px',
+              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+              border: `1px solid ${theme.border}`,
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = theme.borderHover
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = theme.border
+            }}
+          >
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '16px'
+              alignItems: 'flex-start',
+              marginBottom: '6px'
             }}>
-              <h2 style={{
-                fontSize: '18px',
+              <h4 style={{
+                fontSize: '14px',
                 fontWeight: '600',
                 margin: 0,
                 color: theme.text
               }}>
-                 Notes
-                <span style={{
-                  fontSize: '13px',
-                  color: theme.textMuted,
-                  marginLeft: '10px',
-                  fontWeight: '400'
-                }}>
-                  {notes.length}
-                </span>
-              </h2>
-              <button
-                onClick={openAddNote}
-                style={{
-                  padding: '8px 18px',
-                  borderRadius: '20px',
-                  border: 'none',
-                  background: theme.accent,
-                  color: '#fff',
-                  fontSize: '13px',
-                  fontWeight: '500',
-                  cursor: 'pointer'
-                }}
-              >
-                + New Note
-              </button>
+                {note.title || 'Untitled'}
+              </h4>
+              <span style={{
+                fontSize: '9px',
+                padding: '1px 10px',
+                borderRadius: '12px',
+                background: note.priority === 'high' ? '#dc2626' :
+                           note.priority === 'medium' ? '#f59e0b' : '#22c55e',
+                color: '#fff',
+                flexShrink: 0
+              }}>
+                {note.priority}
+              </span>
             </div>
-
-            {filteredNotes.length > 0 ? (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-                gap: '12px'
-              }}>
-                {filteredNotes.map(note => (
-                  <div
-                    key={note.id}
-                    onClick={() => openEditNote(note)}
-                    style={{
-                      padding: '16px',
-                      borderRadius: '14px',
-                      background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-                      border: `1px solid ${theme.border}`,
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-2px)'
-                      e.currentTarget.style.borderColor = theme.borderHover
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)'
-                      e.currentTarget.style.borderColor = theme.border
-                    }}
-                  >
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      marginBottom: '6px'
-                    }}>
-                      <h4 style={{
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        margin: 0,
-                        color: theme.text
-                      }}>
-                        {note.title || 'Untitled'}
-                      </h4>
-                      <span style={{
-                        fontSize: '9px',
-                        padding: '1px 10px',
-                        borderRadius: '12px',
-                        background: note.priority === 'high' ? '#dc2626' :
-                                   note.priority === 'medium' ? '#f59e0b' : '#22c55e',
-                        color: '#fff',
-                        flexShrink: 0
-                      }}>
-                        {note.priority}
-                      </span>
-                    </div>
-                    <p style={{
-                      fontSize: '13px',
-                      color: theme.textSecondary,
-                      margin: 0,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      lineHeight: '1.5'
-                    }}>
-                      {note.content || 'No content'}
-                    </p>
-                    <div style={{
-                      marginTop: '10px',
-                      fontSize: '11px',
-                      color: theme.textMuted,
-                      display: 'flex',
-                      justifyContent: 'space-between'
-                    }}>
-                                            <span>{formatDate(note.date)}</span>
-                      <span>{formatNoteTime(note.created_at)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{
-                textAlign: 'center',
-                padding: '60px 20px',
-                color: theme.textMuted
-              }}>
-                <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
-                <p style={{ fontSize: '16px', margin: 0 }}>No notes yet</p>
-                <p style={{ fontSize: '13px', marginTop: '4px' }}>Create your first note</p>
-              </div>
-            )}
+            <p style={{
+              fontSize: '13px',
+              color: theme.textSecondary,
+              margin: 0,
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              lineHeight: '1.5'
+            }}>
+              {note.content || 'No content'}
+            </p>
+            <div style={{
+              marginTop: '10px',
+              fontSize: '11px',
+              color: theme.textMuted,
+              display: 'flex',
+              justifyContent: 'space-between'
+            }}>
+              <span>{formatDate(note.date)}</span>
+              <span>{formatNoteTime(note.created_at)}</span>
+            </div>
           </div>
-        )}
+        ))}
+      </div>
+    ) : (
+      <div style={{
+        textAlign: 'center',
+        padding: '60px 20px',
+        color: theme.textMuted
+      }}>
+        <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
+        <p style={{ fontSize: '16px', margin: 0 }}>No notes yet</p>
+        <p style={{ fontSize: '13px', marginTop: '4px' }}>Create your first note</p>
+      </div>
+    )}
 
+    {/* ===== EXPORT NOTES ===== */}
+    <div style={{
+      marginTop: '20px',
+      paddingTop: '16px',
+      borderTop: `1px solid ${theme.border}`
+    }}>
+      <div style={{
+        display: 'flex',
+        gap: '10px',
+        flexWrap: 'wrap'
+      }}>
+        <button
+          onClick={() => setShowExport(!showExport)}
+          style={{
+            padding: '8px 18px',
+            borderRadius: '10px',
+            border: `1px solid ${theme.border}`,
+            background: 'transparent',
+            color: theme.textSecondary,
+            fontSize: '13px',
+            cursor: 'pointer'
+          }}
+        >
+          {showExport ? '📄 Hide Export' : '📄 Export Notes'}
+        </button>
+      </div>
+
+      {showExport && notes.length > 0 && (
+        <div style={{
+          marginTop: '12px',
+          padding: '16px',
+          background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+          borderRadius: '12px',
+          border: `1px solid ${theme.border}`
+        }}>
+          <div style={{ fontSize: '14px', fontWeight: '600', color: theme.text, marginBottom: '10px' }}>
+            Select Notes to Export as PDF
+          </div>
+          {notes.map(note => (
+            <label key={note.id} style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '6px 0',
+              fontSize: '13px',
+              color: theme.textSecondary,
+              cursor: 'pointer'
+            }}>
+              <input
+                type="checkbox"
+                checked={selectedNotes.includes(note.id)}
+                onChange={() => toggleSelect(note.id)}
+                style={{ accentColor: theme.accent }}
+              />
+              {note.title || 'Untitled'}
+            </label>
+          ))}
+          <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+            <button
+              onClick={exportNotesPDF}
+              disabled={selectedNotes.length === 0}
+              style={{
+                padding: '8px 20px',
+                borderRadius: '8px',
+                border: 'none',
+                background: selectedNotes.length > 0 ? theme.accent : isDarkMode ? '#2a2a2a' : '#ddd',
+                color: selectedNotes.length > 0 ? '#fff' : isDarkMode ? '#555' : '#999',
+                fontWeight: '500',
+                cursor: selectedNotes.length > 0 ? 'pointer' : 'not-allowed'
+              }}
+            >
+              Export {selectedNotes.length} Selected
+            </button>
+            <button
+              onClick={() => { setShowExport(false); setSelectedNotes([]) }}
+              style={{
+                padding: '8px 20px',
+                borderRadius: '8px',
+                border: `1px solid ${theme.border}`,
+                background: 'transparent',
+                color: theme.textSecondary,
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+)}
         {/* ===== TASKS TAB ===== */}
         {activeTab === 'tasks' && (
           <div>
