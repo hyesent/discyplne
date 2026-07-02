@@ -1715,14 +1715,14 @@ export default function App() {
         <button
           onClick={togglePomodoro}
           style={{
-            padding: '10px 24px',
+            padding: '8px 16px',
             borderRadius: '12px',
             border: 'none',
             background: pomodoroRunning ? '#ef4444' : '#22c55e',
             color: '#fff',
             fontWeight: '600',
             cursor: 'pointer',
-            fontSize: '14px',
+            fontSize: '12px',
             transition: 'all 0.2s'
           }}
         >
