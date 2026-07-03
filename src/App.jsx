@@ -3002,7 +3002,7 @@ return (
         margin: 0,
         color: theme.text
       }}>
-        📖 Journal
+         Journal
         <span style={{
           fontSize: '13px',
           color: theme.textMuted,
