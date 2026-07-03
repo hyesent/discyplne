@@ -50,7 +50,6 @@ const ALL_LANGUAGES = [
   {code:"cy",name:"Welsh"},{code:"xh",name:"Xhosa"},{code:"yi",name:"Yiddish"},{code:"yo",name:"Yoruba"},{code:"zu",name:"Zulu"}
 ]
 
-// CODE LANGUAGE DETECTOR
 const detectCodeLanguage = (text) => {
   const patterns = [
     { regex: /import\s+.*from\s+['"].*['"]|export\s+(default\s+)?|const\s+.*=\s*\(/, name: 'JavaScript/React' },
@@ -69,7 +68,6 @@ const detectCodeLanguage = (text) => {
   return null
 }
 
-// HELPER: Convert ISO lang codes to NLLB format for HuggingFace
 const getNLLBLangCode = (code) => {
   const map = {
     'en': 'eng_Latn', 'es': 'spa_Latn', 'fr': 'fra_Latn', 'de': 'deu_Latn',
@@ -96,7 +94,7 @@ export default function App() {
 
   // ========== UI STATE ==========
   const [isDarkMode, setIsDarkMode] = useState(true)
-  const [activeTab, setActiveTab] = useState('notes') // 'notes' | 'tasks' | 'journal'
+  const [activeTab, setActiveTab] = useState('notes')
   const [currentTime, setCurrentTime] = useState(new Date())
   const [message, setMessage] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
@@ -107,7 +105,7 @@ export default function App() {
   const [noteText, setNoteText] = useState('')
   const [category, setCategory] = useState('')
   const [editingNote, setEditingNote] = useState(null)
-  const [viewMode, setViewMode] = useState('home') // 'home' | 'add' | 'edit'
+  const [viewMode, setViewMode] = useState('home')
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
   const [detectedCode, setDetectedCode] = useState(null)
   const [fontFamily, setFontFamily] = useState('Inter')
@@ -126,16 +124,21 @@ export default function App() {
   const [taskMinutes, setTaskMinutes] = useState(30)
   const [taskTag, setTaskTag] = useState('general')
   const [editingTask, setEditingTask] = useState(null)
-  
+  const [activeCategory, setActiveCategory] = useState('all')
   
   // ========== TODO SUBTASKS STATE ==========
   const [subTasks, setSubTasks] = useState({})
   const [newSubTask, setNewSubTask] = useState('')
   const [activeTaskId, setActiveTaskId] = useState(null)
-  const [subTaskToAdd, setSubTaskToAdd] = useState('')
-   // ========== JOURNAL STATE ==========
-  const [journalEntries, setJournalEntries] = useState([])
-  const [journalEntry, setJournalEntry] = useState('')
+  const [subTasksToAdd, setSubTasksToAdd] = useState([])
+
+  // ========== JOURNAL STATE ==========
+const [journalEntries, setJournalEntries] = useState([])
+const [journalEntry, setJournalEntry] = useState('')
+const [journalMood, setJournalMood] = useState('')          
+const [journalTags, setJournalTags] = useState('')          
+const [journalDateFilter, setJournalDateFilter] = useState('') 
+const [journalTagFilter, setJournalTagFilter] = useState('') 
 
   // ========== POMODORO STATE ==========
   const [pomodoroTime, setPomodoroTime] = useState(25 * 60)
@@ -228,6 +231,25 @@ export default function App() {
   }
   const failedDays = getFailedDays()
 
+  // ========== TASK RESET FUNCTION ==========
+  const shouldResetTask = (task) => {
+    if (!task.done) return false
+    
+    const now = new Date()
+    const taskDate = new Date(task.updated_at || task.created_at)
+    
+    if (task.type === 'habit') {
+      if (task.category === 'daily') {
+        const hoursDiff = (now - taskDate) / (1000 * 60 * 60)
+        return hoursDiff >= 24
+      } else if (task.category === 'weekly') {
+        const daysDiff = (now - taskDate) / (1000 * 60 * 60 * 24)
+        return daysDiff >= 7
+      }
+    }
+    return false
+  }
+
   // ========== EFFECTS ==========
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -285,6 +307,36 @@ export default function App() {
       }
     }
   }, [noteText])
+
+  // ========== TASK RESET CHECK ==========
+  useEffect(() => {
+    if (!user || tasks.length === 0) return
+
+    const resetTasks = async () => {
+      let resetCount = 0
+      for (const task of tasks) {
+        if (shouldResetTask(task)) {
+          const { error } = await supabase
+            .from('tasks')
+            .update({ done: false, updated_at: new Date().toISOString() })
+            .eq('id', task.id)
+            .eq('user_id', user.id)
+          
+          if (!error) resetCount++
+        }
+      }
+      
+      if (resetCount > 0) {
+        setMessage(`🔄 ${resetCount} task${resetCount > 1 ? 's' : ''} reset!`)
+        fetchTasks()
+      }
+    }
+
+    const interval = setInterval(resetTasks, 30000)
+    resetTasks()
+
+    return () => clearInterval(interval)
+  }, [user, tasks])
 
   // ========== POMODORO ==========
   useEffect(() => {
@@ -497,61 +549,61 @@ export default function App() {
     setLoading(true)
     setMessage('')
 
-    const noteData = {
-  title: title.trim(),
-  content: noteText.trim(),
-  font_family: fontFamily,
-  title_font: titleFont,
-  font_size: parseInt(fontSize),
-  category: category.trim() || 'Uncategorized',
-  user_id: user.id,
-  date: selectedDate
-    }
-
-    if (editingNote) {
-      const { error } = await supabase
-        .from('notes')
-        .update(noteData)
-        .eq('id', editingNote.id)
-        .eq('user_id', user.id)
-
-      if (error) setMessage('Error: ' + error.message)
-      else {
-        setMessage('✅ Note updated!')
-        setEditingNote(null)
-        setTitle('')
-        setNoteText('')
-        setPriority('medium')
-        await fetchNotes()
-        setViewMode('home')
-      }
-    } else {
-      const { error } = await supabase
-        .from('notes')
-        .insert([noteData])
-
-      if (error) setMessage('Error: ' + error.message)
-      else {
-        setMessage('✅ Note saved!')
-        setTitle('')
-        setNoteText('')
-        setPriority('medium')
-        await fetchNotes()
-        setViewMode('home')
-      }
-    }
-    setLoading(false)
+      const noteData = {
+    title: title.trim(),
+    content: noteText.trim(),
+    font_family: fontFamily,
+    title_font: titleFont,
+    font_size: parseInt(fontSize),
+    category: category.trim() || 'Uncategorized',
+    user_id: user.id,
+    date: selectedDate
   }
 
-  function openAddNote() {
+  if (editingNote) {
+    const { error } = await supabase
+      .from('notes')
+      .update(noteData)
+      .eq('id', editingNote.id)
+      .eq('user_id', user.id)
+
+    if (error) setMessage('Error: ' + error.message)
+    else {
+      setMessage('✅ Note updated!')
+      setEditingNote(null)
+      setTitle('')
+      setNoteText('')
+      setCategory('')
+      await fetchNotes()
+      setViewMode('home')
+    }
+  } else {
+    const { error } = await supabase
+      .from('notes')
+      .insert([noteData])
+
+    if (error) setMessage('Error: ' + error.message)
+    else {
+      setMessage('✅ Note saved!')
+      setTitle('')
+      setNoteText('')
+      setCategory('')
+      await fetchNotes()
+      setViewMode('home')
+    }
+  }
+  setLoading(false)
+}
+
+function openAddNote() {
   setEditingNote(null)
   setTitle('')
   setNoteText('')
   setCategory('')  
   setViewMode('add')
-  }
+}
 
-  function openEditNote(note) {
+function openEditNote(note) {
   setEditingNote(note)
   setTitle(note.title)
   setNoteText(note.content)
@@ -560,17 +612,17 @@ export default function App() {
   setFontSize(note.font_size?.toString() || '16')
   setCategory(note.category || '')
   setViewMode('edit')
-  }
+}
 
-  function goBack() {
+function goBack() {
   setViewMode('home')
   setEditingNote(null)
   setTitle('')
   setNoteText('')
   setCategory('')
-  }
+}
 
-    async function deleteNote(id) {
+  async function deleteNote(id) {
     const { error } = await supabase
       .from('notes')
       .delete()
@@ -724,61 +776,62 @@ export default function App() {
   }
 
   async function addTask() {
-  if (!task.trim() || !user) return
-  let dueDate = selectedDate
-  let taskType = 'task'
+    if (!task.trim() || !user) return
+    let dueDate = selectedDate
+    let taskType = 'task'
 
-  if (taskCategory === 'daily') {
-    taskType = 'habit'
-    dueDate = new Date().toISOString().split('T')[0]
-  } else if (taskCategory === 'weekly') {
-    taskType = 'habit'
-    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-    const targetDay = days.indexOf(taskWeekDay)
-    const today = new Date()
-    const diff = (targetDay - today.getDay() + 7) % 7
-    const nextDate = new Date(today)
-    nextDate.setDate(today.getDate() + diff)
-    dueDate = nextDate.toISOString().split('T')[0]
-  } else if (taskCategory === 'custom') {
-    dueDate = taskDueDate || selectedDate
+    if (taskCategory === 'daily') {
+      taskType = 'habit'
+      dueDate = new Date().toISOString().split('T')[0]
+    } else if (taskCategory === 'weekly') {
+      taskType = 'habit'
+      const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+      const targetDay = days.indexOf(taskWeekDay)
+      const today = new Date()
+      const diff = (targetDay - today.getDay() + 7) % 7
+      const nextDate = new Date(today)
+      nextDate.setDate(today.getDate() + diff)
+      dueDate = nextDate.toISOString().split('T')[0]
+    } else if (taskCategory === 'custom') {
+      dueDate = taskDueDate || selectedDate
+    }
+
+    // Build subtasks array from multiple subtasks
+    const subtasksArray = subTasksToAdd.map(st => ({
+      id: st.id,
+      text: st.text,
+      done: false
+    }))
+
+    const { error } = await supabase.from('tasks').insert({
+      user_id: user.id,
+      content: task.trim(),
+      category: taskCategory,
+      type: taskType,
+      weekday: taskCategory === 'weekly' ? taskWeekDay : null,
+      time: taskCategory === 'daily' ? taskTime : null,
+      due_date: dueDate,
+      difficulty: taskDifficulty,
+      estimated_minutes: taskMinutes,
+      category_tag: taskTag,
+      done: false,
+      subtasks: subtasksArray
+    })
+
+    if (error) {
+      setMessage('Error adding task: ' + error.message)
+    } else {
+      setTask('')
+      setTaskTime('')
+      setTaskDueDate('')
+      setTaskMinutes(30)
+      setTaskTag('general')
+      setSubTasksToAdd([])
+      setNewSubTask('')
+      setMessage('✅ Task added!')
+      fetchTasks()
+    }
   }
-
-  // Build subtasks array
-  const subtasksArray = []
-  if (subTaskToAdd) {
-    subtasksArray.push({ id: Date.now().toString(), text: subTaskToAdd, done: false })
-  }
-
-  const { error } = await supabase.from('tasks').insert({
-    user_id: user.id,
-    content: task.trim(),
-    category: taskCategory,
-    type: taskType,
-    weekday: taskCategory === 'weekly' ? taskWeekDay : null,
-    time: taskCategory === 'daily' ? taskTime : null,
-    due_date: dueDate,
-    difficulty: taskDifficulty,
-    estimated_minutes: taskMinutes,
-    category_tag: taskTag,
-    done: false,
-    subtasks: subtasksArray
-  })
-
-  if (error) {
-    setMessage('Error adding task: ' + error.message)
-  } else {
-    setTask('')
-    setTaskTime('')
-    setTaskDueDate('')
-    setTaskMinutes(30)
-    setTaskTag('general')
-    setSubTaskToAdd('')
-    setNewSubTask('')
-    setMessage('✅ Task added!')
-    fetchTasks()
-  }
-      }
 
   async function toggleTask(id) {
     const task = tasks.find(t => t.id === id)
@@ -854,38 +907,49 @@ export default function App() {
     }
   }
 
-  // ========== JOURNAL FUNCTIONS ==========
-  async function fetchJournal() {
-    if (!user) return
-    const { data, error } = await supabase
-      .from('journal')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-    if (error) {
-      console.error('Fetch journal error:', error)
-    } else {
-      setJournalEntries(data || [])
-    }
+    // ========== JOURNAL FUNCTIONS ==========
+async function fetchJournal() {
+  if (!user) return
+  let query = supabase
+    .from('journal')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+
+  // Apply date filter if set
+  if (journalDateFilter) {
+    query = query.eq('date', journalDateFilter)
   }
 
-  async function saveJournal() {
-    if (!journalEntry.trim() || !user) return
-    const { error } = await supabase
-      .from('journal')
-      .insert({
-        user_id: user.id,
-        content: journalEntry.trim(),
-        date: new Date().toISOString().split('T')[0]
-      })
-    if (error) {
-      setMessage('Error saving journal: ' + error.message)
-    } else {
-      setJournalEntry('')
-      setMessage('✅ Journal entry saved!')
-      fetchJournal()
-    }
+  const { data, error } = await query
+  if (error) {
+    console.error('Fetch journal error:', error)
+  } else {
+    setJournalEntries(data || [])
   }
+}
+
+async function saveJournal() {
+  if (!journalEntry.trim() || !user) return
+  const { error } = await supabase
+    .from('journal')
+    .insert({
+      user_id: user.id,
+      content: journalEntry.trim(),
+      date: new Date().toISOString().split('T')[0],
+      mood: journalMood.trim(),
+      tags: journalTags.trim()
+    })
+  if (error) {
+    setMessage('Error saving journal: ' + error.message)
+  } else {
+    setJournalEntry('')
+    setJournalMood('')
+    setJournalTags('')
+    setMessage('✅ Journal entry saved!')
+    fetchJournal()
+  }
+}
 
   async function deleteJournalEntry(id) {
     const { error } = await supabase
@@ -947,7 +1011,7 @@ export default function App() {
         doc.text(line, 20, yPos)
         yPos += 6
       })
-      doc.text(`Priority: ${note.priority}`, 20, yPos)
+      doc.text(`Priority: ${note.priority || 'medium'}`, 20, yPos)
       yPos += 12
     })
     doc.save(`discypln-notes-${selectedDate}.pdf`)
@@ -1045,17 +1109,17 @@ export default function App() {
     setMessage('✅ Weekly report generated!')
   }
 
-  // Get all unique categories from notes
-const allCategories = ['All', ...new Set(notes.map(n => n.category || 'Uncategorized'))]
-const [activeCategory, setActiveCategory] = useState('All')
+  // ========== NOTES CATEGORY STATE & FILTER ==========
+  const allCategories = ['All', ...new Set(notes.map(n => n.category || 'Uncategorized'))]
+  const [activeNoteCategory, setActiveNoteCategory] = useState('All')
 
-const filteredNotes = notes.filter(note => {
-  const matchesSearch = note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        note.content.toLowerCase().includes(searchQuery.toLowerCase())
-  const matchesCategory = activeCategory === 'All' || 
-                         (note.category || 'Uncategorized') === activeCategory
-  return matchesSearch && matchesCategory
-})
+  const filteredNotes = notes.filter(note => {
+    const matchesSearch = note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          note.content.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesCategory = activeNoteCategory === 'All' || 
+                           (note.category || 'Uncategorized') === activeNoteCategory
+    return matchesSearch && matchesCategory
+  })
 
   const filteredTasks = activeCategory === 'all'
     ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
@@ -1080,761 +1144,746 @@ const filteredNotes = notes.filter(note => {
   }
 
   // ========== RENDER ==========
-  if (!user) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: theme.bg,
-        color: theme.text,
-        padding: '20px'
-      }}>
-        <div style={{
-          background: theme.bgCard,
-          borderRadius: '24px',
-          padding: '40px',
-          maxWidth: '400px',
-          width: '100%',
-          border: `1px solid ${theme.border}`,
-          boxShadow: theme.shadow
-        }}>
-          <h1 style={{
-            fontSize: '28px',
-            fontWeight: '700',
-            textAlign: 'center',
-            marginBottom: '8px',
-            background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }}>
-            Discypln
-          </h1>
-          <p style={{
-            textAlign: 'center',
-            color: theme.textSecondary,
-            fontSize: '14px',
-            marginBottom: '24px'
-          }}>
-            Stay focused. Stay disciplined.
-          </p>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              borderRadius: '12px',
-              border: `1px solid ${theme.border}`,
-              background: theme.bgInput,
-              color: theme.text,
-              fontSize: '14px',
-              marginBottom: '12px',
-              outline: 'none'
-            }}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              borderRadius: '12px',
-              border: `1px solid ${theme.border}`,
-              background: theme.bgInput,
-              color: theme.text,
-              fontSize: '14px',
-              marginBottom: '16px',
-              outline: 'none'
-            }}
-          />
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button
-              onClick={signIn}
-              disabled={loading}
-              style={{
-                flex: 1,
-                padding: '12px',
-                borderRadius: '12px',
-                border: 'none',
-                background: theme.accent,
-                color: '#fff',
-                fontWeight: '600',
-                fontSize: '14px',
-                cursor: 'pointer'
-              }}
-            >
-              {loading ? 'Loading...' : 'Sign In'}
-            </button>
-            <button
-              onClick={signUp}
-              disabled={loading}
-              style={{
-                flex: 1,
-                padding: '12px',
-                borderRadius: '12px',
-                border: `1px solid ${theme.border}`,
-                background: 'transparent',
-                color: theme.text,
-                fontWeight: '600',
-                fontSize: '14px',
-                cursor: 'pointer'
-              }}
-            >
-              {loading ? 'Loading...' : 'Sign Up'}
-            </button>
-          </div>
-          {message && (
-            <p style={{
-              marginTop: '16px',
-              color: message.includes('✅') ? '#22c55e' : '#ef4444',
-              fontSize: '13px',
-              textAlign: 'center'
-            }}>
-              {message}
-            </p>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  if (viewMode === 'add' || viewMode === 'edit') {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        background: theme.bg,
-        color: theme.text,
-        padding: '20px',
-        maxWidth: '900px',
-        margin: '0 auto'
-      }}>
-                <header style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '20px'
-        }}>
-          <button
-            onClick={goBack}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '10px',
-              border: `1px solid ${theme.border}`,
-              background: 'transparent',
-              color: theme.text,
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
-          >
-            ⬅
-          </button>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <select
-              value={targetLang}
-              onChange={(e) => setTargetLang(e.target.value)}
-              style={{
-                padding: '8px 12px',
-                borderRadius: '10px',
-                border: `1px solid ${theme.border}`,
-                background: theme.bgInput,
-                color: theme.text,
-                fontSize: '12px'
-              }}
-            >
-              {ALL_LANGUAGES.map(lang => (
-                <option key={lang.code} value={lang.code}>{lang.name}</option>
-              ))}
-            </select>
-            <button
-              onClick={translateNote}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '10px',
-                border: 'none',
-                background: theme.accent,
-                color: '#fff',
-                cursor: 'pointer',
-                fontSize: '13px'
-              }}
-            >
-              🌍 
-            </button>
-            <button
-              onClick={saveNote}
-              style={{
-                padding: '8px 20px',
-                borderRadius: '10px',
-                border: 'none',
-                background: '#22c55e',
-                color: '#fff',
-                fontWeight: '600',
-                cursor: 'pointer',
-                fontSize: '13px'
-              }}
-            >
-              Save
-            </button>
-          </div>
-        </header>
-
-        <div>
-          {viewMode === 'add' && (
-  <>
-    <select
-      value={titleFont}
-      onChange={(e) => setTitleFont(e.target.value)}
-      style={{
-        width: '100%',
-        padding: '10px 14px',
-        borderRadius: '12px',
-        border: `1px solid ${theme.border}`,
-        background: theme.bgInput,
-        color: theme.text,
-        marginBottom: '10px',
-        fontSize: '14px'
-      }}
-    >
-      <option value="Inter">Inter - Clean</option>
-      <option value="Georgia">Georgia - Book</option>
-      <option value="Poppins">Poppins - Modern</option>
-      <option value="Merriweather">Merriweather - Readable</option>
-      <option value="'Times New Roman'">Times - Classic</option>
-      <option value="Arial">Arial - Simple</option>
-      <option value="Pacifico">Pacifico - Cursive ✨</option>
-      <option value="Caveat">Caveat - Handwriting</option>
-    </select>
-    <input
-      value={title}
-      onChange={(e) => setTitle(e.target.value)}
-      placeholder="Title"
-      style={{
-        width: '100%',
-        padding: '14px 16px',
-        borderRadius: '12px',
-        border: `1px solid ${theme.border}`,
-        background: theme.bgInput,
-        color: theme.text,
-        fontSize: '24px',
-        fontWeight: '600',
-        marginBottom: '12px',
-        outline: 'none',
-        fontFamily: titleFont.includes(' ') ? `'${titleFont}', serif` : titleFont
-      }}
-    />
-    {/* 🔥 ADD THIS CATEGORY INPUT 🔥 */}
-    <input
-      value={category}
-      onChange={(e) => setCategory(e.target.value)}
-      placeholder="Add a category (e.g., Discypln, Hyezen, Work)"
-      style={{
-        width: '100%',
-        padding: '10px 14px',
-        borderRadius: '8px',
-        border: `1px solid ${theme.border}`,
-        background: theme.bgInput,
-        color: theme.text,
-        fontSize: '14px',
-        outline: 'none',
-        marginBottom: '10px'
-      }}
-    />
-  </>
-)}
-          {viewMode === 'edit' && (
-  <>
-    <h2 style={{
-      fontSize: '24px',
-      fontWeight: '600',
-      marginBottom: '12px',
-      fontFamily: titleFont.includes(' ') ? `'${titleFont}', serif` : titleFont
+if (!user) {
+  return (
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: theme.bg,
+      color: theme.text,
+      padding: '20px'
     }}>
-      {title}
-    </h2>
-    <input
-      value={category}
-      onChange={(e) => setCategory(e.target.value)}
-      placeholder="Add a category (e.g., Discypln, Hyezen, Work)"
-      style={{
+      <div style={{
+        background: theme.bgCard,
+        borderRadius: '24px',
+        padding: '40px',
+        maxWidth: '400px',
         width: '100%',
-        padding: '10px 14px',
-        borderRadius: '8px',
         border: `1px solid ${theme.border}`,
-        background: theme.bgInput,
-        color: theme.text,
-        fontSize: '14px',
-        outline: 'none',
-        marginBottom: '10px'
-      }}
-    />
-  </>
-)}
-          <textarea
-            value={noteText}
-            onChange={(e) => setNoteText(e.target.value)}
-            placeholder="Start typing..."
-            style={{
-              width: '100%',
-              minHeight: '300px',
-              padding: '16px',
-              borderRadius: '12px',
-              border: `1px solid ${theme.border}`,
-              background: detectedCode ? '#0d1117' : theme.bgInput,
-              color: detectedCode ? '#c9d1d9' : theme.text,
-              fontSize: fontSize + 'px',
-              lineHeight: '1.8',
-              fontFamily: detectedCode ? "'Courier New', monospace" : (fontFamily.includes(' ') ? `'${fontFamily}', serif` : fontFamily),
-              outline: 'none',
-              resize: 'vertical'
-            }}
-            autoFocus
-          />
-        </div>
-
-        <nav style={{
-          display: 'flex',
-          gap: '8px',
-          marginTop: '16px',
-          paddingTop: '16px',
-          borderTop: `1px solid ${theme.border}`,
-          flexWrap: 'wrap'
+        boxShadow: theme.shadow
+      }}>
+        <h1 style={{
+          fontSize: '28px',
+          fontWeight: '700',
+          textAlign: 'center',
+          marginBottom: '8px',
+          background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent'
         }}>
+          Discypln
+        </h1>
+        <p style={{
+          textAlign: 'center',
+          color: theme.textSecondary,
+          fontSize: '14px',
+          marginBottom: '24px'
+        }}>
+          Stay focused. Stay disciplined.
+        </p>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '12px 16px',
+            borderRadius: '12px',
+            border: `1px solid ${theme.border}`,
+            background: theme.bgInput,
+            color: theme.text,
+            fontSize: '14px',
+            marginBottom: '12px',
+            outline: 'none'
+          }}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '12px 16px',
+            borderRadius: '12px',
+            border: `1px solid ${theme.border}`,
+            background: theme.bgInput,
+            color: theme.text,
+            fontSize: '14px',
+            marginBottom: '16px',
+            outline: 'none'
+          }}
+        />
+        <div style={{ display: 'flex', gap: '10px' }}>
           <button
-            onClick={toggleMic}
+            onClick={signIn}
+            disabled={loading}
             style={{
-              padding: '8px 16px',
-              borderRadius: '10px',
-              border: `1px solid ${theme.border}`,
-              background: isListening ? '#dc2626' : 'transparent',
-              color: isListening ? '#fff' : theme.text,
+              flex: 1,
+              padding: '12px',
+              borderRadius: '12px',
+              border: 'none',
+              background: theme.accent,
+              color: '#fff',
+              fontWeight: '600',
+              fontSize: '14px',
               cursor: 'pointer'
             }}
           >
-            {isListening ? 'Stop' : '🎤 Voice'}
+            {loading ? 'Loading...' : 'Sign In'}
           </button>
           <button
-            onClick={() => fileInputRef.current.click()}
+            onClick={signUp}
+            disabled={loading}
             style={{
-              padding: '8px 16px',
-              borderRadius: '10px',
+              flex: 1,
+              padding: '12px',
+              borderRadius: '12px',
               border: `1px solid ${theme.border}`,
               background: 'transparent',
               color: theme.text,
+              fontWeight: '600',
+              fontSize: '14px',
               cursor: 'pointer'
             }}
           >
-            📷 Scan
+            {loading ? 'Loading...' : 'Sign Up'}
           </button>
-          <select
-            value={fontFamily}
-            onChange={(e) => setFontFamily(e.target.value)}
-            style={{
-              padding: '8px 14px',
-              borderRadius: '10px',
-              border: `1px solid ${theme.border}`,
-              background: theme.bgInput,
-              color: theme.text,
-              fontSize: '13px'
-            }}
-          >
-            <option value="Inter">Inter</option>
-            <option value="Georgia">Georgia</option>
-            <option value="'Times New Roman'">Times</option>
-            <option value="'Courier New'">Courier</option>
-            <option value="Arial">Arial</option>
-            <option value="Poppins">Poppins</option>
-            <option value="'Roboto Slab'">Roboto Slab</option>
-            <option value="Montserrat">Montserrat</option>
-            <option value="Lora">Lora</option>
-            <option value="Merriweather">Merriweather</option>
-            <option value="Ubuntu">Ubuntu</option>
-            <option value="Quicksand">Quicksand</option>
-            <option value="Caveat">Caveat</option>
-            <option value="Pacifico">Pacifico</option>
-          </select>
-          <select
-            value={fontSize}
-            onChange={(e) => setFontSize(e.target.value)}
-            style={{
-              padding: '8px 14px',
-              borderRadius: '10px',
-              border: `1px solid ${theme.border}`,
-              background: theme.bgInput,
-              color: theme.text,
-              fontSize: '13px'
-            }}
-          >
-            <option value="14">14px</option>
-            <option value="16">16px</option>
-            <option value="18">18px</option>
-            <option value="20">20px</option>
-            <option value="24">24px</option>
-          </select>
-          {viewMode === 'edit' && (
-            <>
-              <button
-                onClick={() => navigator.clipboard.writeText(noteText)}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '10px',
-                  border: `1px solid ${theme.border}`,
-                  background: 'transparent',
-                  color: theme.text,
-                  cursor: 'pointer'
-                }}
-              >
-                Copy
-              </button>
-              <button
-                onClick={() => deleteNote(editingNote.id)}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  background: '#dc2626',
-                  color: '#fff',
-                  cursor: 'pointer'
-                }}
-              >
-                Delete
-              </button>
-              <button
-                onClick={shareNote}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '10px',
-                  border: `1px solid ${theme.border}`,
-                  background: 'transparent',
-                  color: theme.text,
-                  cursor: 'pointer'
-                }}
-              >
-                Share
-              </button>
-            </>
-          )}
-        </nav>
-
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          onChange={handleImageUpload}
-          style={{ display: 'none' }}
-        />
-
+        </div>
         {message && (
           <p style={{
-            position: 'fixed',
-            bottom: '30px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            padding: '12px 24px',
-            borderRadius: '12px',
-            background: theme.bgCard,
-            border: `1px solid ${theme.border}`,
-            color: theme.text,
-            boxShadow: theme.shadow,
-            fontSize: '14px',
-            zIndex: 9999
+            marginTop: '16px',
+            color: message.includes('✅') ? '#22c55e' : '#ef4444',
+            fontSize: '13px',
+            textAlign: 'center'
           }}>
             {message}
           </p>
         )}
       </div>
-    )
-  }
+    </div>
+  )
+}
 
-  // ========== MAIN DASHBOARD ==========
+if (viewMode === 'add' || viewMode === 'edit') {
   return (
     <div style={{
       minHeight: '100vh',
       background: theme.bg,
       color: theme.text,
       padding: '20px',
-      maxWidth: '1000px',
-      margin: '0 auto',
-      transition: 'all 0.3s ease'
+      maxWidth: '900px',
+      margin: '0 auto'
     }}>
-      
-      {/* ===== TOP BAR ===== */}
-      <div style={{
+      <header style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '24px',
-        flexWrap: 'wrap',
-        gap: '12px'
+        marginBottom: '20px'
       }}>
-        {/* Clock with App Name */}
-<div>
-  <div style={{
-    fontSize: '14px',
-    fontWeight: '700',
-    color: theme.accent,
-    letterSpacing: '0.5px',
-    textTransform: 'uppercase',
-    marginBottom: '2px'
-  }}>
-    Discypln
-  </div>
-  <div style={{
-    fontSize: '36px',
-    fontWeight: '700',
-    letterSpacing: '-0.5px',
-    color: theme.text
-  }}>
-    {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-  </div>
-  <div style={{
-    fontSize: '14px',
-    color: theme.textSecondary,
-    marginTop: '2px'
-  }}>
-    {currentTime.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      month: 'long', 
-      day: 'numeric',
-      year: 'numeric'
-    })}
-  </div>
-</div>
-        {/* Right controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+        <button
+          onClick={goBack}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '10px',
+            border: `1px solid ${theme.border}`,
+            background: 'transparent',
+            color: theme.text,
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}
+        >
+          ⬅
+        </button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <select
+            value={targetLang}
+            onChange={(e) => setTargetLang(e.target.value)}
             style={{
-              padding: '8px 16px',
-              borderRadius: '20px',
+              padding: '8px 12px',
+              borderRadius: '10px',
               border: `1px solid ${theme.border}`,
               background: theme.bgInput,
               color: theme.text,
-              fontSize: '13px',
-              outline: 'none',
-              width: '140px',
-              transition: 'all 0.3s'
-            }}
-          />
-          
-          {/* Theme Toggle */}
-          <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            style={{
-              width: '52px',
-              height: '28px',
-              borderRadius: '14px',
-              border: 'none',
-              background: isDarkMode ? '#2a2a2a' : '#ddd',
-              cursor: 'pointer',
-              position: 'relative',
-              transition: 'all 0.3s ease',
-              flexShrink: 0
-            }}
-          >
-            <div style={{
-              position: 'absolute',
-              top: '3px',
-              left: isDarkMode ? '26px' : '3px',
-              width: '22px',
-              height: '22px',
-              borderRadius: '50%',
-              background: isDarkMode ? '#f59e0b' : '#2563eb',
-              transition: 'all 0.3s ease',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
               fontSize: '12px'
-            }}>
-              {isDarkMode ? '🌙' : '☀️'}
-            </div>
-          </button>
-
-          <button
-            onClick={signOut}
-            style={{
-              padding: '6px 14px',
-              borderRadius: '20px',
-              border: `1px solid ${theme.border}`,
-              background: 'transparent',
-              color: theme.textSecondary,
-              fontSize: '12px',
-              cursor: 'pointer'
             }}
           >
-            Logout
+            {ALL_LANGUAGES.map(lang => (
+              <option key={lang.code} value={lang.code}>{lang.name}</option>
+            ))}
+          </select>
+          <button
+            onClick={translateNote}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '10px',
+              border: 'none',
+              background: theme.accent,
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '13px'
+            }}
+          >
+            🌍 
+          </button>
+          <button
+            onClick={saveNote}
+            style={{
+              padding: '8px 20px',
+              borderRadius: '10px',
+              border: 'none',
+              background: '#22c55e',
+              color: '#fff',
+              fontWeight: '600',
+              cursor: 'pointer',
+              fontSize: '13px'
+            }}
+          >
+            Save
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* ===== CAPSULE NAVIGATION ===== */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        marginBottom: '28px'
-      }}>
-        <div style={{
-          display: 'flex',
-          background: theme.bgCard,
-          borderRadius: '30px',
-          padding: '4px',
-          gap: '4px',
-          border: `1px solid ${theme.border}`
-        }}>
-          {[
-            { id: 'notes', label: ' Notes' },
-            { id: 'tasks', label: ' Tasks' },
-            { id: 'journal', label: ' Journal' }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id)
-                if (tab.id === 'journal') fetchJournal()
-              }}
+      <div>
+        {viewMode === 'add' && (
+          <>
+            <select
+              value={titleFont}
+              onChange={(e) => setTitleFont(e.target.value)}
               style={{
-                padding: '10px 28px',
-                borderRadius: '24px',
-                border: 'none',
-                background: activeTab === tab.id 
-                  ? (isDarkMode ? '#2a2a2a' : '#e8e8e8')
-                  : 'transparent',
-                color: activeTab === tab.id 
-                  ? (isDarkMode ? '#fff' : '#1a1a1a')
-                  : (isDarkMode ? '#666' : '#999'),
-                fontSize: '14px',
-                fontWeight: activeTab === tab.id ? '600' : '400',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: activeTab === tab.id 
-                  ? (isDarkMode ? '0 4px 12px rgba(0,0,0,0.4)' : '0 2px 8px rgba(0,0,0,0.1)')
-                  : 'none'
+                width: '100%',
+                padding: '10px 14px',
+                borderRadius: '12px',
+                border: `1px solid ${theme.border}`,
+                background: theme.bgInput,
+                color: theme.text,
+                marginBottom: '10px',
+                fontSize: '14px'
               }}
             >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+              <option value="Inter">Inter - Clean</option>
+              <option value="Georgia">Georgia - Book</option>
+              <option value="Poppins">Poppins - Modern</option>
+              <option value="Merriweather">Merriweather - Readable</option>
+              <option value="'Times New Roman'">Times - Classic</option>
+              <option value="Arial">Arial - Simple</option>
+              <option value="Pacifico">Pacifico - Cursive ✨</option>
+              <option value="Caveat">Caveat - Handwriting</option>
+            </select>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Title"
+              style={{
+                width: '100%',
+                padding: '14px 16px',
+                borderRadius: '12px',
+                border: `1px solid ${theme.border}`,
+                background: theme.bgInput,
+                color: theme.text,
+                fontSize: '24px',
+                fontWeight: '600',
+                marginBottom: '12px',
+                outline: 'none',
+                fontFamily: titleFont.includes(' ') ? `'${titleFont}', serif` : titleFont
+              }}
+            />
+            <input
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              placeholder="Add a category (e.g., Discypln, Hyezen, Work)"
+              style={{
+                width: '100%',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                border: `1px solid ${theme.border}`,
+                background: theme.bgInput,
+                color: theme.text,
+                fontSize: '14px',
+                outline: 'none',
+                marginBottom: '10px'
+              }}
+            />
+          </>
+        )}
+        {viewMode === 'edit' && (
+          <>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: '600',
+              marginBottom: '12px',
+              fontFamily: titleFont.includes(' ') ? `'${titleFont}', serif` : titleFont
+            }}>
+              {title}
+            </h2>
+            <input
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              placeholder="Add a category (e.g., Discypln, Hyezen, Work)"
+              style={{
+                width: '100%',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                border: `1px solid ${theme.border}`,
+                background: theme.bgInput,
+                color: theme.text,
+                fontSize: '14px',
+                outline: 'none',
+                marginBottom: '10px'
+              }}
+            />
+          </>
+        )}
+        <textarea
+          value={noteText}
+          onChange={(e) => setNoteText(e.target.value)}
+          placeholder="Start typing..."
+          style={{
+            width: '100%',
+            minHeight: '300px',
+            padding: '16px',
+            borderRadius: '12px',
+            border: `1px solid ${theme.border}`,
+            background: detectedCode ? '#0d1117' : theme.bgInput,
+            color: detectedCode ? '#c9d1d9' : theme.text,
+            fontSize: fontSize + 'px',
+            lineHeight: '1.8',
+            fontFamily: detectedCode ? "'Courier New', monospace" : (fontFamily.includes(' ') ? `'${fontFamily}', serif` : fontFamily),
+            outline: 'none',
+            resize: 'vertical'
+          }}
+          autoFocus
+        />
       </div>
-    {/* ===== POMODORO & STATS DASHBOARD - SINGLE COLUMN ===== */}
+
+      <nav style={{
+        display: 'flex',
+        gap: '8px',
+        marginTop: '16px',
+        paddingTop: '16px',
+        borderTop: `1px solid ${theme.border}`,
+        flexWrap: 'wrap'
+      }}>
+        <button
+          onClick={toggleMic}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '10px',
+            border: `1px solid ${theme.border}`,
+            background: isListening ? '#dc2626' : 'transparent',
+            color: isListening ? '#fff' : theme.text,
+            cursor: 'pointer'
+          }}
+        >
+          {isListening ? 'Stop' : '🎤 Voice'}
+        </button>
+        <button
+          onClick={() => fileInputRef.current.click()}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '10px',
+            border: `1px solid ${theme.border}`,
+            background: 'transparent',
+            color: theme.text,
+            cursor: 'pointer'
+          }}
+        >
+          📷 Scan
+        </button>
+        <select
+          value={fontFamily}
+          onChange={(e) => setFontFamily(e.target.value)}
+          style={{
+            padding: '8px 14px',
+            borderRadius: '10px',
+            border: `1px solid ${theme.border}`,
+            background: theme.bgInput,
+            color: theme.text,
+            fontSize: '13px'
+          }}
+        >
+          <option value="Inter">Inter</option>
+          <option value="Georgia">Georgia</option>
+          <option value="'Times New Roman'">Times</option>
+          <option value="'Courier New'">Courier</option>
+          <option value="Arial">Arial</option>
+          <option value="Poppins">Poppins</option>
+          <option value="'Roboto Slab'">Roboto Slab</option>
+          <option value="Montserrat">Montserrat</option>
+          <option value="Lora">Lora</option>
+          <option value="Merriweather">Merriweather</option>
+          <option value="Ubuntu">Ubuntu</option>
+          <option value="Quicksand">Quicksand</option>
+          <option value="Caveat">Caveat</option>
+          <option value="Pacifico">Pacifico</option>
+        </select>
+        <select
+          value={fontSize}
+          onChange={(e) => setFontSize(e.target.value)}
+          style={{
+            padding: '8px 14px',
+            borderRadius: '10px',
+            border: `1px solid ${theme.border}`,
+            background: theme.bgInput,
+            color: theme.text,
+            fontSize: '13px'
+          }}
+        >
+          <option value="14">14px</option>
+          <option value="16">16px</option>
+          <option value="18">18px</option>
+          <option value="20">20px</option>
+          <option value="24">24px</option>
+        </select>
+        {viewMode === 'edit' && (
+          <>
+            <button
+              onClick={() => navigator.clipboard.writeText(noteText)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '10px',
+                border: `1px solid ${theme.border}`,
+                background: 'transparent',
+                color: theme.text,
+                cursor: 'pointer'
+              }}
+            >
+              Copy
+            </button>
+            <button
+              onClick={() => deleteNote(editingNote.id)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '10px',
+                border: 'none',
+                background: '#dc2626',
+                color: '#fff',
+                cursor: 'pointer'
+              }}
+            >
+              Delete
+            </button>
+            <button
+              onClick={shareNote}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '10px',
+                border: `1px solid ${theme.border}`,
+                background: 'transparent',
+                color: theme.text,
+                cursor: 'pointer'
+              }}
+            >
+              Share
+            </button>
+          </>
+        )}
+      </nav>
+
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileInputRef}
+        onChange={handleImageUpload}
+        style={{ display: 'none' }}
+      />
+
+      {message && (
+        <p style={{
+          position: 'fixed',
+          bottom: '30px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          padding: '12px 24px',
+          borderRadius: '12px',
+          background: theme.bgCard,
+          border: `1px solid ${theme.border}`,
+          color: theme.text,
+          boxShadow: theme.shadow,
+          fontSize: '14px',
+          zIndex: 9999
+        }}>
+          {message}
+        </p>
+      )}
+    </div>
+  )
+}
+
+// ========== MAIN DASHBOARD ==========
+return (
+  <div style={{
+    minHeight: '100vh',
+    background: theme.bg,
+    color: theme.text,
+    padding: '20px',
+    maxWidth: '1000px',
+    margin: '0 auto',
+    transition: 'all 0.3s ease'
+  }}>
+    
+    {/* ===== TOP BAR ===== */}
+<div style={{
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: '24px',
+  flexWrap: 'wrap',
+  gap: '12px'
+}}>
+  <div>
+    <div style={{
+      fontSize: '14px',
+      fontWeight: '700',
+      color: theme.accent,
+      letterSpacing: '0.5px',
+      textTransform: 'uppercase',
+      marginBottom: '2px'
+    }}>
+      Discypln
+    </div>
+    <div style={{
+      fontSize: '36px',
+      fontWeight: '700',
+      letterSpacing: '-0.5px',
+      color: theme.text
+    }}>
+      {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+    </div>
+    <div style={{
+      fontSize: '14px',
+      color: theme.textSecondary,
+      marginTop: '2px'
+    }}>
+      {currentTime.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        month: 'long', 
+        day: 'numeric',
+        year: 'numeric'
+      })}
+    </div>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+    <input
+      type="text"
+      placeholder="Search..."
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      style={{
+        padding: '8px 16px',
+        borderRadius: '20px',
+        border: `1px solid ${theme.border}`,
+        background: theme.bgInput,
+        color: theme.text,
+        fontSize: '13px',
+        outline: 'none',
+        width: '140px',
+        transition: 'all 0.3s'
+      }}
+    />
+    <button
+      onClick={() => setIsDarkMode(!isDarkMode)}
+      style={{
+        width: '52px',
+        height: '28px',
+        borderRadius: '14px',
+        border: 'none',
+        background: isDarkMode ? '#2a2a2a' : '#ddd',
+        cursor: 'pointer',
+        position: 'relative',
+        transition: 'all 0.3s ease',
+        flexShrink: 0
+      }}
+    >
+      <div style={{
+        position: 'absolute',
+        top: '3px',
+        left: isDarkMode ? '26px' : '3px',
+        width: '22px',
+        height: '22px',
+        borderRadius: '50%',
+        background: isDarkMode ? '#f59e0b' : '#2563eb',
+        transition: 'all 0.3s ease',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '12px'
+      }}>
+        {isDarkMode ? '🌙' : '☀️'}
+      </div>
+    </button>
+    <button
+      onClick={signOut}
+      style={{
+        padding: '6px 14px',
+        borderRadius: '20px',
+        border: `1px solid ${theme.border}`,
+        background: 'transparent',
+        color: theme.textSecondary,
+        fontSize: '12px',
+        cursor: 'pointer'
+      }}
+    >
+      Logout
+    </button>
+  </div>
+</div>
+
+{/* ===== CAPSULE NAVIGATION ===== */}
+<div style={{
+  display: 'flex',
+  justifyContent: 'center',
+  marginBottom: '28px'
+}}>
+  <div style={{
+    display: 'flex',
+    background: theme.bgCard,
+    borderRadius: '30px',
+    padding: '4px',
+    gap: '4px',
+    border: `1px solid ${theme.border}`
+  }}>
+    {[
+      { id: 'notes', label: ' Notes' },
+      { id: 'tasks', label: ' Tasks' },
+      { id: 'journal', label: ' Journal' }
+    ].map(tab => (
+      <button
+        key={tab.id}
+        onClick={() => {
+          setActiveTab(tab.id)
+          if (tab.id === 'journal') fetchJournal()
+        }}
+        style={{
+          padding: '10px 28px',
+          borderRadius: '24px',
+          border: 'none',
+          background: activeTab === tab.id 
+            ? (isDarkMode ? '#2a2a2a' : '#e8e8e8')
+            : 'transparent',
+          color: activeTab === tab.id 
+            ? (isDarkMode ? '#fff' : '#1a1a1a')
+            : (isDarkMode ? '#666' : '#999'),
+          fontSize: '14px',
+          fontWeight: activeTab === tab.id ? '600' : '400',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+          boxShadow: activeTab === tab.id 
+            ? (isDarkMode ? '0 4px 12px rgba(0,0,0,0.4)' : '0 2px 8px rgba(0,0,0,0.1)')
+            : 'none'
+        }}
+      >
+        {tab.label}
+      </button>
+    ))}
+  </div>
+</div>
+
+{/* ===== POMODORO & STATS DASHBOARD - SINGLE COLUMN ===== */}
 <div style={{
   display: 'flex',
   flexDirection: 'column',
   gap: '16px',
   marginBottom: '20px'
 }}>
- {/* Pomodoro Card */}
-<div style={{
-  background: theme.bgCard,
-  borderRadius: '16px',
-  padding: '24px',
-  border: `1px solid ${theme.border}`
-}}>
-  {/* Line 1: FOCUS + Buttons */}
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-    <div style={{ 
-      fontSize: '12px', 
-      color: theme.textMuted,
-      textTransform: 'uppercase',
-      letterSpacing: '0.5px',
-      fontWeight: '600'
-    }}>
-      {isBreak ? '☕ Break' : 'Focus'}
-    </div>
-    <div style={{ display: 'flex', gap: '8px' }}>
-      <button
-        onClick={togglePomodoro}
-        style={{
-          padding: '8px 16px',
-          borderRadius: '12px',
-          border: 'none',
-          background: pomodoroRunning ? '#ef4444' : '#22c55e',
-          color: '#fff',
-          fontWeight: '600',
-          cursor: 'pointer',
-          fontSize: '13px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          height: '36px'
-        }}
-      >
-        <span>{pomodoroRunning ? '' : '▶'}</span> {pomodoroRunning ? 'Pause' : 'Start'}
-      </button>
-      <button
-        onClick={resetPomodoro}
-        style={{
-          width: '36px',
-          height: '36px',
-          borderRadius: '12px',
-          border: `1px solid ${theme.border}`,
-          background: 'transparent',
-          color: theme.textSecondary,
-          cursor: 'pointer',
-          fontSize: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        ↺
-      </button>
-    </div>
-  </div>
-
-  {/* Line 2: Timer */}
+  {/* Pomodoro Card */}
   <div style={{
-    fontSize: '48px',
-    fontWeight: '700',
-    color: theme.text,
-    fontVariantNumeric: 'tabular-nums',
-    lineHeight: '1.2',
-    marginTop: '4px'
+    background: theme.bgCard,
+    borderRadius: '16px',
+    padding: '24px',
+    border: `1px solid ${theme.border}`
   }}>
-    {formatTime(pomodoroTime)}
-  </div>
-
-  {/* Progress Bar */}
-  <div style={{
-    marginTop: '14px',
-    height: '4px',
-    background: isDarkMode ? '#2a2a2a' : '#e0e0e0',
-    borderRadius: '4px',
-    overflow: 'hidden'
-  }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ 
+        fontSize: '12px', 
+        color: theme.textMuted,
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px',
+        fontWeight: '600'
+      }}>
+        {isBreak ? '☕ Break' : 'Focus'}
+      </div>
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <button
+          onClick={togglePomodoro}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '12px',
+            border: 'none',
+            background: pomodoroRunning ? '#ef4444' : '#22c55e',
+            color: '#fff',
+            fontWeight: '600',
+            cursor: 'pointer',
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            height: '36px'
+          }}
+        >
+          <span>{pomodoroRunning ? '' : '▶'}</span> {pomodoroRunning ? 'Pause' : 'Start'}
+        </button>
+        <button
+          onClick={resetPomodoro}
+          style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '12px',
+            border: `1px solid ${theme.border}`,
+            background: 'transparent',
+            color: theme.textSecondary,
+            cursor: 'pointer',
+            fontSize: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          ↺
+        </button>
+      </div>
+    </div>
     <div style={{
-      width: `${((25 * 60 - pomodoroTime) / (25 * 60)) * 100}%`,
-      height: '100%',
-      background: pomodoroRunning 
-        ? (isBreak ? '#f59e0b' : '#22c55e')
-        : isDarkMode ? '#444' : '#ccc',
-      transition: 'width 1s linear',
-      borderRadius: '4px'
-    }} />
+      fontSize: '48px',
+      fontWeight: '700',
+      color: theme.text,
+      fontVariantNumeric: 'tabular-nums',
+      lineHeight: '1.2',
+      marginTop: '4px'
+    }}>
+      {formatTime(pomodoroTime)}
+    </div>
+    <div style={{
+      marginTop: '14px',
+      height: '4px',
+      background: isDarkMode ? '#2a2a2a' : '#e0e0e0',
+      borderRadius: '4px',
+      overflow: 'hidden'
+    }}>
+      <div style={{
+        width: `${((25 * 60 - pomodoroTime) / (25 * 60)) * 100}%`,
+        height: '100%',
+        background: pomodoroRunning 
+          ? (isBreak ? '#f59e0b' : '#22c55e')
+          : isDarkMode ? '#444' : '#ccc',
+        transition: 'width 1s linear',
+        borderRadius: '4px'
+      }} />
+    </div>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      fontSize: '13px',
+      color: theme.textMuted,
+      marginTop: '8px'
+    }}>
+      <span>{pomodoroSessions} sessions completed</span>
+      <span>{formatMinutes(totalMinutes)} total</span>
+    </div>
   </div>
-  
-  <div style={{
-    display: 'flex',
-    justifyContent: 'space-between',
-    fontSize: '13px',
-    color: theme.textMuted,
-    marginTop: '8px'
-  }}>
-    <span>{pomodoroSessions} sessions completed</span>
-    <span>{formatMinutes(totalMinutes)} total</span>
-  </div>
-</div>
-
-          
-    
-    
 
   {/* Stats Card - Single Row */}
   <div style={{
@@ -1888,7 +1937,7 @@ const filteredNotes = notes.filter(note => {
   </div>
 </div>
 
-{/* ===== HEATMAP - FIXED TO FIT CARD ===== */}
+{/* ===== HEATMAP ===== */}
 <div style={{
   background: theme.bgCard,
   borderRadius: '16px',
@@ -1912,7 +1961,6 @@ const filteredNotes = notes.filter(note => {
       {tasks.filter(t => t.done).length} tasks done in last 30 days
     </span>
   </div>
-  
   <div style={{
     display: 'grid',
     gridTemplateColumns: 'repeat(10, 1fr)',
@@ -1958,7 +2006,6 @@ const filteredNotes = notes.filter(note => {
       )
     })}
   </div>
-  
   <div style={{
     display: 'flex',
     gap: '6px',
@@ -1977,27 +2024,27 @@ const filteredNotes = notes.filter(note => {
   </div>
 </div>
 
-{/* ===== FAILED DAYS ===== */}
-{failedDays.length > 0 && (
-  <div style={{
-    background: theme.bgCard,
-    borderRadius: '16px',
-    padding: '16px 20px',
-    border: `1px solid #dc2626`,
-    marginBottom: '16px'
-  }}>
-    <div style={{ fontSize: '14px', fontWeight: '600', color: '#dc2626', marginBottom: '4px' }}>
-      ⚠️ Failed Days This Week
-    </div>
-    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-      {failedDays.map(day => (
-        <span key={day.date} style={{ fontSize: '13px', color: theme.textSecondary }}>
-          {formatDate(day.date)}: {day.completed}/{day.total} habits
-        </span>
-      ))}
-    </div>
-  </div>
-)}
+      {/* ===== FAILED DAYS ===== */}
+      {failedDays.length > 0 && (
+        <div style={{
+          background: theme.bgCard,
+          borderRadius: '16px',
+          padding: '16px 20px',
+          border: `1px solid #dc2626`,
+          marginBottom: '16px'
+        }}>
+          <div style={{ fontSize: '14px', fontWeight: '600', color: '#dc2626', marginBottom: '4px' }}>
+            ⚠️ Failed Days This Week
+          </div>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            {failedDays.map(day => (
+              <span key={day.date} style={{ fontSize: '13px', color: theme.textSecondary }}>
+                {formatDate(day.date)}: {day.completed}/{day.total} habits
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
   
       {/* ===== CONTENT AREA ===== */}
       <div style={{
@@ -2010,263 +2057,267 @@ const filteredNotes = notes.filter(note => {
       }}>
 
         {/* ===== NOTES TAB ===== */}
-{activeTab === 'notes' && (
-  <div>
-    <div style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '16px'
-    }}>
-      <h2 style={{
-        fontSize: '18px',
-        fontWeight: '600',
-        margin: 0,
-        color: theme.text
-      }}>
-         Notes
-        <span style={{
-          fontSize: '13px',
-          color: theme.textMuted,
-          marginLeft: '10px',
-          fontWeight: '400'
-        }}>
-          {notes.length}
-        </span>
-      </h2>
-      <button
-        onClick={openAddNote}
-        style={{
-          padding: '8px 18px',
-          borderRadius: '20px',
-          border: 'none',
-          background: theme.accent,
-          color: '#fff',
-          fontSize: '13px',
-          fontWeight: '500',
-          cursor: 'pointer'
-        }}
-      >
-        + New Note
-      </button>
-    </div>
-{/* Category Tabs */}
-<div style={{
-  display: 'flex',
-  gap: '6px',
-  marginBottom: '16px',
-  flexWrap: 'wrap'
-}}>
-  {allCategories.map(cat => (
-  <button
-    key={cat}
-    onClick={() => setActiveCategory(cat)}
-    style={{
-      padding: '6px 16px',
-      borderRadius: '20px',
-      border: activeCategory === cat 
-        ? `1px solid ${theme.accent}`
-        : `1px solid ${theme.border}`,
-      background: activeCategory === cat 
-        ? (isDarkMode ? '#1a3a5c' : '#e8f0fe')
-        : 'transparent',
-      color: activeCategory === cat 
-        ? (isDarkMode ? '#60a5fa' : theme.accent)
-        : theme.textSecondary,
-      fontSize: '12px',
-      fontWeight: activeCategory === cat ? '600' : '400',
-      cursor: 'pointer',
-      transition: 'all 0.2s ease'
-    }}
-  >
-    {cat} ({cat === 'All' 
-      ? notes.length 
-      : notes.filter(n => (n.category || 'Uncategorized') === cat).length
-    })
-  </button>
-))}
-</div>
-    {filteredNotes.length > 0 ? (
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-        gap: '12px'
-      }}>
-        {filteredNotes.map(note => (
-          <div
-            key={note.id}
-            onClick={() => openEditNote(note)}
-            style={{
-              padding: '16px',
-              borderRadius: '14px',
-              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-              border: `1px solid ${theme.border}`,
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.borderColor = theme.borderHover
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.borderColor = theme.border
-            }}
-          >
+        {activeTab === 'notes' && (
+          <div>
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              marginBottom: '6px'
+              alignItems: 'center',
+              marginBottom: '16px'
             }}>
-              <h4 style={{
-                fontSize: '14px',
+              <h2 style={{
+                fontSize: '18px',
                 fontWeight: '600',
                 margin: 0,
                 color: theme.text
               }}>
-                {note.title || 'Untitled'}
-              </h4>
-              <span style={{
-  fontSize: '9px',
-  padding: '1px 10px',
-  borderRadius: '12px',
-  background: '#2563eb',
-  color: '#fff',
-  flexShrink: 0
-}}>
-  {note.category || 'Uncategorized'}
-</span>
+                 Notes
+                <span style={{
+                  fontSize: '13px',
+                  color: theme.textMuted,
+                  marginLeft: '10px',
+                  fontWeight: '400'
+                }}>
+                  {notes.length}
+                </span>
+              </h2>
+              <button
+                onClick={openAddNote}
+                style={{
+                  padding: '8px 18px',
+                  borderRadius: '20px',
+                  border: 'none',
+                  background: theme.accent,
+                  color: '#fff',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
+                + New Note
+              </button>
             </div>
-            <p style={{
-              fontSize: '13px',
-              color: theme.textSecondary,
-              margin: 0,
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              lineHeight: '1.5'
-            }}>
-              {note.content || 'No content'}
-            </p>
+
+            {/* NOTES CATEGORY TABS */}
             <div style={{
-              marginTop: '10px',
-              fontSize: '11px',
-              color: theme.textMuted,
               display: 'flex',
-              justifyContent: 'space-between'
+              gap: '6px',
+              marginBottom: '16px',
+              flexWrap: 'wrap'
             }}>
-              <span>{formatDate(note.date)}</span>
-              <span>{formatNoteTime(note.created_at)}</span>
+              {allCategories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveNoteCategory(cat)}
+                  style={{
+                    padding: '6px 16px',
+                    borderRadius: '20px',
+                    border: activeNoteCategory === cat 
+                      ? `1px solid ${theme.accent}`
+                      : `1px solid ${theme.border}`,
+                    background: activeNoteCategory === cat 
+                      ? (isDarkMode ? '#1a3a5c' : '#e8f0fe')
+                      : 'transparent',
+                    color: activeNoteCategory === cat 
+                      ? (isDarkMode ? '#60a5fa' : theme.accent)
+                      : theme.textSecondary,
+                    fontSize: '12px',
+                    fontWeight: activeNoteCategory === cat ? '600' : '400',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {cat === 'All' ? (
+                    `${cat} (${notes.length})`
+                  ) : (
+                    `${cat} (${notes.filter(n => (n.category || 'Uncategorized') === cat).length})`
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {filteredNotes.length > 0 ? (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+                gap: '12px'
+              }}>
+                {filteredNotes.map(note => (
+                  <div
+                    key={note.id}
+                    onClick={() => openEditNote(note)}
+                    style={{
+                      padding: '16px',
+                      borderRadius: '14px',
+                      background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+                      border: `1px solid ${theme.border}`,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)'
+                      e.currentTarget.style.borderColor = theme.borderHover
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.borderColor = theme.border
+                    }}
+                  >
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      marginBottom: '6px'
+                    }}>
+                      <h4 style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        margin: 0,
+                        color: theme.text
+                      }}>
+                        {note.title || 'Untitled'}
+                      </h4>
+                      <span style={{
+                        fontSize: '9px',
+                        padding: '1px 10px',
+                        borderRadius: '12px',
+                        background: '#2563eb',
+                        color: '#fff',
+                        flexShrink: 0
+                      }}>
+                        {note.category || 'Uncategorized'}
+                      </span>
+                    </div>
+                    <p style={{
+                      fontSize: '13px',
+                      color: theme.textSecondary,
+                      margin: 0,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      lineHeight: '1.5'
+                    }}>
+                      {note.content || 'No content'}
+                    </p>
+                    <div style={{
+                      marginTop: '10px',
+                      fontSize: '11px',
+                      color: theme.textMuted,
+                      display: 'flex',
+                      justifyContent: 'space-between'
+                    }}>
+                      <span>{formatDate(note.date)}</span>
+                      <span>{formatNoteTime(note.created_at)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{
+                textAlign: 'center',
+                padding: '60px 20px',
+                color: theme.textMuted
+              }}>
+                <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
+                <p style={{ fontSize: '16px', margin: 0 }}>No notes yet</p>
+                <p style={{ fontSize: '13px', marginTop: '4px' }}>Create your first note</p>
+              </div>
+            )}
+
+            {/* EXPORT NOTES */}
+            <div style={{
+              marginTop: '20px',
+              paddingTop: '16px',
+              borderTop: `1px solid ${theme.border}`
+            }}>
+              <div style={{
+                display: 'flex',
+                gap: '10px',
+                flexWrap: 'wrap'
+              }}>
+                <button
+                  onClick={() => setShowExport(!showExport)}
+                  style={{
+                    padding: '8px 18px',
+                    borderRadius: '10px',
+                    border: `1px solid ${theme.border}`,
+                    background: 'transparent',
+                    color: theme.textSecondary,
+                    fontSize: '13px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {showExport ? '📄 Hide Export' : '📄 Export Notes'}
+                </button>
+              </div>
+
+              {showExport && notes.length > 0 && (
+                <div style={{
+                  marginTop: '12px',
+                  padding: '16px',
+                  background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+                  borderRadius: '12px',
+                  border: `1px solid ${theme.border}`
+                }}>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: theme.text, marginBottom: '10px' }}>
+                    Select Notes to Export as PDF
+                  </div>
+                  {notes.map(note => (
+                    <label key={note.id} style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '6px 0',
+                      fontSize: '13px',
+                      color: theme.textSecondary,
+                      cursor: 'pointer'
+                    }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedNotes.includes(note.id)}
+                        onChange={() => toggleSelect(note.id)}
+                        style={{ accentColor: theme.accent }}
+                      />
+                      {note.title || 'Untitled'}
+                    </label>
+                  ))}
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+                    <button
+                      onClick={exportNotesPDF}
+                      disabled={selectedNotes.length === 0}
+                      style={{
+                        padding: '8px 20px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        background: selectedNotes.length > 0 ? theme.accent : isDarkMode ? '#2a2a2a' : '#ddd',
+                        color: selectedNotes.length > 0 ? '#fff' : isDarkMode ? '#555' : '#999',
+                        fontWeight: '500',
+                        cursor: selectedNotes.length > 0 ? 'pointer' : 'not-allowed'
+                      }}
+                    >
+                      Export {selectedNotes.length} Selected
+                    </button>
+                    <button
+                      onClick={() => { setShowExport(false); setSelectedNotes([]) }}
+                      style={{
+                        padding: '8px 20px',
+                        borderRadius: '8px',
+                        border: `1px solid ${theme.border}`,
+                        background: 'transparent',
+                        color: theme.textSecondary,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        ))}
-      </div>
-    ) : (
-      <div style={{
-        textAlign: 'center',
-        padding: '60px 20px',
-        color: theme.textMuted
-      }}>
-        <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
-        <p style={{ fontSize: '16px', margin: 0 }}>No notes yet</p>
-        <p style={{ fontSize: '13px', marginTop: '4px' }}>Create your first note</p>
-      </div>
-    )}
+        )}
 
-    {/* ===== EXPORT NOTES ===== */}
-    <div style={{
-      marginTop: '20px',
-      paddingTop: '16px',
-      borderTop: `1px solid ${theme.border}`
-    }}>
-      <div style={{
-        display: 'flex',
-        gap: '10px',
-        flexWrap: 'wrap'
-      }}>
-        <button
-          onClick={() => setShowExport(!showExport)}
-          style={{
-            padding: '8px 18px',
-            borderRadius: '10px',
-            border: `1px solid ${theme.border}`,
-            background: 'transparent',
-            color: theme.textSecondary,
-            fontSize: '13px',
-            cursor: 'pointer'
-          }}
-        >
-          {showExport ? '📄 Hide Export' : '📄 Export Notes'}
-        </button>
-      </div>
-
-      {showExport && notes.length > 0 && (
-        <div style={{
-          marginTop: '12px',
-          padding: '16px',
-          background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-          borderRadius: '12px',
-          border: `1px solid ${theme.border}`
-        }}>
-          <div style={{ fontSize: '14px', fontWeight: '600', color: theme.text, marginBottom: '10px' }}>
-            Select Notes to Export as PDF
-          </div>
-          {notes.map(note => (
-            <label key={note.id} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '6px 0',
-              fontSize: '13px',
-              color: theme.textSecondary,
-              cursor: 'pointer'
-            }}>
-              <input
-                type="checkbox"
-                checked={selectedNotes.includes(note.id)}
-                onChange={() => toggleSelect(note.id)}
-                style={{ accentColor: theme.accent }}
-              />
-              {note.title || 'Untitled'}
-            </label>
-          ))}
-          <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
-            <button
-              onClick={exportNotesPDF}
-              disabled={selectedNotes.length === 0}
-              style={{
-                padding: '8px 20px',
-                borderRadius: '8px',
-                border: 'none',
-                background: selectedNotes.length > 0 ? theme.accent : isDarkMode ? '#2a2a2a' : '#ddd',
-                color: selectedNotes.length > 0 ? '#fff' : isDarkMode ? '#555' : '#999',
-                fontWeight: '500',
-                cursor: selectedNotes.length > 0 ? 'pointer' : 'not-allowed'
-              }}
-            >
-              Export {selectedNotes.length} Selected
-            </button>
-            <button
-              onClick={() => { setShowExport(false); setSelectedNotes([]) }}
-              style={{
-                padding: '8px 20px',
-                borderRadius: '8px',
-                border: `1px solid ${theme.border}`,
-                background: 'transparent',
-                color: theme.textSecondary,
-                cursor: 'pointer'
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
-)}
         {/* ===== TASKS TAB ===== */}
         {activeTab === 'tasks' && (
           <div>
@@ -2324,7 +2375,7 @@ const filteredNotes = notes.filter(note => {
               </div>
             </div>
 
-            {/* Category Tabs */}
+            {/* TASK CATEGORY TABS */}
             <div style={{
               display: 'flex',
               gap: '6px',
@@ -2357,346 +2408,336 @@ const filteredNotes = notes.filter(note => {
                 </button>
               ))}
             </div>
-                  {/* Task Input - CORRECT LAYOUT (FIXED) */}
-<div style={{
-  background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-  borderRadius: '12px',
-  padding: '20px',
-  border: `1px solid ${theme.border}`,
-  marginBottom: '16px'
-}}>
-  {/* Row 1: Task name (full width, on its own line) */}
-  <div style={{
-    width: '100%',
-    marginBottom: '12px'
-  }}>
-    <input
-      value={task}
-      onChange={e => setTask(e.target.value)}
-      placeholder="Add a task..."
-      onKeyDown={(e) => e.key === 'Enter' && addTask()}
-      style={{
-        padding: '12px 16px',
-        borderRadius: '10px',
-        border: `1px solid ${theme.border}`,
-        background: theme.bgInput,
-        color: theme.text,
-        fontSize: '14px',
-        outline: 'none',
-        width: '100%'
-      }}
-    />
-  </div>
 
-  {/* Row 2: Category + Add button (on their own line) */}
-  <div style={{
-    display: 'flex',
-    gap: '10px',
-    marginBottom: '16px'
-  }}>
-    <select
-      value={taskCategory}
-      onChange={e => setTaskCategory(e.target.value)}
-      style={{
-        padding: '12px 16px',
-        borderRadius: '10px',
-        border: `1px solid ${theme.border}`,
-        background: theme.bgInput,
-        color: theme.text,
-        fontSize: '13px',
-        outline: 'none',
-        flex: 1,
-        maxWidth: '200px'
-      }}
-    >
-      <option value="daily">Daily</option>
-      <option value="weekly">Weekly</option>
-      <option value="custom">One-time</option>
-    </select>
-    <button
-      onClick={addTask}
-      style={{
-        padding: '12px 32px',
-        borderRadius: '10px',
-        border: 'none',
-        background: theme.accent,
-        color: '#fff',
-        fontWeight: '600',
-        cursor: 'pointer',
-        whiteSpace: 'nowrap',
-        fontSize: '14px'
-      }}
-    >
-      Add
-    </button>
-  </div>
+            {/* TASK INPUT - COMPLETE VERSION WITH MULTIPLE SUBTASKS & ADD BUTTON AT BOTTOM */}
+            <div style={{
+              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+              borderRadius: '12px',
+              padding: '20px',
+              border: `1px solid ${theme.border}`,
+              marginBottom: '16px'
+            }}>
+              {/* Row 1: Task name */}
+              <div style={{
+                width: '100%',
+                marginBottom: '12px'
+              }}>
+                <input
+                  value={task}
+                  onChange={e => setTask(e.target.value)}
+                  placeholder="Add a task..."
+                  onKeyDown={(e) => e.key === 'Enter' && addTask()}
+                  style={{
+                    padding: '12px 16px',
+                    borderRadius: '10px',
+                    border: `1px solid ${theme.border}`,
+                    background: theme.bgInput,
+                    color: theme.text,
+                    fontSize: '14px',
+                    outline: 'none',
+                    width: '100%'
+                  }}
+                />
+              </div>
 
-  {/* Row 3: Extra fields - VERTICAL */}
-  <div style={{
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
-    paddingTop: '16px',
-    borderTop: `1px solid ${theme.border}`
-  }}>
-    {/* Time (only for daily) */}
-    {taskCategory === 'daily' && (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px'
-      }}>
-        <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>⏰ Time</label>
-        <input
-          type="time"
-          value={taskTime}
-          onChange={e => setTaskTime(e.target.value)}
-          style={{
-            padding: '8px 14px',
-            borderRadius: '8px',
-            border: `1px solid ${theme.border}`,
-            background: theme.bgInput,
-            color: theme.text,
-            fontSize: '13px',
-            outline: 'none',
-            width: '160px'
-          }}
-        />
-      </div>
-    )}
+              {/* Row 2: Category + Time/Day/Date */}
+              <div style={{
+                display: 'flex',
+                gap: '10px',
+                marginBottom: '12px',
+                flexWrap: 'wrap'
+              }}>
+                <select
+                  value={taskCategory}
+                  onChange={e => setTaskCategory(e.target.value)}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    border: `1px solid ${theme.border}`,
+                    background: theme.bgInput,
+                    color: theme.text,
+                    fontSize: '13px',
+                    outline: 'none',
+                    flex: 1,
+                    maxWidth: '200px'
+                  }}
+                >
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="custom">One-time</option>
+                </select>
+                
+                {taskCategory === 'daily' && (
+                  <input
+                    type="time"
+                    value={taskTime}
+                    onChange={e => setTaskTime(e.target.value)}
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      border: `1px solid ${theme.border}`,
+                      background: theme.bgInput,
+                      color: theme.text,
+                      fontSize: '13px',
+                      outline: 'none',
+                      width: '140px'
+                    }}
+                  />
+                )}
 
-    {/* Day (only for weekly) */}
-    {taskCategory === 'weekly' && (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px'
-      }}>
-        <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>📅 Day</label>
-        <select
-          value={taskWeekDay}
-          onChange={e => setTaskWeekDay(e.target.value)}
-          style={{
-            padding: '8px 14px',
-            borderRadius: '8px',
-            border: `1px solid ${theme.border}`,
-            background: theme.bgInput,
-            color: theme.text,
-            fontSize: '13px',
-            outline: 'none',
-            width: '160px'
-          }}
-        >
-          <option value="monday">Monday</option>
-          <option value="tuesday">Tuesday</option>
-          <option value="wednesday">Wednesday</option>
-          <option value="thursday">Thursday</option>
-          <option value="friday">Friday</option>
-          <option value="saturday">Saturday</option>
-          <option value="sunday">Sunday</option>
-        </select>
-      </div>
-    )}
+                {taskCategory === 'weekly' && (
+                  <select
+                    value={taskWeekDay}
+                    onChange={e => setTaskWeekDay(e.target.value)}
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      border: `1px solid ${theme.border}`,
+                      background: theme.bgInput,
+                      color: theme.text,
+                      fontSize: '13px',
+                      outline: 'none'
+                    }}
+                  >
+                    <option value="monday">Monday</option>
+                    <option value="tuesday">Tuesday</option>
+                    <option value="wednesday">Wednesday</option>
+                    <option value="thursday">Thursday</option>
+                    <option value="friday">Friday</option>
+                    <option value="saturday">Saturday</option>
+                    <option value="sunday">Sunday</option>
+                  </select>
+                )}
 
-    {/* Date (only for custom) */}
-    {taskCategory === 'custom' && (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px'
-      }}>
-        <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>📆 Date</label>
-        <input
-          type="date"
-          value={taskDueDate}
-          onChange={e => setTaskDueDate(e.target.value)}
-          style={{
-            padding: '8px 14px',
-            borderRadius: '8px',
-            border: `1px solid ${theme.border}`,
-            background: theme.bgInput,
-            color: theme.text,
-            fontSize: '13px',
-            outline: 'none',
-            width: '160px'
-          }}
-        />
-      </div>
-    )}
+                {taskCategory === 'custom' && (
+                  <input
+                    type="date"
+                    value={taskDueDate}
+                    onChange={e => setTaskDueDate(e.target.value)}
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      border: `1px solid ${theme.border}`,
+                      background: theme.bgInput,
+                      color: theme.text,
+                      fontSize: '13px',
+                      outline: 'none',
+                      width: '160px'
+                    }}
+                  />
+                )}
+              </div>
 
-    {/* Difficulty */}
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px'
-    }}>
-      <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>📊 Difficulty</label>
-      <select
-        value={taskDifficulty}
-        onChange={e => setTaskDifficulty(e.target.value)}
-        style={{
-          padding: '8px 14px',
-          borderRadius: '8px',
-          border: `1px solid ${theme.border}`,
-          background: theme.bgInput,
-          color: theme.text,
-          fontSize: '13px',
-          outline: 'none',
-          width: '160px'
-        }}
-      >
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-      </select>
-    </div>
+                            {/* Row 3: Extra fields */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                paddingTop: '16px',
+                borderTop: `1px solid ${theme.border}`
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>📊 Difficulty</label>
+                  <select
+                    value={taskDifficulty}
+                    onChange={e => setTaskDifficulty(e.target.value)}
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      border: `1px solid ${theme.border}`,
+                      background: theme.bgInput,
+                      color: theme.text,
+                      fontSize: '13px',
+                      outline: 'none',
+                      width: '160px'
+                    }}
+                  >
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                  </select>
+                </div>
 
-    {/* Minutes */}
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px'
-    }}>
-      <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>⏱️ Minutes</label>
-      <input
-        type="number"
-        value={taskMinutes}
-        onChange={e => setTaskMinutes(Number(e.target.value))}
-        placeholder="30"
-        style={{
-          padding: '8px 14px',
-          borderRadius: '8px',
-          border: `1px solid ${theme.border}`,
-          background: theme.bgInput,
-          color: theme.text,
-          fontSize: '13px',
-          outline: 'none',
-          width: '100px'
-        }}
-      />
-    </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>⏱️ Minutes</label>
+                  <input
+                    type="number"
+                    value={taskMinutes}
+                    onChange={e => setTaskMinutes(Number(e.target.value))}
+                    placeholder="30"
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      border: `1px solid ${theme.border}`,
+                      background: theme.bgInput,
+                      color: theme.text,
+                      fontSize: '13px',
+                      outline: 'none',
+                      width: '100px'
+                    }}
+                  />
+                </div>
 
-    {/* Tag */}
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px'
-    }}>
-      <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>🏷️ Tag</label>
-      <select
-        value={taskTag}
-        onChange={e => setTaskTag(e.target.value)}
-        style={{
-          padding: '8px 14px',
-          borderRadius: '8px',
-          border: `1px solid ${theme.border}`,
-          background: theme.bgInput,
-          color: theme.text,
-          fontSize: '13px',
-          outline: 'none',
-          width: '160px'
-        }}
-      >
-        <option value="general">General</option>
-        <option value="school">School</option>
-        <option value="work">Work</option>
-        <option value="health">Health</option>
-        <option value="personal">Personal</option>
-      </select>
-    </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>🏷️ Tag</label>
+                  <select
+                    value={taskTag}
+                    onChange={e => setTaskTag(e.target.value)}
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      border: `1px solid ${theme.border}`,
+                      background: theme.bgInput,
+                      color: theme.text,
+                      fontSize: '13px',
+                      outline: 'none',
+                      width: '160px'
+                    }}
+                  >
+                    <option value="general">General</option>
+                    <option value="school">School</option>
+                    <option value="work">Work</option>
+                    <option value="health">Health</option>
+                    <option value="personal">Personal</option>
+                  </select>
+                </div>
 
-    {/* 🔥 SUBTASK FIELD - NO LABEL */}
-<div style={{
-  display: 'flex',
-  alignItems: 'center',
-  gap: '10px',
-  paddingTop: '8px',
-  borderTop: `1px dashed ${theme.border}`,
-  width: '100%'
-}}>
-  <input
-    value={newSubTask}
-    onChange={e => setNewSubTask(e.target.value)}
-    placeholder="Add a subtask"
-    onKeyDown={(e) => {
-      if (e.key === 'Enter' && newSubTask.trim()) {
-        setSubTaskToAdd(newSubTask.trim())
-        setNewSubTask('')
-        setMessage('✅ Subtask ready!')
-      }
-    }}
-    style={{
-      padding: '6px 10px',
-      borderRadius: '6px',
-      border: `1px solid ${theme.border}`,
-      background: theme.bgInput,
-      color: theme.text,
-      fontSize: '12px',
-      outline: 'none',
-      flex: 1,
-      maxWidth: '200px'
-    }}
-  />
-  <button
-    onClick={() => {
-      if (newSubTask.trim()) {
-        setSubTaskToAdd(newSubTask.trim())
-        setNewSubTask('')
-        setMessage('✅ Subtask ready!')
-      }
-    }}
-    style={{
-      padding: '4px 12px',
-      borderRadius: '6px',
-      border: 'none',
-      background: theme.accent,
-      color: '#fff',
-      fontSize: '12px',
-      cursor: 'pointer',
-      whiteSpace: 'nowrap',
-      flexShrink: 0
-    }}
-  >
-    Add
-  </button>
-</div>
+                {/* SUBTASK FIELD - MULTIPLE */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  paddingTop: '8px',
+                  borderTop: `1px dashed ${theme.border}`,
+                  width: '100%',
+                  flexWrap: 'wrap'
+                }}>
+                  <input
+                    value={newSubTask}
+                    onChange={e => setNewSubTask(e.target.value)}
+                    placeholder="Add a subtask"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newSubTask.trim()) {
+                        setSubTasksToAdd([...subTasksToAdd, { id: Date.now().toString(), text: newSubTask.trim(), done: false }])
+                        setNewSubTask('')
+                        setMessage('✅ Subtask added!')
+                      }
+                    }}
+                    style={{
+                      padding: '6px 10px',
+                      borderRadius: '6px',
+                      border: `1px solid ${theme.border}`,
+                      background: theme.bgInput,
+                      color: theme.text,
+                      fontSize: '12px',
+                      outline: 'none',
+                      flex: 1,
+                      maxWidth: '200px'
+                    }}
+                  />
+                  <button
+                    onClick={() => {
+                      if (newSubTask.trim()) {
+                        setSubTasksToAdd([...subTasksToAdd, { id: Date.now().toString(), text: newSubTask.trim(), done: false }])
+                        setNewSubTask('')
+                        setMessage('✅ Subtask added!')
+                      }
+                    }}
+                    style={{
+                      padding: '4px 12px',
+                      borderRadius: '6px',
+                      border: 'none',
+                      background: theme.accent,
+                      color: '#fff',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0
+                    }}
+                  >
+                    Add
+                  </button>
+                </div>
 
-{/* Show subtask that will be added with the task */}
-{subTaskToAdd && (
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '6px 14px',
-    background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
-    borderRadius: '8px',
-    marginLeft: '0px',
-    width: 'fit-content',
-    maxWidth: '100%'
-  }}>
-    <span style={{ fontSize: '13px', color: theme.text, wordBreak: 'break-word' }}>📋 {subTaskToAdd}</span>
-    <button
-      onClick={() => setSubTaskToAdd('')}
-      style={{
-        padding: '2px 6px',
-        borderRadius: '4px',
-        border: 'none',
-        background: 'transparent',
-        color: theme.textMuted,
-        cursor: 'pointer',
-        fontSize: '14px',
-        flexShrink: 0
-      }}
-    >
-      ×
-    </button>
-  </div>
-)}
-            
-  </div>
-</div>
-        
-            {/* Task List */}
+                {subTasksToAdd.length > 0 && (
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px',
+                    marginTop: '4px'
+                  }}>
+                    {subTasksToAdd.map(st => (
+                      <div key={st.id} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '4px 10px',
+                        background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
+                        borderRadius: '6px',
+                        width: 'fit-content',
+                        maxWidth: '100%'
+                      }}>
+                        <span style={{ fontSize: '12px', color: theme.text }}>📋 {st.text}</span>
+                        <button
+                          onClick={() => setSubTasksToAdd(subTasksToAdd.filter(s => s.id !== st.id))}
+                          style={{
+                            padding: '1px 4px',
+                            borderRadius: '4px',
+                            border: 'none',
+                            background: 'transparent',
+                            color: theme.textMuted,
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ADD BUTTON AT THE BOTTOM */}
+              <div style={{
+                marginTop: '16px',
+                paddingTop: '16px',
+                borderTop: `1px solid ${theme.border}`,
+                display: 'flex',
+                justifyContent: 'flex-end'
+              }}>
+                <button
+                  onClick={addTask}
+                  style={{
+                    padding: '12px 40px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    background: theme.accent,
+                    color: '#fff',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    fontSize: '15px',
+                    width: '100%'
+                  }}
+                >
+                  + Add Task
+                </button>
+              </div>
+            </div>
+
+            {/* TASK LIST */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {filteredTasks.length > 0 ? (
                 filteredTasks.map(t => {
@@ -2725,13 +2766,7 @@ const filteredNotes = notes.filter(note => {
                           type="checkbox"
                           checked={t.done}
                           onChange={() => toggleTask(t.id)}
-                          style={{
-                            width: '20px',
-                            height: '20px',
-                            accentColor: theme.accent,
-                            cursor: 'pointer',
-                            flexShrink: 0
-                          }}
+                          className="custom-checkbox"
                         />
                         <div style={{ flex: 1 }}>
                           <div style={{
@@ -2952,163 +2987,312 @@ const filteredNotes = notes.filter(note => {
         )}
 
                 {/* ===== JOURNAL TAB ===== */}
-        {activeTab === 'journal' && (
-          <div>
+        {/* ===== JOURNAL TAB ===== */}
+{activeTab === 'journal' && (
+  <div>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '16px'
+    }}>
+      <h2 style={{
+        fontSize: '18px',
+        fontWeight: '600',
+        margin: 0,
+        color: theme.text
+      }}>
+        📖 Journal
+        <span style={{
+          fontSize: '13px',
+          color: theme.textMuted,
+          marginLeft: '10px',
+          fontWeight: '400'
+        }}>
+          {journalEntries.length} entries
+        </span>
+      </h2>
+    </div>
+
+    {/* ===== FILTERS ===== */}
+    <div style={{
+      display: 'flex',
+      gap: '10px',
+      marginBottom: '16px',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+      padding: '12px 16px',
+      borderRadius: '12px',
+      border: `1px solid ${theme.border}`
+    }}>
+      <label style={{ fontSize: '12px', color: theme.textMuted }}>📅 Date</label>
+      <input
+        type="date"
+        value={journalDateFilter}
+        onChange={(e) => {
+          setJournalDateFilter(e.target.value)
+          fetchJournal()
+        }}
+        style={{
+          padding: '6px 12px',
+          borderRadius: '6px',
+          border: `1px solid ${theme.border}`,
+          background: theme.bgInput,
+          color: theme.text,
+          fontSize: '12px',
+          outline: 'none',
+          width: '160px'
+        }}
+      />
+      {journalDateFilter && (
+        <button
+          onClick={() => {
+            setJournalDateFilter('')
+            fetchJournal()
+          }}
+          style={{
+            padding: '4px 12px',
+            borderRadius: '6px',
+            border: 'none',
+            background: '#dc2626',
+            color: '#fff',
+            fontSize: '11px',
+            cursor: 'pointer'
+          }}
+        >
+          Clear
+        </button>
+      )}
+      
+      <label style={{ fontSize: '12px', color: theme.textMuted, marginLeft: '10px' }}>🏷️ Tag</label>
+      <select
+        value={journalTagFilter}
+        onChange={(e) => {
+          setJournalTagFilter(e.target.value)
+        }}
+        style={{
+          padding: '6px 12px',
+          borderRadius: '6px',
+          border: `1px solid ${theme.border}`,
+          background: theme.bgInput,
+          color: theme.text,
+          fontSize: '12px',
+          outline: 'none',
+          width: '140px'
+        }}
+      >
+        <option value="">All Tags</option>
+        {[...new Set(journalEntries.map(e => e.tags || '').filter(t => t.trim()))].map(tag => (
+          <option key={tag} value={tag}>{tag}</option>
+        ))}
+      </select>
+      {journalTagFilter && (
+        <button
+          onClick={() => {
+            setJournalTagFilter('')
+          }}
+          style={{
+            padding: '4px 12px',
+            borderRadius: '6px',
+            border: 'none',
+            background: '#dc2626',
+            color: '#fff',
+            fontSize: '11px',
+            cursor: 'pointer'
+          }}
+        >
+          Clear
+        </button>
+      )}
+    </div>
+
+    {/* ===== JOURNAL INPUT ===== */}
+    <div style={{
+      marginBottom: '20px',
+      padding: '16px',
+      background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+      borderRadius: '14px',
+      border: `1px solid ${theme.border}`
+    }}>
+      <textarea
+        value={journalEntry}
+        onChange={(e) => setJournalEntry(e.target.value)}
+        placeholder="What's on your mind today? ✍️"
+        style={{
+          width: '100%',
+          minHeight: '100px',
+          padding: '12px',
+          borderRadius: '10px',
+          border: `1px solid ${theme.border}`,
+          background: theme.bgInput,
+          color: theme.text,
+          fontSize: '14px',
+          resize: 'vertical',
+          outline: 'none',
+          fontFamily: 'inherit'
+        }}
+      />
+      <div style={{
+        display: 'flex',
+        gap: '12px',
+        marginTop: '10px',
+        flexWrap: 'wrap',
+        alignItems: 'center'
+      }}>
+        <div style={{ flex: 1, minWidth: '120px' }}>
+          <label style={{ fontSize: '12px', color: theme.textMuted, display: 'block', marginBottom: '2px' }}>Mood</label>
+          <input
+            value={journalMood}
+            onChange={(e) => setJournalMood(e.target.value)}
+            placeholder="e.g., happy, stressed, calm"
+            style={{
+              width: '100%',
+              padding: '6px 12px',
+              borderRadius: '6px',
+              border: `1px solid ${theme.border}`,
+              background: theme.bgInput,
+              color: theme.text,
+              fontSize: '12px',
+              outline: 'none'
+            }}
+          />
+        </div>
+        <div style={{ flex: 2, minWidth: '180px' }}>
+          <label style={{ fontSize: '12px', color: theme.textMuted, display: 'block', marginBottom: '2px' }}>Tags (comma separated)</label>
+          <input
+            value={journalTags}
+            onChange={(e) => setJournalTags(e.target.value)}
+            placeholder="e.g., work, personal, ideas"
+            style={{
+              width: '100%',
+              padding: '6px 12px',
+              borderRadius: '6px',
+              border: `1px solid ${theme.border}`,
+              background: theme.bgInput,
+              color: theme.text,
+              fontSize: '12px',
+              outline: 'none'
+            }}
+          />
+        </div>
+        <button
+          onClick={saveJournal}
+          style={{
+            padding: '8px 24px',
+            borderRadius: '10px',
+            border: 'none',
+            background: theme.accent,
+            color: '#fff',
+            fontWeight: '500',
+            cursor: 'pointer',
+            fontSize: '13px',
+            alignSelf: 'flex-end',
+            marginTop: '8px'
+          }}
+        >
+          Save Entry 💾
+        </button>
+      </div>
+    </div>
+
+    {/* ===== JOURNAL ENTRIES LIST ===== */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {journalEntries
+        .filter(entry => {
+          // Apply tag filter client-side
+          if (!journalTagFilter) return true
+          const tags = (entry.tags || '').split(',').map(t => t.trim())
+          return tags.includes(journalTagFilter)
+        })
+        .map(entry => (
+          <div
+            key={entry.id}
+            style={{
+              padding: '16px',
+              borderRadius: '14px',
+              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+              border: `1px solid ${theme.border}`
+            }}
+          >
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '16px'
+              marginBottom: '8px'
             }}>
-              <h2 style={{
-                fontSize: '18px',
-                fontWeight: '600',
-                margin: 0,
-                color: theme.text
+              <span style={{
+                fontSize: '12px',
+                color: theme.textMuted
               }}>
-                 Journal
-                <span style={{
-                  fontSize: '13px',
-                  color: theme.textMuted,
-                  marginLeft: '10px',
-                  fontWeight: '400'
-                }}>
-                  {journalEntries.length} entries
-                </span>
-              </h2>
-            </div>
-
-            {/* Journal Entry Input */}
-            <div style={{
-              marginBottom: '20px',
-              padding: '16px',
-              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-              borderRadius: '14px',
-              border: `1px solid ${theme.border}`
-            }}>
-              <textarea
-                value={journalEntry}
-                onChange={(e) => setJournalEntry(e.target.value)}
-                placeholder="What's on your mind today? ✍️"
+                {new Date(entry.created_at).toLocaleString()}
+                {entry.mood && (
+                  <span style={{
+                    marginLeft: '12px',
+                    background: isDarkMode ? '#2a2a2a' : '#e0e0e0',
+                    padding: '1px 10px',
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    color: theme.textSecondary
+                  }}>
+                    😌 {entry.mood}
+                  </span>
+                )}
+                {entry.tags && entry.tags.split(',').map(t => t.trim()).filter(Boolean).map(tag => (
+                  <span key={tag} style={{
+                    marginLeft: '8px',
+                    background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
+                    padding: '1px 10px',
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    color: isDarkMode ? '#60a5fa' : '#2563eb'
+                  }}>
+                    #{tag}
+                  </span>
+                ))}
+              </span>
+              <button
+                onClick={() => deleteJournalEntry(entry.id)}
                 style={{
-                  width: '100%',
-                  minHeight: '100px',
-                  padding: '12px',
-                  borderRadius: '10px',
-                  border: `1px solid ${theme.border}`,
-                  background: theme.bgInput,
-                  color: theme.text,
-                  fontSize: '14px',
-                  resize: 'vertical',
-                  outline: 'none',
-                  fontFamily: 'inherit'
+                  padding: '2px 8px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  background: 'transparent',
+                  color: theme.textMuted,
+                  cursor: 'pointer',
+                  fontSize: '16px'
                 }}
-              />
-              <div style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                marginTop: '10px',
-                gap: '8px'
-              }}>
-                <button
-                  onClick={() => setJournalEntry('')}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '10px',
-                    border: `1px solid ${theme.border}`,
-                    background: 'transparent',
-                    color: theme.textSecondary,
-                    cursor: 'pointer',
-                    fontSize: '13px'
-                  }}
-                >
-                  Clear
-                </button>
-                <button
-                  onClick={saveJournal}
-                  style={{
-                    padding: '8px 20px',
-                    borderRadius: '10px',
-                    border: 'none',
-                    background: theme.accent,
-                    color: '#fff',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    fontSize: '13px'
-                  }}
-                >
-                  Save Entry 
-                </button>
-              </div>
+                onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
+                onMouseLeave={(e) => e.currentTarget.style.color = theme.textMuted}
+              >
+                ×
+              </button>
             </div>
-
-            {/* Journal Entries List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {journalEntries.length > 0 ? (
-                journalEntries.map(entry => (
-                  <div
-                    key={entry.id}
-                    style={{
-                      padding: '16px',
-                      borderRadius: '14px',
-                      background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-                      border: `1px solid ${theme.border}`
-                    }}
-                  >
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginBottom: '8px'
-                    }}>
-                      <span style={{
-                        fontSize: '12px',
-                        color: theme.textMuted
-                      }}>
-                        {new Date(entry.created_at).toLocaleString()}
-                      </span>
-                      <button
-                        onClick={() => deleteJournalEntry(entry.id)}
-                        style={{
-                          padding: '2px 8px',
-                          borderRadius: '6px',
-                          border: 'none',
-                          background: 'transparent',
-                          color: theme.textMuted,
-                          cursor: 'pointer',
-                          fontSize: '16px'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
-                        onMouseLeave={(e) => e.currentTarget.style.color = theme.textMuted}
-                      >
-                        ×
-                      </button>
-                    </div>
-                    <p style={{
-                      fontSize: '14px',
-                      lineHeight: '1.6',
-                      margin: 0,
-                      color: theme.text,
-                      whiteSpace: 'pre-wrap'
-                    }}>
-                      {entry.content}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <div style={{
-                  textAlign: 'center',
-                  padding: '40px',
-                  color: theme.textMuted
-                }}>
-                  <div style={{ fontSize: '40px', marginBottom: '8px' }}>📖</div>
-                  <p style={{ fontSize: '14px', margin: 0 }}>No journal entries yet</p>
-                  <p style={{ fontSize: '13px', marginTop: '4px' }}>Write your first entry above</p>
-                </div>
-              )}
-            </div>
+            <p style={{
+              fontSize: '14px',
+              lineHeight: '1.6',
+              margin: 0,
+              color: theme.text,
+              whiteSpace: 'pre-wrap'
+            }}>
+              {entry.content}
+            </p>
           </div>
-        )}
+        ))}
+      {journalEntries.length === 0 && (
+        <div style={{
+          textAlign: 'center',
+          padding: '40px',
+          color: theme.textMuted
+        }}>
+          <div style={{ fontSize: '40px', marginBottom: '8px' }}>📖</div>
+          <p style={{ fontSize: '14px', margin: 0 }}>No journal entries yet</p>
+          <p style={{ fontSize: '13px', marginTop: '4px' }}>Write your first entry above</p>
+        </div>
+      )}
+    </div>
+  </div>
+)}
       </div>
 
       {/* ===== MESSAGE TOAST ===== */}
@@ -3151,7 +3335,52 @@ const filteredNotes = notes.filter(note => {
         ::-webkit-scrollbar-thumb:hover {
           background: ${theme.textMuted};
         }
+
+        /* Custom Checkbox */
+        .custom-checkbox {
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          border: 2px solid #555;
+          background: transparent;
+          cursor: pointer;
+          position: relative;
+          flex-shrink: 0;
+          transition: all 0.3s ease;
+          appearance: none;
+          -webkit-appearance: none;
+          outline: none;
+        }
+
+        .custom-checkbox:hover {
+          border-color: #2563eb;
+          box-shadow: 0 0 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .custom-checkbox:checked {
+          background: #2563eb;
+          border-color: #2563eb;
+          box-shadow: 0 0 16px rgba(37, 99, 235, 0.4);
+          animation: checkboxPop 0.3s ease;
+        }
+
+        .custom-checkbox:checked::after {
+          content: '✓';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          color: #fff;
+          font-size: 14px;
+          font-weight: 700;
+        }
+
+        @keyframes checkboxPop {
+          0% { transform: scale(0.8); }
+          50% { transform: scale(1.1); }
+          100% { transform: scale(1); }
+        }
       `}</style>
     </div>
   )
-}
+        }
