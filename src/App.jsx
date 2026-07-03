@@ -300,7 +300,7 @@ const [journalTagFilter, setJournalTagFilter] = useState('')
       const codeLang = detectCodeLanguage(noteText)
       if (codeLang) {
         setDetectedCode(codeLang)
-        setMessage(`💻 Code detected: ${codeLang}`)
+        setMessage(` Code detected: ${codeLang}`)
         setTimeout(() => setMessage(''), 2000)
       } else {
         setDetectedCode(null)
@@ -400,7 +400,7 @@ const [journalTagFilter, setJournalTagFilter] = useState('')
 
     recognition.onstart = () => {
       setIsListening(true)
-      setMessage('🎤 Listening... Say: comma, full stop, new line')
+      setMessage(' Listening... Say: comma, full stop, new line')
     }
 
     recognition.onresult = (event) => {
@@ -469,7 +469,7 @@ const [journalTagFilter, setJournalTagFilter] = useState('')
         .then(() => {
           recognitionRef.current.start()
           setIsListening(true)
-          setMessage('🎤 Say comma, full stop, new line for punctuation')
+          setMessage(' Say comma, full stop, new line for punctuation')
         })
         .catch(() => {
           setMessage('Microphone permission denied')
@@ -487,7 +487,7 @@ const [journalTagFilter, setJournalTagFilter] = useState('')
       logger: m => console.log(m.status, m.progress)
     }).then(({ data: { text } }) => {
       setNoteText(prev => prev + (prev ? '\n\n' : '') + text)
-      setMessage('✅ Text extracted!')
+      setMessage(' Text extracted!')
       setIsProcessing(false)
       e.target.value = ''
     }).catch(() => {
@@ -569,7 +569,7 @@ const [journalTagFilter, setJournalTagFilter] = useState('')
 
     if (error) setMessage('Error: ' + error.message)
     else {
-      setMessage('✅ Note updated!')
+      setMessage(' Note updated!')
       setEditingNote(null)
       setTitle('')
       setNoteText('')
@@ -584,7 +584,7 @@ const [journalTagFilter, setJournalTagFilter] = useState('')
 
     if (error) setMessage('Error: ' + error.message)
     else {
-      setMessage('✅ Note saved!')
+      setMessage(' Note saved!')
       setTitle('')
       setNoteText('')
       setCategory('')
@@ -631,7 +631,7 @@ function goBack() {
     if (error) {
       setMessage('Delete failed: ' + error.message)
     } else {
-      setMessage('🗑️ Note deleted')
+      setMessage(' Note deleted')
       await fetchNotes()
       setViewMode('home')
     }
@@ -646,7 +646,7 @@ function goBack() {
           title: editingNote.title,
           text: shareText
         })
-        setMessage('✅ Note shared!')
+        setMessage(' Note shared!')
       } catch (err) {
         if (err.name !== 'AbortError') {
           setMessage('Sharing failed')
@@ -654,7 +654,7 @@ function goBack() {
       }
     } else {
       navigator.clipboard.writeText(shareText)
-      setMessage('📋 Copied instead')
+      setMessage(' Copied instead')
     }
   }
 
@@ -666,7 +666,7 @@ function goBack() {
     }
 
     setLoading(true)
-    setMessage("🌍 Translating ...")
+    setMessage(" Translating ...")
 
     const textToTranslate = noteText.trim()
     const langName = ALL_LANGUAGES.find(l => l.code === targetLang)?.name || targetLang
@@ -691,7 +691,7 @@ function goBack() {
         const data = await res.json()
         if (data[0]?.translation_text) {
           setNoteText(data[0].translation_text)
-          setMessage(`✅ Translated to ${langName}!`)
+          setMessage(` Translated to ${langName}!`)
           setLoading(false)
           return
         }
@@ -716,7 +716,7 @@ function goBack() {
         const data = await response.json()
         if (data.translatedText) {
           setNoteText(data.translatedText)
-          setMessage(`✅ Translated to ${langName}!`)
+          setMessage(` Translated to ${langName}!`)
           setLoading(false)
           return
         }
@@ -731,7 +731,7 @@ function goBack() {
       const translated = parsed[0].map(item => item[0]).join('')
       if (translated) {
         setNoteText(translated)
-        setMessage(`✅ Translated to ${langName}!`)
+        setMessage(` Translated to ${langName}!`)
         setLoading(false)
         return
       }
@@ -744,12 +744,12 @@ function goBack() {
       const data = await res.json()
       if (data.responseStatus === 200 && data.responseData?.translatedText) {
         setNoteText(data.responseData.translatedText)
-        setMessage(`✅ Translated to ${langName}!`)
+        setMessage(` Translated to ${langName}!`)
       } else {
-        setMessage("❌ Translation failed. Try shorter text.")
+        setMessage(" Translation failed. Try shorter text.")
       }
     } catch (e) {
-      setMessage("❌ No internet: " + e.message)
+      setMessage(" No internet: " + e.message)
     }
     setLoading(false)
   }
@@ -828,7 +828,7 @@ function goBack() {
       setTaskTag('general')
       setSubTasksToAdd([])
       setNewSubTask('')
-      setMessage('✅ Task added!')
+      setMessage(' Task added!')
       fetchTasks()
     }
   }
@@ -850,7 +850,7 @@ function goBack() {
       .eq('id', id)
       .eq('user_id', user.id)
     if (!error) {
-      setMessage('🗑️ Task deleted')
+      setMessage(' Task deleted')
       fetchTasks()
     }
   }
@@ -870,7 +870,7 @@ function goBack() {
     if (!error) {
       setSubTasks(prev => ({ ...prev, [taskId]: updatedSubtasks }))
       setNewSubTask('')
-      setMessage('✅ Subtask added')
+      setMessage(' Subtask added')
     }
   }
 
@@ -903,7 +903,7 @@ function goBack() {
     
     if (!error) {
       setSubTasks(prev => ({ ...prev, [taskId]: updatedSubtasks }))
-      setMessage('🗑️ Subtask deleted')
+      setMessage(' Subtask deleted')
     }
   }
 
@@ -946,7 +946,7 @@ async function saveJournal() {
     setJournalEntry('')
     setJournalMood('')
     setJournalTags('')
-    setMessage('✅ Journal entry saved!')
+    setMessage(' Journal entry saved!')
     fetchJournal()
   }
 }
@@ -958,7 +958,7 @@ async function saveJournal() {
       .eq('id', id)
       .eq('user_id', user.id)
     if (!error) {
-      setMessage('🗑️ Entry deleted')
+      setMessage(' Entry deleted')
       fetchJournal()
     }
   }
@@ -1015,7 +1015,7 @@ async function saveJournal() {
       yPos += 12
     })
     doc.save(`discypln-notes-${selectedDate}.pdf`)
-    setMessage('✅ PDF exported!')
+    setMessage(' PDF exported!')
     setShowExport(false)
     setSelectedNotes([])
   }
@@ -1044,7 +1044,7 @@ async function saveJournal() {
     })
     const blob = await Packer.toBlob(doc)
     saveAs(blob, `discypln-tasks.docx`)
-    setMessage('✅ Word file exported!')
+    setMessage(' Word file exported!')
   }
 
   const exportWeeklyReport = async () => {
@@ -1106,7 +1106,7 @@ async function saveJournal() {
     })
 
     doc.save(`Discypln_Weekly_Tasks_${weekStr.replace(/\//g, '-')}.pdf`)
-    setMessage('✅ Weekly report generated!')
+    setMessage(' Weekly report generated!')
   }
 
   // ========== NOTES CATEGORY STATE & FILTER ==========
@@ -2632,7 +2632,7 @@ return (
                       if (e.key === 'Enter' && newSubTask.trim()) {
                         setSubTasksToAdd([...subTasksToAdd, { id: Date.now().toString(), text: newSubTask.trim(), done: false }])
                         setNewSubTask('')
-                        setMessage('✅ Subtask added!')
+                        setMessage(' Subtask added!')
                       }
                     }}
                     style={{
@@ -2652,7 +2652,7 @@ return (
                       if (newSubTask.trim()) {
                         setSubTasksToAdd([...subTasksToAdd, { id: Date.now().toString(), text: newSubTask.trim(), done: false }])
                         setNewSubTask('')
-                        setMessage('✅ Subtask added!')
+                        setMessage(' Subtask added!')
                       }
                     }}
                     style={{
@@ -3191,7 +3191,7 @@ return (
             marginTop: '8px'
           }}
         >
-          Save Entry 💾
+          Save Entry 
         </button>
       </div>
     </div>
