@@ -1053,7 +1053,7 @@ export default function App() {
       .eq('user_id', user.id)
     if (!error) {
       if (!task.done) {
-        showToast('✅ Task completed!', 'success')
+        showToast(' Task completed!', 'success')
       }
       fetchTasks()
     }
@@ -1538,7 +1538,7 @@ export default function App() {
             onClick={toggleMic}
             className={`btn btn-ghost btn-sm ${isListening ? 'btn-danger' : ''}`}
           >
-            {isListening ? '⏹️ Stop' : '🎤 Voice'}
+            {isListening ? ' Stop' : '🎤 Voice'}
           </button>
           <button onClick={() => fileInputRef.current.click()} className="btn btn-ghost btn-sm">
             📷 Scan
@@ -1628,53 +1628,67 @@ export default function App() {
 
   return (
     <div className="container" data-theme={isDarkMode ? 'dark' : 'light'}>
-      {/* ===== HEADER ===== */}
-      <header className="app-header">
-        <div className="header-left">
-          <div className="logo">Discypln</div>
-          <div className="greeting">
-            {greeting}
-            <span style={{ color: 'var(--text-muted)', marginLeft: '4px' }}>
-              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </span>
-          </div>
-          <div className="date">
-            {currentTime.toLocaleDateString('en-US', {
-              weekday: 'long',
-              month: 'long',
-              day: 'numeric',
-              year: 'numeric'
-            })}
-          </div>
-        </div>
-        <div className="header-right">
-          <div className="search-wrapper">
-            <span className="search-icon">🔍</span>
-            <input
-              type="text"
-              placeholder="Search notes, tasks..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
-            />
-          </div>
-          <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="theme-toggle"
-            aria-label="Toggle theme"
-          >
-            {isDarkMode ? '🌙' : '☀️'}
-          </button>
-          <button onClick={signOut} className="btn btn-ghost btn-icon" aria-label="Logout">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 21H5a2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y1="12" />
-            </svg>
-          </button>
-        </div>
-      </header>
+    {/* ===== HEADER ===== */}
+<header className="app-header" style={{
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: '24px',
+  flexWrap: 'wrap',
+  gap: '12px'
+}}>
+  {/* Left: Logo */}
+  <div className="header-left">
+    <div className="logo">Discypln</div>
+  </div>
+
+  {/* Center: Greeting & Date */}
+  <div style={{ textAlign: 'center' }}>
+    <div className="greeting" style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>
+      {greeting}
+      <span style={{ color: 'var(--text-muted)', marginLeft: '6px' }}>
+        {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+      </span>
+    </div>
+    <div className="date" style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+      {currentTime.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      })}
+    </div>
+  </div>
+
+  {/* Right: Search + Theme + Logout */}
+  <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+    <div className="search-wrapper">
+      <span className="search-icon">🔍</span>
+      <input
+        type="text"
+        placeholder="Search notes, tasks..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onFocus={() => setIsSearchFocused(true)}
+        onBlur={() => setIsSearchFocused(false)}
+      />
+    </div>
+    <button
+      onClick={() => setIsDarkMode(!isDarkMode)}
+      className="theme-toggle"
+      aria-label="Toggle theme"
+    >
+      {isDarkMode ? '🌙' : '☀️'}
+    </button>
+    <button onClick={signOut} className="btn btn-ghost btn-icon" aria-label="Logout">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M9 21H5a2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y1="12" />
+      </svg>
+    </button>
+  </div>
+</header>
 
       {/* ===== CAPSULE NAVIGATION ===== */}
       <nav className="capsule-nav">
@@ -1759,7 +1773,7 @@ export default function App() {
               className={`btn ${pomodoroRunning ? 'btn-danger' : 'btn-primary'}`}
               style={{ minWidth: '100px' }}
             >
-              {pomodoroRunning ? '⏸ Pause' : pomodoroState === 'paused' ? '▶ Resume' : '▶ Start'}
+              {pomodoroRunning ? ' Pause' : pomodoroState === 'paused' ? '▶ Resume' : '▶ Start'}
             </button>
             <button onClick={resetPomodoro} className="btn btn-ghost">
               ↺ Reset
