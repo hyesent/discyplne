@@ -1925,51 +1925,69 @@ const handlePomodoroComplete = async () => {
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
       <span className="tiny-label">Focus</span>
       <input
-        type="number"
-        min="10"
-        max="60"
-        value={focusDuration}
-        onChange={(e) => {
-          const val = Math.min(60, Math.max(10, Number(e.target.value) || 10))
-          setFocusDuration(val)
-          if (!pomodoroRunning && !isBreak) setPomodoroTime(val * 60)
-        }}
-        style={{
-          width: '60px',
-          padding: '4px 6px',
-          borderRadius: '6px',
-          border: '1px solid var(--border-subtle)',
-          background: 'var(--bg-input)',
-          color: 'var(--text-primary)',
-          fontSize: '14px',
-          textAlign: 'center'
-        }}
-      />
+  type="number"
+  min="10"
+  max="60"
+  value={focusDuration}
+  onChange={(e) => {
+    const val = e.target.value === '' ? '' : Number(e.target.value)
+    if (val !== '' && !isNaN(val)) {
+      setFocusDuration(val)
+      if (!pomodoroRunning && !isBreak) setPomodoroTime(val * 60)
+    }
+  }}
+  onBlur={(e) => {
+    let val = Number(e.target.value)
+    if (isNaN(val) || val < 10) val = 10
+    if (val > 60) val = 60
+    setFocusDuration(val)
+    if (!pomodoroRunning && !isBreak) setPomodoroTime(val * 60)
+  }}
+  style={{
+    width: '60px',
+    padding: '4px 6px',
+    borderRadius: '6px',
+    border: '1px solid var(--border-subtle)',
+    background: 'var(--bg-input)',
+    color: 'var(--text-primary)',
+    fontSize: '14px',
+    textAlign: 'center'
+  }}
+/>
       <span className="tiny-label">min</span>
     </div>
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
       <span className="tiny-label">Break</span>
       <input
-        type="number"
-        min="1"
-        max="15"
-        value={breakDuration}
-        onChange={(e) => {
-          const val = Math.min(15, Math.max(1, Number(e.target.value) || 1))
-          setBreakDuration(val)
-          if (!pomodoroRunning && isBreak) setPomodoroTime(val * 60)
-        }}
-        style={{
-          width: '60px',
-          padding: '4px 6px',
-          borderRadius: '6px',
-          border: '1px solid var(--border-subtle)',
-          background: 'var(--bg-input)',
-          color: 'var(--text-primary)',
-          fontSize: '14px',
-          textAlign: 'center'
-        }}
-      />
+  type="number"
+  min="1"
+  max="15"
+  value={breakDuration}
+  onChange={(e) => {
+    const val = e.target.value === '' ? '' : Number(e.target.value)
+    if (val !== '' && !isNaN(val)) {
+      setBreakDuration(val)
+      if (!pomodoroRunning && isBreak) setPomodoroTime(val * 60)
+    }
+  }}
+  onBlur={(e) => {
+    let val = Number(e.target.value)
+    if (isNaN(val) || val < 1) val = 1
+    if (val > 15) val = 15
+    setBreakDuration(val)
+    if (!pomodoroRunning && isBreak) setPomodoroTime(val * 60)
+  }}
+  style={{
+    width: '60px',
+    padding: '4px 6px',
+    borderRadius: '6px',
+    border: '1px solid var(--border-subtle)',
+    background: 'var(--bg-input)',
+    color: 'var(--text-primary)',
+    fontSize: '14px',
+    textAlign: 'center'
+  }}
+/>
       <span className="tiny-label">min</span>
     </div>
   </div>
