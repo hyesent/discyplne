@@ -1937,9 +1937,33 @@ useEffect(() => {
     }
   }}
   onBlur={(e) => {
-    let val = Number(e.target.value)
-    if (isNaN(val) || val < 10) val = 10
-    if (val > 60) val = 60
+    const raw = e.target.value
+    if (raw === '') {
+      setFocusDuration(25)
+      if (!pomodoroRunning && !isBreak) setPomodoroTime(25 * 60)
+      showToast('Focus duration cannot be empty. Reset to 25 min.', 'error')
+      return
+    }
+    let val = Number(raw)
+    if (isNaN(val)) {
+      setFocusDuration(25)
+      if (!pomodoroRunning && !isBreak) setPomodoroTime(25 * 60)
+      showToast('Invalid number. Reset to 25 min.', 'error')
+      return
+    }
+    if (val < 10) {
+      setFocusDuration(25)
+      if (!pomodoroRunning && !isBreak) setPomodoroTime(25 * 60)
+      showToast('Focus must be at least 10 minutes. Reset to 25 min.', 'error')
+      return
+    }
+    if (val > 60) {
+      setFocusDuration(25)
+      if (!pomodoroRunning && !isBreak) setPomodoroTime(25 * 60)
+      showToast('Focus cannot exceed 60 minutes. Reset to 25 min.', 'error')
+      return
+    }
+    // Valid
     setFocusDuration(val)
     if (!pomodoroRunning && !isBreak) setPomodoroTime(val * 60)
   }}
@@ -1971,9 +1995,33 @@ useEffect(() => {
     }
   }}
   onBlur={(e) => {
-    let val = Number(e.target.value)
-    if (isNaN(val) || val < 1) val = 1
-    if (val > 15) val = 15
+    const raw = e.target.value
+    if (raw === '') {
+      setBreakDuration(5)
+      if (!pomodoroRunning && isBreak) setPomodoroTime(5 * 60)
+      showToast('Break duration cannot be empty. Reset to 5 min.', 'error')
+      return
+    }
+    let val = Number(raw)
+    if (isNaN(val)) {
+      setBreakDuration(5)
+      if (!pomodoroRunning && isBreak) setPomodoroTime(5 * 60)
+      showToast('Invalid number. Reset to 5 min.', 'error')
+      return
+    }
+    if (val < 1) {
+      setBreakDuration(5)
+      if (!pomodoroRunning && isBreak) setPomodoroTime(5 * 60)
+      showToast('Break must be at least 1 minute. Reset to 5 min.', 'error')
+      return
+    }
+    if (val > 15) {
+      setBreakDuration(5)
+      if (!pomodoroRunning && isBreak) setPomodoroTime(5 * 60)
+      showToast('Break cannot exceed 15 minutes. Reset to 5 min.', 'error')
+      return
+    }
+    // Valid
     setBreakDuration(val)
     if (!pomodoroRunning && isBreak) setPomodoroTime(val * 60)
   }}
