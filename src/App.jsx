@@ -1664,7 +1664,6 @@ export default function App() {
       fontWeight: 900,
       letterSpacing: '-1.5px',
       lineHeight: 1,
-      color: 'var(--text-primary)'
     }}>
       Discypln
     </div>
@@ -1773,7 +1772,7 @@ export default function App() {
             onMouseEnter={(e) => e.currentTarget.style.background = 'var(--danger-light)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
           >
-            <span style={{ fontSize: '18px' }}>🚪</span>
+            <span style={{ fontSize: '18px' }}></span>
             Logout
           </button>
         </div>
@@ -2102,23 +2101,29 @@ export default function App() {
     
             <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', flexWrap: 'wrap' }}>
               {allCategories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveNoteCategory(cat)}
-                  className={`btn btn-sm ${activeNoteCategory === cat ? 'btn-primary' : 'btn-ghost'}`}
-                  style={{
-                    borderRadius: '999px',
-                    padding: '6px 16px',
-                    fontSize: '12px',
-                    height: '32px',
-                    background: activeNoteCategory === cat ? 'var(--accent)' : 'transparent',
-                    color: activeNoteCategory === cat ? 'var(--text-inverse)' : 'var(--text-secondary)',
-                    borderColor: activeNoteCategory === cat ? 'var(--accent)' : 'var(--border-subtle)'
-                  }}
-                >
-                  {cat} ({notes.filter((n) => (n.category || 'Uncategorized') === cat).length})
-                </button>
-              ))}
+              {allCategories.map((cat) => {
+  const count = cat === 'All' 
+    ? notes.length 
+    : notes.filter((n) => (n.category || 'Uncategorized') === cat).length;
+  return (
+    <button
+      key={cat}
+      onClick={() => setActiveNoteCategory(cat)}
+      className={`btn btn-sm ${activeNoteCategory === cat ? 'btn-primary' : 'btn-ghost'}`}
+      style={{
+        borderRadius: '999px',
+        padding: '6px 16px',
+        fontSize: '12px',
+        height: '32px',
+        background: activeNoteCategory === cat ? 'var(--accent)' : 'transparent',
+        color: activeNoteCategory === cat ? 'var(--text-inverse)' : 'var(--text-secondary)',
+        borderColor: activeNoteCategory === cat ? 'var(--accent)' : 'var(--border-subtle)'
+      }}
+    >
+      {cat} ({count})
+    </button>
+  );
+})}
             </div>
 
             {/* Notes Grid */}
