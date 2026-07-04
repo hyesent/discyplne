@@ -335,7 +335,7 @@ body {
 }
 
 .header-left .logo {
-  font-size: 36px;  /* Bigger logo */
+  font-size: 36px;
   font-weight: var(--font-black);
   letter-spacing: -1px;
   line-height: 1;
@@ -375,6 +375,7 @@ body {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .search-wrapper .search-icon {
@@ -387,7 +388,7 @@ body {
 }
 
 .search-wrapper input {
-  width: 140px;
+  width: 100%;
   height: var(--touch-min);
   padding: 0 var(--space-4) 0 var(--space-7);
   background: var(--bg-input);
@@ -401,7 +402,6 @@ body {
 }
 
 .search-wrapper input:focus {
-  width: 240px;
   border-color: var(--accent);
   box-shadow: 0 0 0 4px var(--accent-light);
 }
@@ -468,12 +468,12 @@ body {
   gap: 4px;
   height: 48px;
   width: 100%;
-  max-width: 420px;  /* Constrain width so it doesn't stretch too wide */
+  max-width: 420px;
   margin: 0 auto;
 }
 
 .capsule-nav-inner button {
-  flex: 1;  /* Distribute space evenly */
+  flex: 1;
   padding: 0 16px;
   border: none;
   border-radius: var(--radius-full);
@@ -1139,3 +1139,11 @@ body {
 
 .shadow-sm { box-shadow: var(--shadow-sm); }
 .shadow-md { box-shadow: var(--shadow-md); }
+
+/* ============================================================
+   26. DROPDOWN ANIMATION
+   ============================================================ */
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+   }
