@@ -334,7 +334,7 @@ body {
   gap: var(--space-2);
 }
 
-.header-left .logo {
+.logo {
   font-size: 36px;
   font-weight: var(--font-black);
   letter-spacing: -1px;
@@ -342,10 +342,9 @@ body {
   color: var(--text-primary);
 }
 
-/* Gradient only on the first letter "D" */
-.header-left .logo::first-letter {
+.logo::first-letter {
   color: transparent;
-  background: linear-gradient(135deg, #4F8CFF, #7C6AFF, #A855F7);
+  background: linear-gradient(135deg, #7C6AFF, #A855F7, #D946EF);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
