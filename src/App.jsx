@@ -328,9 +328,9 @@ export default function App() {
   }
 
   const formatTime = (sec) => {
-    const mins = Math.floor(sec / 60)
-    const secs = sec % 60
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  const mins = Math.floor(sec / 60)
+  const secs = Math.floor(sec % 60)
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
   const formatDate = (date) => {
@@ -556,7 +556,7 @@ useEffect(() => {
     setPomodoroState(pomodoroTime === 0 ? 'finished' : 'idle')
   }
   return () => clearInterval(interval)
-}, [pomodoroRunning, isBreak, focusDuration, breakDuration]) // add deps
+}, [pomodoroRunning, isBreak, focusDuration, breakDuration])
 
 const togglePomodoro = () => {
   if (!pomodoroRunning && pomodoroTime === 0) {
@@ -570,7 +570,7 @@ const togglePomodoro = () => {
 const resetPomodoro = () => {
   setPomodoroRunning(false)
   setIsBreak(false)
-  setPomodoroTime(focusDuration * 60)
+  setPomodoroTime(Math.round(focusDuration * 60))
   setPomodoroState('idle')
   setShowCelebration(false)
 }
@@ -578,7 +578,7 @@ const resetPomodoro = () => {
 const handlePomodoroComplete = async () => {
   if (!isBreak) {
     const newSessions = pomodoroSessions + 1
-    const newMinutes = totalMinutes + focusDuration   // use focusDuration
+    const newMinutes = totalMinutes + focusDuration
     setPomodoroSessions(newSessions)
     setTotalMinutes(newMinutes)
     setShowCelebration(true)
@@ -592,18 +592,18 @@ const handlePomodoroComplete = async () => {
       total_minutes: newMinutes
     })
     showToast('🎯 Focus Session Complete! Take a break.', 'success')
-    // Set next timer to break duration
-    setPomodoroTime(breakDuration * 60)
+    setPomodoroTime(Math.round(breakDuration * 60))
   } else {
     showToast('☕ Break over. Ready to focus?', 'success')
-    // Set next timer to focus duration
-    setPomodoroTime(focusDuration * 60)
+    setPomodoroTime(Math.round(focusDuration * 60))
   }
   setIsBreak(!isBreak)
   setPomodoroRunning(false)
   setPomodoroState('finished')
-    }
-  useEffect(() => {
+}
+
+// ===== LOAD SAVED STATE ON MOUNT =====
+useEffect(() => {
   const saved = localStorage.getItem('pomodoroState')
   if (saved) {
     try {
@@ -616,27 +616,27 @@ const handlePomodoroComplete = async () => {
       
       if (state.pomodoroRunning && state.timestamp) {
         const elapsed = (Date.now() - state.timestamp) / 1000
-        const remaining = Math.max(0, state.pomodoroTime - elapsed)
+        const remaining = Math.max(0, Math.round(state.pomodoroTime - elapsed))
         setPomodoroTime(remaining)
         if (remaining > 0) {
           setPomodoroRunning(true)
           setPomodoroState('running')
         } else {
-          // Timer expired while away – reset to idle with correct duration
           setPomodoroRunning(false)
           setPomodoroState('idle')
-          setPomodoroTime((state.isBreak ? state.breakDuration : state.focusDuration) * 60)
+          setPomodoroTime(Math.round((state.isBreak ? state.breakDuration : state.focusDuration) * 60))
         }
       } else {
-        // Not running – set initial time
-        setPomodoroTime((state.isBreak ? state.breakDuration : state.focusDuration) * 60)
+        setPomodoroTime(Math.round((state.isBreak ? state.breakDuration : state.focusDuration) * 60))
         setPomodoroRunning(false)
         setPomodoroState('idle')
       }
     } catch (e) {}
   }
 }, [])
-  useEffect(() => {
+
+// ===== SAVE STATE ON EVERY CHANGE =====
+useEffect(() => {
   const state = {
     pomodoroTime,
     pomodoroRunning,
@@ -649,7 +649,7 @@ const handlePomodoroComplete = async () => {
   }
   localStorage.setItem('pomodoroState', JSON.stringify(state))
 }, [pomodoroTime, pomodoroRunning, isBreak, pomodoroSessions, totalMinutes, focusDuration, breakDuration])
-  
+
   // ========== VOICE RECOGNITION ==========
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
