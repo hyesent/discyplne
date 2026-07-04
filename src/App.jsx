@@ -2071,11 +2071,35 @@ export default function App() {
       <div className="card" style={{ minHeight: '400px', padding: '24px' }}>
         {/* ===== NOTES TAB ===== */}
         {activeTab === 'notes' && (
-          <div>
-            <div className="section-title">Notes</div>
-            <div className="section-subtitle">Capture, organize and retrieve information quickly.</div>
+  <div>
+    {/* Heading row with "+" button */}
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '4px'
+    }}>
+      <div className="section-title" style={{ marginBottom: 0 }}>Notes</div>
+      <button
+        onClick={openAddNote}
+        className="btn btn-primary"
+        style={{
+          borderRadius: '999px',
+          padding: '8px 20px',
+          fontSize: '14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px'
+        }}
+      >
+        <span style={{ fontSize: '20px', lineHeight: 1 }}>+</span> New Note
+      </button>
+    </div>
 
-            {/* Category Tabs */}
+    <div className="section-subtitle">Capture, organize and retrieve information quickly.</div>
+
+    {/* Category Tabs  */}
+    
             <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', flexWrap: 'wrap' }}>
               {allCategories.map((cat) => (
                 <button
