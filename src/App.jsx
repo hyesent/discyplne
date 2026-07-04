@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import Tesseract from 'tesseract.js'
 import './index.css'
@@ -11,9 +11,9 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 const VOICE_COMMANDS = {
-  'comma': ',',
+  comma: ',',
   'full stop': '.',
-  'period': '.',
+  period: '.',
   'question mark': '?',
   'exclamation mark': '!',
   'new line': '\n',
@@ -21,34 +21,120 @@ const VOICE_COMMANDS = {
 }
 
 const ALL_LANGUAGES = [
-  {code:"af",name:"Afrikaans"},{code:"sq",name:"Albanian"},{code:"am",name:"Amharic"},{code:"ar",name:"Arabic"},
-  {code:"hy",name:"Armenian"},{code:"az",name:"Azerbaijani"},{code:"eu",name:"Basque"},{code:"be",name:"Belarusian"},
-  {code:"bn",name:"Bengali"},{code:"bs",name:"Bosnian"},{code:"bg",name:"Bulgarian"},{code:"ca",name:"Catalan"},
-  {code:"ceb",name:"Cebuano"},{code:"ny",name:"Chichewa"},{code:"zh-CN",name:"Chinese Simplified"},{code:"zh-TW",name:"Chinese Traditional"},
-  {code:"co",name:"Corsican"},{code:"hr",name:"Croatian"},{code:"cs",name:"Czech"},{code:"da",name:"Danish"},
-  {code:"nl",name:"Dutch"},{code:"en",name:"English"},{code:"eo",name:"Esperanto"},{code:"et",name:"Estonian"},
-  {code:"tl",name:"Filipino"},{code:"fi",name:"Finnish"},{code:"fr",name:"French"},{code:"fy",name:"Frisian"},
-  {code:"gl",name:"Galician"},{code:"ka",name:"Georgian"},{code:"de",name:"German"},{code:"el",name:"Greek"},
-  {code:"gu",name:"Gujarati"},{code:"ht",name:"Haitian Creole"},{code:"ha",name:"Hausa"},{code:"haw",name:"Hawaiian"},
-  {code:"he",name:"Hebrew"},{code:"hi",name:"Hindi"},{code:"hmn",name:"Hmong"},{code:"hu",name:"Hungarian"},
-  {code:"is",name:"Icelandic"},{code:"ig",name:"Igbo"},{code:"id",name:"Indonesian"},{code:"ga",name:"Irish"},
-  {code:"it",name:"Italian"},{code:"ja",name:"Japanese"},{code:"jw",name:"Javanese"},{code:"kn",name:"Kannada"},
-  {code:"kk",name:"Kazakh"},{code:"km",name:"Khmer"},{code:"rw",name:"Kinyarwanda"},{code:"ko",name:"Korean"},
-  {code:"ku",name:"Kurdish"},{code:"ky",name:"Kyrgyz"},{code:"lo",name:"Lao"},{code:"la",name:"Latin"},
-  {code:"lv",name:"Latvian"},{code:"lt",name:"Lithuanian"},{code:"lb",name:"Luxembourgish"},{code:"mk",name:"Macedonian"},
-  {code:"mg",name:"Malagasy"},{code:"ms",name:"Malay"},{code:"ml",name:"Malayalam"},{code:"mt",name:"Maltese"},
-  {code:"mi",name:"Maori"},{code:"mr",name:"Marathi"},{code:"mn",name:"Mongolian"},{code:"my",name:"Myanmar"},
-  {code:"ne",name:"Nepali"},{code:"no",name:"Norwegian"},{code:"or",name:"Odia"},{code:"ps",name:"Pashto"},
-  {code:"fa",name:"Persian"},{code:"pl",name:"Polish"},{code:"pt",name:"Portuguese"},{code:"pa",name:"Punjabi"},
-  {code:"ro",name:"Romanian"},{code:"ru",name:"Russian"},{code:"sm",name:"Samoan"},{code:"gd",name:"Scots Gaelic"},
-  {code:"sr",name:"Serbian"},{code:"st",name:"Sesotho"},{code:"sn",name:"Shona"},{code:"sd",name:"Sindhi"},
-  {code:"si",name:"Sinhala"},{code:"sk",name:"Slovak"},{code:"sl",name:"Slovenian"},{code:"so",name:"Somali"},
-  {code:"es",name:"Spanish"},{code:"su",name:"Sundanese"},{code:"sw",name:"Swahili"},{code:"sv",name:"Swedish"},
-  {code:"tg",name:"Tajik"},{code:"ta",name:"Tamil"},{code:"tt",name:"Tatar"},{code:"te",name:"Telugu"},
-  {code:"th",name:"Thai"},{code:"tr",name:"Turkish"},{code:"tk",name:"Turkmen"},{code:"uk",name:"Ukrainian"},
-  {code:"ur",name:"Urdu"},{code:"ug",name:"Uyghur"},{code:"uz",name:"Uzbek"},{code:"vi",name:"Vietnamese"},
-  {code:"cy",name:"Welsh"},{code:"xh",name:"Xhosa"},{code:"yi",name:"Yiddish"},{code:"yo",name:"Yoruba"},{code:"zu",name:"Zulu"}
+  { code: 'af', name: 'Afrikaans' },
+  { code: 'sq', name: 'Albanian' },
+  { code: 'am', name: 'Amharic' },
+  { code: 'ar', name: 'Arabic' },
+  { code: 'hy', name: 'Armenian' },
+  { code: 'az', name: 'Azerbaijani' },
+  { code: 'eu', name: 'Basque' },
+  { code: 'be', name: 'Belarusian' },
+  { code: 'bn', name: 'Bengali' },
+  { code: 'bs', name: 'Bosnian' },
+  { code: 'bg', name: 'Bulgarian' },
+  { code: 'ca', name: 'Catalan' },
+  { code: 'ceb', name: 'Cebuano' },
+  { code: 'ny', name: 'Chichewa' },
+  { code: 'zh-CN', name: 'Chinese Simplified' },
+  { code: 'zh-TW', name: 'Chinese Traditional' },
+  { code: 'co', name: 'Corsican' },
+  { code: 'hr', name: 'Croatian' },
+  { code: 'cs', name: 'Czech' },
+  { code: 'da', name: 'Danish' },
+  { code: 'nl', name: 'Dutch' },
+  { code: 'en', name: 'English' },
+  { code: 'eo', name: 'Esperanto' },
+  { code: 'et', name: 'Estonian' },
+  { code: 'tl', name: 'Filipino' },
+  { code: 'fi', name: 'Finnish' },
+  { code: 'fr', name: 'French' },
+  { code: 'fy', name: 'Frisian' },
+  { code: 'gl', name: 'Galician' },
+  { code: 'ka', name: 'Georgian' },
+  { code: 'de', name: 'German' },
+  { code: 'el', name: 'Greek' },
+  { code: 'gu', name: 'Gujarati' },
+  { code: 'ht', name: 'Haitian Creole' },
+  { code: 'ha', name: 'Hausa' },
+  { code: 'haw', name: 'Hawaiian' },
+  { code: 'he', name: 'Hebrew' },
+  { code: 'hi', name: 'Hindi' },
+  { code: 'hmn', name: 'Hmong' },
+  { code: 'hu', name: 'Hungarian' },
+  { code: 'is', name: 'Icelandic' },
+  { code: 'ig', name: 'Igbo' },
+  { code: 'id', name: 'Indonesian' },
+  { code: 'ga', name: 'Irish' },
+  { code: 'it', name: 'Italian' },
+  { code: 'ja', name: 'Japanese' },
+  { code: 'jw', name: 'Javanese' },
+  { code: 'kn', name: 'Kannada' },
+  { code: 'kk', name: 'Kazakh' },
+  { code: 'km', name: 'Khmer' },
+  { code: 'rw', name: 'Kinyarwanda' },
+  { code: 'ko', name: 'Korean' },
+  { code: 'ku', name: 'Kurdish' },
+  { code: 'ky', name: 'Kyrgyz' },
+  { code: 'lo', name: 'Lao' },
+  { code: 'la', name: 'Latin' },
+  { code: 'lv', name: 'Latvian' },
+  { code: 'lt', name: 'Lithuanian' },
+  { code: 'lb', name: 'Luxembourgish' },
+  { code: 'mk', name: 'Macedonian' },
+  { code: 'mg', name: 'Malagasy' },
+  { code: 'ms', name: 'Malay' },
+  { code: 'ml', name: 'Malayalam' },
+  { code: 'mt', name: 'Maltese' },
+  { code: 'mi', name: 'Maori' },
+  { code: 'mr', name: 'Marathi' },
+  { code: 'mn', name: 'Mongolian' },
+  { code: 'my', name: 'Myanmar' },
+  { code: 'ne', name: 'Nepali' },
+  { code: 'no', name: 'Norwegian' },
+  { code: 'or', name: 'Odia' },
+  { code: 'ps', name: 'Pashto' },
+  { code: 'fa', name: 'Persian' },
+  { code: 'pl', name: 'Polish' },
+  { code: 'pt', name: 'Portuguese' },
+  { code: 'pa', name: 'Punjabi' },
+  { code: 'ro', name: 'Romanian' },
+  { code: 'ru', name: 'Russian' },
+  { code: 'sm', name: 'Samoan' },
+  { code: 'gd', name: 'Scots Gaelic' },
+  { code: 'sr', name: 'Serbian' },
+  { code: 'st', name: 'Sesotho' },
+  { code: 'sn', name: 'Shona' },
+  { code: 'sd', name: 'Sindhi' },
+  { code: 'si', name: 'Sinhala' },
+  { code: 'sk', name: 'Slovak' },
+  { code: 'sl', name: 'Slovenian' },
+  { code: 'so', name: 'Somali' },
+  { code: 'es', name: 'Spanish' },
+  { code: 'su', name: 'Sundanese' },
+  { code: 'sw', name: 'Swahili' },
+  { code: 'sv', name: 'Swedish' },
+  { code: 'tg', name: 'Tajik' },
+  { code: 'ta', name: 'Tamil' },
+  { code: 'tt', name: 'Tatar' },
+  { code: 'te', name: 'Telugu' },
+  { code: 'th', name: 'Thai' },
+  { code: 'tr', name: 'Turkish' },
+  { code: 'tk', name: 'Turkmen' },
+  { code: 'uk', name: 'Ukrainian' },
+  { code: 'ur', name: 'Urdu' },
+  { code: 'ug', name: 'Uyghur' },
+  { code: 'uz', name: 'Uzbek' },
+  { code: 'vi', name: 'Vietnamese' },
+  { code: 'cy', name: 'Welsh' },
+  { code: 'xh', name: 'Xhosa' },
+  { code: 'yi', name: 'Yiddish' },
+  { code: 'yo', name: 'Yoruba' },
+  { code: 'zu', name: 'Zulu' }
 ]
+
+// ============================================================
+// HELPERS
+// ============================================================
 
 const detectCodeLanguage = (text) => {
   const patterns = [
@@ -70,36 +156,79 @@ const detectCodeLanguage = (text) => {
 
 const getNLLBLangCode = (code) => {
   const map = {
-    'en': 'eng_Latn', 'es': 'spa_Latn', 'fr': 'fra_Latn', 'de': 'deu_Latn',
-    'it': 'ita_Latn', 'pt': 'por_Latn', 'ru': 'rus_Cyrl', 'zh-CN': 'zho_Hans',
-    'zh-TW': 'zho_Hant', 'ja': 'jpn_Jpan', 'ko': 'kor_Hang', 'ar': 'arb_Arab',
-    'hi': 'hin_Deva', 'nl': 'nld_Latn', 'pl': 'pol_Latn', 'tr': 'tur_Latn',
-    'vi': 'vie_Latn', 'th': 'tha_Thai', 'he': 'heb_Hebr', 'sv': 'swe_Latn',
-    'da': 'dan_Latn', 'fi': 'fin_Latn', 'no': 'nob_Latn', 'cs': 'ces_Latn',
-    'el': 'ell_Grek', 'hu': 'hun_Latn', 'ro': 'ron_Latn', 'uk': 'ukr_Cyrl',
-    'id': 'ind_Latn', 'ms': 'zsm_Latn', 'fa': 'pes_Arab', 'bn': 'ben_Beng',
-    'ta': 'tam_Taml', 'te': 'tel_Telu', 'mr': 'mar_Deva', 'ur': 'urd_Arab',
-    'sw': 'swh_Latn', 'fil': 'tgl_Latn', 'tl': 'tgl_Latn'
+    en: 'eng_Latn',
+    es: 'spa_Latn',
+    fr: 'fra_Latn',
+    de: 'deu_Latn',
+    it: 'ita_Latn',
+    pt: 'por_Latn',
+    ru: 'rus_Cyrl',
+    'zh-CN': 'zho_Hans',
+    'zh-TW': 'zho_Hant',
+    ja: 'jpn_Jpan',
+    ko: 'kor_Hang',
+    ar: 'arb_Arab',
+    hi: 'hin_Deva',
+    nl: 'nld_Latn',
+    pl: 'pol_Latn',
+    tr: 'tur_Latn',
+    vi: 'vie_Latn',
+    th: 'tha_Thai',
+    he: 'heb_Hebr',
+    sv: 'swe_Latn',
+    da: 'dan_Latn',
+    fi: 'fin_Latn',
+    no: 'nob_Latn',
+    cs: 'ces_Latn',
+    el: 'ell_Grek',
+    hu: 'hun_Latn',
+    ro: 'ron_Latn',
+    uk: 'ukr_Cyrl',
+    id: 'ind_Latn',
+    ms: 'zsm_Latn',
+    fa: 'pes_Arab',
+    bn: 'ben_Beng',
+    ta: 'tam_Taml',
+    te: 'tel_Telu',
+    mr: 'mar_Deva',
+    ur: 'urd_Arab',
+    sw: 'swh_Latn',
+    fil: 'tgl_Latn',
+    tl: 'tgl_Latn'
   }
   return map[code] || 'eng_Latn'
 }
 
+const getGreeting = () => {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good Morning'
+  if (hour < 17) return 'Good Afternoon'
+  return 'Good Evening'
+}
+
+// ============================================================
+// APP COMPONENT
+// ============================================================
+
 export default function App() {
-  // ========== AUTH STATE ==========
+  // ===== AUTH =====
   const [user, setUser] = useState(null)
   const [session, setSession] = useState(null)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // ========== UI STATE ==========
+  // ===== UI =====
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [activeTab, setActiveTab] = useState('notes')
   const [currentTime, setCurrentTime] = useState(new Date())
   const [message, setMessage] = useState('')
+  const [messageType, setMessageType] = useState('success')
   const [searchQuery, setSearchQuery] = useState('')
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
+  const [expandedEntries, setExpandedEntries] = useState({})
 
-  // ========== NOTES STATE ==========
+  // ===== NOTES =====
   const [notes, setNotes] = useState([])
   const [title, setTitle] = useState('')
   const [noteText, setNoteText] = useState('')
@@ -112,8 +241,11 @@ export default function App() {
   const [fontSize, setFontSize] = useState('16')
   const [titleFont, setTitleFont] = useState('Inter')
   const [showNotesDropdown, setShowNotesDropdown] = useState(false)
+  const [activeNoteCategory, setActiveNoteCategory] = useState('All')
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState('')
 
-  // ========== TASKS STATE ==========
+  // ===== TASKS =====
   const [tasks, setTasks] = useState([])
   const [task, setTask] = useState('')
   const [taskCategory, setTaskCategory] = useState('daily')
@@ -125,41 +257,61 @@ export default function App() {
   const [taskTag, setTaskTag] = useState('general')
   const [editingTask, setEditingTask] = useState(null)
   const [activeCategory, setActiveCategory] = useState('all')
-  
-  // ========== TODO SUBTASKS STATE ==========
   const [subTasks, setSubTasks] = useState({})
   const [newSubTask, setNewSubTask] = useState('')
   const [activeTaskId, setActiveTaskId] = useState(null)
   const [subTasksToAdd, setSubTasksToAdd] = useState([])
+  const [taskSaving, setTaskSaving] = useState(false)
 
- // ========== JOURNAL STATE ==========
-const [journalEntries, setJournalEntries] = useState([])
-const [journalEntry, setJournalEntry] = useState('')
-const [journalMood, setJournalMood] = useState('')          
-const [journalTags, setJournalTags] = useState('')          
-const [journalDateFilter, setJournalDateFilter] = useState('') 
-const [journalTagFilter, setJournalTagFilter] = useState('')
-const [expandedEntries, setExpandedEntries] = useState({}) 
-  
-  // ========== POMODORO STATE ==========
+  // ===== JOURNAL =====
+  const [journalEntries, setJournalEntries] = useState([])
+  const [journalEntry, setJournalEntry] = useState('')
+  const [journalMood, setJournalMood] = useState('')
+  const [journalTags, setJournalTags] = useState('')
+  const [journalDateFilter, setJournalDateFilter] = useState('')
+  const [journalTagFilter, setJournalTagFilter] = useState('')
+  const [journalSaving, setJournalSaving] = useState(false)
+
+  // ===== POMODORO =====
   const [pomodoroTime, setPomodoroTime] = useState(25 * 60)
   const [pomodoroRunning, setPomodoroRunning] = useState(false)
   const [isBreak, setIsBreak] = useState(false)
   const [pomodoroSessions, setPomodoroSessions] = useState(0)
   const [totalMinutes, setTotalMinutes] = useState(0)
+  const [pomodoroState, setPomodoroState] = useState('idle') // idle | running | paused | finished
+  const [showCelebration, setShowCelebration] = useState(false)
 
-  // ========== VOICE RECOGNITION ==========
+  // ===== VOICE =====
   const recognitionRef = useRef(null)
   const [isListening, setIsListening] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const fileInputRef = useRef(null)
 
-  // ========== EXPORT STATE ==========
+  // ===== EXPORT =====
   const [showExport, setShowExport] = useState(false)
   const [selectedNotes, setSelectedNotes] = useState([])
-  const [targetLang, setTargetLang] = useState("fr")
+  const [targetLang, setTargetLang] = useState('fr')
 
-  // ========== FORMAT HELPERS ==========
+  // ===== TOAST =====
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success', undo: null })
+  const toastTimeout = useRef(null)
+
+  // ===== THEME =====
+  const theme = {
+    bg: isDarkMode ? '#0F1115' : '#F8F9FA',
+    bgCard: isDarkMode ? '#181C23' : '#FFFFFF',
+    bgInput: isDarkMode ? '#14181F' : '#FFFFFF',
+    text: isDarkMode ? '#FFFFFF' : '#1A1D23',
+    textSecondary: isDarkMode ? '#B9C0CC' : '#5A6373',
+    textMuted: isDarkMode ? '#7C8592' : '#8E96A3',
+    border: isDarkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+    borderHover: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+    accent: '#4F8CFF',
+    accentLight: isDarkMode ? 'rgba(79,140,255,0.12)' : 'rgba(79,140,255,0.10)',
+    shadow: isDarkMode ? '0 8px 24px rgba(0,0,0,0.22)' : '0 8px 24px rgba(0,0,0,0.06)'
+  }
+
+  // ===== FORMAT HELPERS =====
   const formatMinutes = (mins) => {
     if (!mins || mins === 0) return '0m'
     const hours = Math.floor(mins / 60)
@@ -181,13 +333,37 @@ const [expandedEntries, setExpandedEntries] = useState({})
   }
 
   const formatNoteTime = (date) => {
-    return new Date(date).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
+    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
 
-  // ========== STREAK CALCULATION ==========
+  const formatEntryDate = (date) => {
+    const now = new Date()
+    const entry = new Date(date)
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+    const entryDay = new Date(entry.getFullYear(), entry.getMonth(), entry.getDate())
+
+    if (entryDay.getTime() === today.getTime()) return 'Today'
+    if (entryDay.getTime() === yesterday.getTime()) return 'Yesterday'
+
+    const diffDays = Math.floor((today - entryDay) / (1000 * 60 * 60 * 24))
+    if (diffDays <= 7) return 'This Week'
+    return 'Earlier'
+  }
+
+  const getWordCount = (text) => {
+    if (!text) return 0
+    return text.trim().split(/\s+/).length
+  }
+
+  const getReadingTime = (text) => {
+    const words = getWordCount(text)
+    if (words < 1) return 0
+    return Math.max(1, Math.round(words / 200))
+  }
+
+  // ===== STREAK =====
   const getStreak = () => {
     let streak = 0
     const today = new Date()
@@ -220,11 +396,7 @@ const [expandedEntries, setExpandedEntries] = useState({})
       if (dayHabits.length > 0) {
         const completed = dayHabits.filter(t => t.done).length
         if (completed < dayHabits.length) {
-          failed.push({
-            date: dateStr,
-            completed,
-            total: dayHabits.length
-          })
+          failed.push({ date: dateStr, completed, total: dayHabits.length })
         }
       }
     }
@@ -232,26 +404,31 @@ const [expandedEntries, setExpandedEntries] = useState({})
   }
   const failedDays = getFailedDays()
 
-  // ========== TASK RESET FUNCTION ==========
+  // ===== TASK RESET =====
   const shouldResetTask = (task) => {
     if (!task.done) return false
-    
     const now = new Date()
     const taskDate = new Date(task.updated_at || task.created_at)
-    
     if (task.type === 'habit') {
       if (task.category === 'daily') {
-        const hoursDiff = (now - taskDate) / (1000 * 60 * 60)
-        return hoursDiff >= 24
+        return (now - taskDate) / (1000 * 60 * 60) >= 24
       } else if (task.category === 'weekly') {
-        const daysDiff = (now - taskDate) / (1000 * 60 * 60 * 24)
-        return daysDiff >= 7
+        return (now - taskDate) / (1000 * 60 * 60 * 24) >= 7
       }
     }
     return false
   }
 
-  // ========== EFFECTS ==========
+  // ===== TOAST SYSTEM =====
+  const showToast = (message, type = 'success', undo = null) => {
+    if (toastTimeout.current) clearTimeout(toastTimeout.current)
+    setToast({ show: true, message, type, undo })
+    toastTimeout.current = setTimeout(() => {
+      setToast({ show: false, message: '', type: 'success', undo: null })
+    }, 2500)
+  }
+
+  // ===== EFFECTS =====
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     return () => clearInterval(timer)
@@ -275,7 +452,9 @@ const [expandedEntries, setExpandedEntries] = useState({})
         fetchPomodoroStats()
       }
     })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
       if (session?.user) {
@@ -301,7 +480,7 @@ const [expandedEntries, setExpandedEntries] = useState({})
       const codeLang = detectCodeLanguage(noteText)
       if (codeLang) {
         setDetectedCode(codeLang)
-        setMessage(` Code detected: ${codeLang}`)
+        setMessage(`Code detected: ${codeLang}`)
         setTimeout(() => setMessage(''), 2000)
       } else {
         setDetectedCode(null)
@@ -309,7 +488,7 @@ const [expandedEntries, setExpandedEntries] = useState({})
     }
   }, [noteText])
 
-  // ========== TASK RESET CHECK ==========
+  // ===== TASK RESET CHECK =====
   useEffect(() => {
     if (!user || tasks.length === 0) return
 
@@ -322,27 +501,25 @@ const [expandedEntries, setExpandedEntries] = useState({})
             .update({ done: false, updated_at: new Date().toISOString() })
             .eq('id', task.id)
             .eq('user_id', user.id)
-          
           if (!error) resetCount++
         }
       }
-      
       if (resetCount > 0) {
-        setMessage(`🔄 ${resetCount} task${resetCount > 1 ? 's' : ''} reset!`)
+        showToast(`🔄 ${resetCount} task${resetCount > 1 ? 's' : ''} reset!`, 'success')
         fetchTasks()
       }
     }
 
     const interval = setInterval(resetTasks, 30000)
     resetTasks()
-
     return () => clearInterval(interval)
   }, [user, tasks])
 
-  // ========== POMODORO ==========
+  // ===== POMODORO =====
   useEffect(() => {
     let interval
     if (pomodoroRunning) {
+      setPomodoroState('running')
       interval = setInterval(() => {
         setPomodoroTime(prev => {
           if (prev <= 1) {
@@ -352,18 +529,27 @@ const [expandedEntries, setExpandedEntries] = useState({})
           return prev - 1
         })
       }, 1000)
+    } else {
+      setPomodoroState(pomodoroTime === 0 ? 'finished' : 'idle')
     }
     return () => clearInterval(interval)
   }, [pomodoroRunning, isBreak])
 
   const togglePomodoro = () => {
+    if (!pomodoroRunning && pomodoroTime === 0) {
+      setPomodoroTime(25 * 60)
+      setIsBreak(false)
+    }
     setPomodoroRunning(!pomodoroRunning)
+    setPomodoroState(!pomodoroRunning ? 'running' : 'paused')
   }
 
   const resetPomodoro = () => {
     setPomodoroRunning(false)
     setIsBreak(false)
     setPomodoroTime(25 * 60)
+    setPomodoroState('idle')
+    setShowCelebration(false)
   }
 
   const handlePomodoroComplete = async () => {
@@ -372,6 +558,9 @@ const [expandedEntries, setExpandedEntries] = useState({})
       const newMinutes = totalMinutes + 25
       setPomodoroSessions(newSessions)
       setTotalMinutes(newMinutes)
+      setShowCelebration(true)
+      setTimeout(() => setShowCelebration(false), 3000)
+
       const today = new Date().toISOString().split('T')[0]
       await supabase.from('pomodoro_sessions').upsert({
         user_id: user.id,
@@ -379,10 +568,14 @@ const [expandedEntries, setExpandedEntries] = useState({})
         sessions_completed: newSessions,
         total_minutes: newMinutes
       })
+      showToast('🎯 Focus Session Complete! Take a break.', 'success')
+    } else {
+      showToast('☕ Break over. Ready to focus?', 'success')
     }
     setIsBreak(!isBreak)
+    setPomodoroRunning(false)
+    setPomodoroState('finished')
   }
-
   // ========== VOICE RECOGNITION ==========
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -401,7 +594,7 @@ const [expandedEntries, setExpandedEntries] = useState({})
 
     recognition.onstart = () => {
       setIsListening(true)
-      setMessage(' Listening... Say: comma, full stop, new line')
+      setMessage('Listening... Say: comma, full stop, new line')
     }
 
     recognition.onresult = (event) => {
@@ -447,13 +640,14 @@ const [expandedEntries, setExpandedEntries] = useState({})
       setIsListening(false)
       if (!userStopped) {
         setTimeout(() => {
-          try { recognition.start() } catch {}
+          try {
+            recognition.start()
+          } catch {}
         }, 200)
       }
     }
 
     recognitionRef.current = recognition
-
     return () => {
       userStopped = true
       recognition.stop()
@@ -466,11 +660,12 @@ const [expandedEntries, setExpandedEntries] = useState({})
       recognitionRef.current.stop()
       setIsListening(false)
     } else {
-      navigator.mediaDevices.getUserMedia({ audio: true })
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
         .then(() => {
           recognitionRef.current.start()
           setIsListening(true)
-          setMessage(' Say comma, full stop, new line for punctuation')
+          setMessage('Say comma, full stop, new line for punctuation')
         })
         .catch(() => {
           setMessage('Microphone permission denied')
@@ -485,16 +680,18 @@ const [expandedEntries, setExpandedEntries] = useState({})
     setIsProcessing(true)
     setMessage('Reading image...')
     Tesseract.recognize(file, 'eng', {
-      logger: m => console.log(m.status, m.progress)
-    }).then(({ data: { text } }) => {
-      setNoteText(prev => prev + (prev ? '\n\n' : '') + text)
-      setMessage(' Text extracted!')
-      setIsProcessing(false)
-      e.target.value = ''
-    }).catch(() => {
-      setMessage('Failed to read image')
-      setIsProcessing(false)
+      logger: (m) => console.log(m.status, m.progress)
     })
+      .then(({ data: { text } }) => {
+        setNoteText((prev) => prev + (prev ? '\n\n' : '') + text)
+        setMessage('Text extracted!')
+        setIsProcessing(false)
+        e.target.value = ''
+      })
+      .catch(() => {
+        setMessage('Failed to read image')
+        setIsProcessing(false)
+      })
   }
 
   // ========== AUTH FUNCTIONS ==========
@@ -547,81 +744,93 @@ const [expandedEntries, setExpandedEntries] = useState({})
       setMessage('Title and note required')
       return
     }
-    setLoading(true)
-    setMessage('')
+    setIsSaving(true)
+    setSaveStatus('Saving...')
 
-      const noteData = {
-    title: title.trim(),
-    content: noteText.trim(),
-    font_family: fontFamily,
-    title_font: titleFont,
-    font_size: parseInt(fontSize),
-    category: category.trim() || 'Uncategorized',
-    user_id: user.id,
-    date: selectedDate
+    const noteData = {
+      title: title.trim(),
+      content: noteText.trim(),
+      font_family: fontFamily,
+      title_font: titleFont,
+      font_size: parseInt(fontSize),
+      category: category.trim() || 'Uncategorized',
+      user_id: user.id,
+      date: selectedDate
+    }
+
+    if (editingNote) {
+      const { error } = await supabase
+        .from('notes')
+        .update(noteData)
+        .eq('id', editingNote.id)
+        .eq('user_id', user.id)
+
+      if (error) {
+        setMessage('Error: ' + error.message)
+        setIsSaving(false)
+        setSaveStatus('')
+      } else {
+        setSaveStatus('Saved')
+        setTimeout(() => setSaveStatus(''), 1500)
+        showToast('Note updated!', 'success')
+        setEditingNote(null)
+        setTitle('')
+        setNoteText('')
+        setCategory('')
+        await fetchNotes()
+        setViewMode('home')
+        setIsSaving(false)
+      }
+    } else {
+      const { error } = await supabase.from('notes').insert([noteData])
+
+      if (error) {
+        setMessage('Error: ' + error.message)
+        setIsSaving(false)
+        setSaveStatus('')
+      } else {
+        setSaveStatus('Saved')
+        setTimeout(() => setSaveStatus(''), 1500)
+        showToast('Note saved!', 'success')
+        setTitle('')
+        setNoteText('')
+        setCategory('')
+        await fetchNotes()
+        setViewMode('home')
+        setIsSaving(false)
+      }
+    }
   }
 
-  if (editingNote) {
-    const { error } = await supabase
-      .from('notes')
-      .update(noteData)
-      .eq('id', editingNote.id)
-      .eq('user_id', user.id)
-
-    if (error) setMessage('Error: ' + error.message)
-    else {
-      setMessage(' Note updated!')
-      setEditingNote(null)
-      setTitle('')
-      setNoteText('')
-      setCategory('')
-      await fetchNotes()
-      setViewMode('home')
-    }
-  } else {
-    const { error } = await supabase
-      .from('notes')
-      .insert([noteData])
-
-    if (error) setMessage('Error: ' + error.message)
-    else {
-      setMessage(' Note saved!')
-      setTitle('')
-      setNoteText('')
-      setCategory('')
-      await fetchNotes()
-      setViewMode('home')
-    }
+  function openAddNote() {
+    setEditingNote(null)
+    setTitle('')
+    setNoteText('')
+    setCategory('')
+    setViewMode('add')
+    setSaveStatus('')
   }
-  setLoading(false)
-}
 
-function openAddNote() {
-  setEditingNote(null)
-  setTitle('')
-  setNoteText('')
-  setCategory('')  
-  setViewMode('add')
-}
+  function openEditNote(note) {
+    setEditingNote(note)
+    setTitle(note.title)
+    setNoteText(note.content)
+    setFontFamily(note.font_family || 'Inter')
+    setTitleFont(note.title_font || 'Inter')
+    setFontSize(note.font_size?.toString() || '16')
+    setCategory(note.category || '')
+    setViewMode('edit')
+    setSaveStatus('')
+  }
 
-function openEditNote(note) {
-  setEditingNote(note)
-  setTitle(note.title)
-  setNoteText(note.content)
-  setFontFamily(note.font_family || 'Inter')
-  setTitleFont(note.title_font || 'Inter')
-  setFontSize(note.font_size?.toString() || '16')
-  setCategory(note.category || '')
-  setViewMode('edit')
-}
-
-function goBack() {
-  setViewMode('home')
-  setEditingNote(null)
-  setTitle('')
-  setNoteText('')
-  setCategory('')
-}
+  function goBack() {
+    setViewMode('home')
+    setEditingNote(null)
+    setTitle('')
+    setNoteText('')
+    setCategory('')
+    setSaveStatus('')
+  }
 
   async function deleteNote(id) {
     const { error } = await supabase
@@ -632,7 +841,7 @@ function goBack() {
     if (error) {
       setMessage('Delete failed: ' + error.message)
     } else {
-      setMessage(' Note deleted')
+      showToast('Note deleted', 'success', () => {})
       await fetchNotes()
       setViewMode('home')
     }
@@ -647,7 +856,7 @@ function goBack() {
           title: editingNote.title,
           text: shareText
         })
-        setMessage(' Note shared!')
+        showToast('Note shared!', 'success')
       } catch (err) {
         if (err.name !== 'AbortError') {
           setMessage('Sharing failed')
@@ -655,34 +864,34 @@ function goBack() {
       }
     } else {
       navigator.clipboard.writeText(shareText)
-      setMessage(' Copied instead')
+      showToast('Copied to clipboard', 'success')
     }
   }
 
   // ========== TRANSLATION ==========
   async function translateNote() {
     if (!noteText.trim()) {
-      setMessage("Note empty. Type something first.")
+      setMessage('Note empty. Type something first.')
       return
     }
 
     setLoading(true)
-    setMessage(" Translating ...")
+    setMessage('Translating...')
 
     const textToTranslate = noteText.trim()
-    const langName = ALL_LANGUAGES.find(l => l.code === targetLang)?.name || targetLang
+    const langName = ALL_LANGUAGES.find((l) => l.code === targetLang)?.name || targetLang
 
     // 1. Hugging Face NLLB-200
     try {
       const res = await fetch(
-        "https://api-inference.huggingface.co/models/facebook/nllb-200-distilled-600M",
+        'https://api-inference.huggingface.co/models/facebook/nllb-200-distilled-600M',
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             inputs: textToTranslate,
             parameters: {
-              src_lang: "eng_Latn",
+              src_lang: 'eng_Latn',
               tgt_lang: getNLLBLangCode(targetLang)
             }
           })
@@ -692,7 +901,7 @@ function goBack() {
         const data = await res.json()
         if (data[0]?.translation_text) {
           setNoteText(data[0].translation_text)
-          setMessage(` Translated to ${langName}!`)
+          showToast(`Translated to ${langName}!`, 'success')
           setLoading(false)
           return
         }
@@ -703,21 +912,21 @@ function goBack() {
 
     // 2. LibreTranslate
     try {
-      const response = await fetch("https://libretranslate.com/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('https://libretranslate.com/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           q: textToTranslate,
-          source: "auto",
+          source: 'auto',
           target: targetLang,
-          format: "text"
+          format: 'text'
         })
       })
       if (response.ok) {
         const data = await response.json()
         if (data.translatedText) {
           setNoteText(data.translatedText)
-          setMessage(` Translated to ${langName}!`)
+          showToast(`Translated to ${langName}!`, 'success')
           setLoading(false)
           return
         }
@@ -729,10 +938,10 @@ function goBack() {
       const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(textToTranslate)}`
       const res = await fetch(url)
       const parsed = await res.json()
-      const translated = parsed[0].map(item => item[0]).join('')
+      const translated = parsed[0].map((item) => item[0]).join('')
       if (translated) {
         setNoteText(translated)
-        setMessage(` Translated to ${langName}!`)
+        showToast(`Translated to ${langName}!`, 'success')
         setLoading(false)
         return
       }
@@ -745,12 +954,12 @@ function goBack() {
       const data = await res.json()
       if (data.responseStatus === 200 && data.responseData?.translatedText) {
         setNoteText(data.responseData.translatedText)
-        setMessage(` Translated to ${langName}!`)
+        showToast(`Translated to ${langName}!`, 'success')
       } else {
-        setMessage(" Translation failed. Try shorter text.")
+        setMessage('Translation failed. Try shorter text.')
       }
     } catch (e) {
-      setMessage(" No internet: " + e.message)
+      setMessage('No internet: ' + e.message)
     }
     setLoading(false)
   }
@@ -767,9 +976,8 @@ function goBack() {
       console.error('Fetch tasks error:', error)
     } else {
       setTasks(data || [])
-      // Initialize subtasks for each task
       const subtaskMap = {}
-      data?.forEach(t => {
+      data?.forEach((t) => {
         subtaskMap[t.id] = t.subtasks || []
       })
       setSubTasks(subtaskMap)
@@ -778,6 +986,8 @@ function goBack() {
 
   async function addTask() {
     if (!task.trim() || !user) return
+    setTaskSaving(true)
+
     let dueDate = selectedDate
     let taskType = 'task'
 
@@ -797,8 +1007,7 @@ function goBack() {
       dueDate = taskDueDate || selectedDate
     }
 
-    // Build subtasks array from multiple subtasks
-    const subtasksArray = subTasksToAdd.map(st => ({
+    const subtasksArray = subTasksToAdd.map((st) => ({
       id: st.id,
       text: st.text,
       done: false
@@ -829,19 +1038,25 @@ function goBack() {
       setTaskTag('general')
       setSubTasksToAdd([])
       setNewSubTask('')
-      setMessage(' Task added!')
+      showToast('Task added!', 'success')
       fetchTasks()
     }
+    setTaskSaving(false)
   }
 
   async function toggleTask(id) {
-    const task = tasks.find(t => t.id === id)
+    const task = tasks.find((t) => t.id === id)
     const { error } = await supabase
       .from('tasks')
       .update({ done: !task.done, updated_at: new Date().toISOString() })
       .eq('id', id)
       .eq('user_id', user.id)
-    if (!error) fetchTasks()
+    if (!error) {
+      if (!task.done) {
+        showToast('✅ Task completed!', 'success')
+      }
+      fetchTasks()
+    }
   }
 
   async function deleteTask(id) {
@@ -851,7 +1066,7 @@ function goBack() {
       .eq('id', id)
       .eq('user_id', user.id)
     if (!error) {
-      setMessage(' Task deleted')
+      showToast('Task deleted', 'success', () => {})
       fetchTasks()
     }
   }
@@ -860,97 +1075,101 @@ function goBack() {
   const addSubTask = async (taskId) => {
     if (!newSubTask.trim()) return
     const currentSubtasks = subTasks[taskId] || []
-    const updatedSubtasks = [...currentSubtasks, { id: Date.now().toString(), text: newSubTask.trim(), done: false }]
-    
+    const updatedSubtasks = [
+      ...currentSubtasks,
+      { id: Date.now().toString(), text: newSubTask.trim(), done: false }
+    ]
+
     const { error } = await supabase
       .from('tasks')
       .update({ subtasks: updatedSubtasks })
       .eq('id', taskId)
       .eq('user_id', user.id)
-    
+
     if (!error) {
-      setSubTasks(prev => ({ ...prev, [taskId]: updatedSubtasks }))
+      setSubTasks((prev) => ({ ...prev, [taskId]: updatedSubtasks }))
       setNewSubTask('')
-      setMessage(' Subtask added')
+      showToast('Subtask added', 'success')
     }
   }
 
   const toggleSubTask = async (taskId, subTaskId) => {
     const currentSubtasks = subTasks[taskId] || []
-    const updatedSubtasks = currentSubtasks.map(st => 
+    const updatedSubtasks = currentSubtasks.map((st) =>
       st.id === subTaskId ? { ...st, done: !st.done } : st
     )
-    
+
     const { error } = await supabase
       .from('tasks')
       .update({ subtasks: updatedSubtasks })
       .eq('id', taskId)
       .eq('user_id', user.id)
-    
+
     if (!error) {
-      setSubTasks(prev => ({ ...prev, [taskId]: updatedSubtasks }))
+      setSubTasks((prev) => ({ ...prev, [taskId]: updatedSubtasks }))
     }
   }
 
   const deleteSubTask = async (taskId, subTaskId) => {
     const currentSubtasks = subTasks[taskId] || []
-    const updatedSubtasks = currentSubtasks.filter(st => st.id !== subTaskId)
-    
+    const updatedSubtasks = currentSubtasks.filter((st) => st.id !== subTaskId)
+
     const { error } = await supabase
       .from('tasks')
       .update({ subtasks: updatedSubtasks })
       .eq('id', taskId)
       .eq('user_id', user.id)
-    
+
     if (!error) {
-      setSubTasks(prev => ({ ...prev, [taskId]: updatedSubtasks }))
-      setMessage(' Subtask deleted')
+      setSubTasks((prev) => ({ ...prev, [taskId]: updatedSubtasks }))
+      showToast('Subtask deleted', 'success')
     }
   }
 
-    // ========== JOURNAL FUNCTIONS ==========
-async function fetchJournal() {
-  if (!user) return
-  let query = supabase
-    .from('journal')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+  // ========== JOURNAL FUNCTIONS ==========
+  async function fetchJournal() {
+    if (!user) return
+    let query = supabase
+      .from('journal')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
 
-  // Apply date filter if set
-  if (journalDateFilter) {
-    query = query.eq('date', journalDateFilter)
+    if (journalDateFilter) {
+      query = query.eq('date', journalDateFilter)
+    }
+
+    const { data, error } = await query
+    if (error) {
+      console.error('Fetch journal error:', error)
+    } else {
+      setJournalEntries(data || [])
+    }
   }
 
-  const { data, error } = await query
-  if (error) {
-    console.error('Fetch journal error:', error)
-  } else {
-    setJournalEntries(data || [])
-  }
-}
+  async function saveJournal() {
+    if (!journalEntry.trim() || !user) return
+    setJournalSaving(true)
 
-async function saveJournal() {
-  if (!journalEntry.trim() || !user) return
-  const { error } = await supabase
-    .from('journal')
-    .insert({
+    const { error } = await supabase.from('journal').insert({
       user_id: user.id,
       content: journalEntry.trim(),
       date: new Date().toISOString().split('T')[0],
       mood: journalMood.trim(),
       tags: journalTags.trim()
     })
-  if (error) {
-    setMessage('Error saving journal: ' + error.message)
-  } else {
-    setJournalEntry('')
-    setJournalMood('')
-    setJournalTags('')
-    setMessage(' Journal entry saved!')
-    fetchJournal()
+
+    if (error) {
+      setMessage('Error saving journal: ' + error.message)
+    } else {
+      setJournalEntry('')
+      setJournalMood('')
+      setJournalTags('')
+      showToast('Journal entry saved!', 'success')
+      fetchJournal()
+    }
+    setJournalSaving(false)
   }
-}
 
   async function deleteJournalEntry(id) {
     const { error } = await supabase
@@ -959,7 +1178,7 @@ async function saveJournal() {
       .eq('id', id)
       .eq('user_id', user.id)
     if (!error) {
-      setMessage(' Entry deleted')
+      showToast('Entry deleted', 'success')
       fetchJournal()
     }
   }
@@ -978,15 +1197,15 @@ async function saveJournal() {
     }
   }
 
-  // ========== EXPORT FUNCTIONS ==========
+    // ========== EXPORT FUNCTIONS ==========
   const toggleSelect = (id) => {
-    setSelectedNotes(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    setSelectedNotes((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     )
   }
 
   const exportNotesPDF = () => {
-    const notesToExport = showExport ? notes.filter(n => selectedNotes.includes(n.id)) : notes
+    const notesToExport = showExport ? notes.filter((n) => selectedNotes.includes(n.id)) : notes
     if (notesToExport.length === 0) {
       setMessage(showExport ? 'Select notes to export' : 'No notes to export')
       return
@@ -1004,7 +1223,7 @@ async function saveJournal() {
       doc.text(`${idx + 1}. ${note.title}`, 20, yPos)
       doc.setFontSize(11)
       const splitText = doc.splitTextToSize(note.content, 170)
-      splitText.forEach(line => {
+      splitText.forEach((line) => {
         if (yPos > 270) {
           doc.addPage()
           yPos = 20
@@ -1012,11 +1231,11 @@ async function saveJournal() {
         doc.text(line, 20, yPos)
         yPos += 6
       })
-      doc.text(`Priority: ${note.priority || 'medium'}`, 20, yPos)
+      doc.text(`Category: ${note.category || 'Uncategorized'}`, 20, yPos)
       yPos += 12
     })
     doc.save(`discypln-notes-${selectedDate}.pdf`)
-    setMessage(' PDF exported!')
+    showToast('PDF exported!', 'success')
     setShowExport(false)
     setSelectedNotes([])
   }
@@ -1027,25 +1246,33 @@ async function saveJournal() {
       return
     }
     const doc = new Document({
-      sections: [{
-        children: [
-          new Paragraph({
-            children: [new TextRun({ text: `Discypln Tasks`, bold: true, size: 32 })]
-          }),
-          ...tasks.map(t => new Paragraph({
-            children: [
-              new TextRun({ text: t.done ? '✓ ' : '☐ ', bold: true }),
-              new TextRun({ text: t.content }),
-              new TextRun({ text: ` [${t.category}]`, italics: true, size: 20 }),
-              new TextRun({ text: t.category_tag && t.category_tag !== 'general' ? ` #${t.category_tag}` : '', italics: true, size: 20 })
-            ]
-          }))
-        ]
-      }]
+      sections: [
+        {
+          children: [
+            new Paragraph({
+              children: [new TextRun({ text: 'Discypln Tasks', bold: true, size: 32 })]
+            }),
+            ...tasks.map((t) =>
+              new Paragraph({
+                children: [
+                  new TextRun({ text: t.done ? '✓ ' : '☐ ', bold: true }),
+                  new TextRun({ text: t.content }),
+                  new TextRun({ text: ` [${t.category}]`, italics: true, size: 20 }),
+                  new TextRun({
+                    text: t.category_tag && t.category_tag !== 'general' ? ` #${t.category_tag}` : '',
+                    italics: true,
+                    size: 20
+                  })
+                ]
+              })
+            )
+          ]
+        }
+      ]
     })
     const blob = await Packer.toBlob(doc)
-    saveAs(blob, `discypln-tasks.docx`)
-    setMessage(' Word file exported!')
+    saveAs(blob, 'discypln-tasks.docx')
+    showToast('Word file exported!', 'success')
   }
 
   const exportWeeklyReport = async () => {
@@ -1061,7 +1288,7 @@ async function saveJournal() {
 
     const weekStr = `${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`
 
-    const weekTasks = tasks.filter(t => {
+    const weekTasks = tasks.filter((t) => {
       if (!t.done) return false
       const taskDate = new Date(t.updated_at || t.due_date)
       return taskDate >= startOfWeek && taskDate <= endOfWeek
@@ -1070,7 +1297,7 @@ async function saveJournal() {
     const totalMins = weekTasks.reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
 
     const categoryStats = {}
-    weekTasks.forEach(t => {
+    weekTasks.forEach((t) => {
       const cat = t.category_tag || 'Uncategorized'
       if (!categoryStats[cat]) categoryStats[cat] = { count: 0, mins: 0 }
       categoryStats[cat].count += 1
@@ -1096,7 +1323,7 @@ async function saveJournal() {
     autoTable(doc, {
       startY: yPos + 10,
       head: [['Date', 'Task', 'Category', 'Time']],
-      body: weekTasks.map(t => [
+      body: weekTasks.map((t) => [
         new Date(t.updated_at || t.due_date).toLocaleDateString(),
         t.content,
         t.category_tag,
@@ -1107,1178 +1334,750 @@ async function saveJournal() {
     })
 
     doc.save(`Discypln_Weekly_Tasks_${weekStr.replace(/\//g, '-')}.pdf`)
-    setMessage(' Weekly report generated!')
+    showToast('Weekly report generated!', 'success')
   }
 
-  // ========== NOTES CATEGORY STATE & FILTER ==========
-  const allCategories = ['All', ...new Set(notes.map(n => n.category || 'Uncategorized'))]
-  const [activeNoteCategory, setActiveNoteCategory] = useState('All')
+  // ========== FILTERS ==========
+  const allCategories = useMemo(
+    () => ['All', ...new Set(notes.map((n) => n.category || 'Uncategorized'))],
+    [notes]
+  )
 
-  const filteredNotes = notes.filter(note => {
-    const matchesSearch = note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          note.content.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = activeNoteCategory === 'All' || 
-                           (note.category || 'Uncategorized') === activeNoteCategory
-    return matchesSearch && matchesCategory
-  })
+  const filteredNotes = useMemo(() => {
+    return notes.filter((note) => {
+      const matchesSearch =
+        note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        note.content.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesCategory =
+        activeNoteCategory === 'All' || (note.category || 'Uncategorized') === activeNoteCategory
+      return matchesSearch && matchesCategory
+    })
+  }, [notes, searchQuery, activeNoteCategory])
 
-  const filteredTasks = activeCategory === 'all'
-    ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
-    : tasks
-      .filter(t => t.category === activeCategory)
-      .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
-
-  // ========== THEME HELPERS ==========
-  const theme = {
-    bg: isDarkMode ? '#0a0a0a' : '#f0f0f0',
-    bgCard: isDarkMode ? '#1a1a1a' : '#ffffff',
-    bgCardHover: isDarkMode ? '#222' : '#f8f8f8',
-    bgInput: isDarkMode ? '#111' : '#f5f5f5',
-    text: isDarkMode ? '#fff' : '#1a1a1a',
-    textSecondary: isDarkMode ? '#888' : '#666',
-    textMuted: isDarkMode ? '#444' : '#bbb',
-    border: isDarkMode ? '#2a2a2a' : '#e0e0e0',
-    borderHover: isDarkMode ? '#2563eb' : '#2563eb',
-    accent: '#2563eb',
-    accentHover: '#1d4ed8',
-    shadow: isDarkMode ? '0 8px 32px rgba(0,0,0,0.4)' : '0 4px 16px rgba(0,0,0,0.08)'
-  }
+  const filteredTasks = useMemo(() => {
+    return activeCategory === 'all'
+      ? [...tasks].sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+      : tasks
+          .filter((t) => t.category === activeCategory)
+          .sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'))
+  }, [tasks, activeCategory])
 
   // ========== RENDER ==========
-if (!user) {
-  return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: theme.bg,
-      color: theme.text,
-      padding: '20px'
-    }}>
-      <div style={{
-        background: theme.bgCard,
-        borderRadius: '24px',
-        padding: '40px',
-        maxWidth: '400px',
-        width: '100%',
-        border: `1px solid ${theme.border}`,
-        boxShadow: theme.shadow
-      }}>
-        <h1 style={{
-          fontSize: '28px',
-          fontWeight: '700',
-          textAlign: 'center',
-          marginBottom: '8px',
-          background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
-        }}>
-          Discypln
-        </h1>
-        <p style={{
-          textAlign: 'center',
-          color: theme.textSecondary,
-          fontSize: '14px',
-          marginBottom: '24px'
-        }}>
-          Stay focused. Stay disciplined.
-        </p>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '12px 16px',
-            borderRadius: '12px',
-            border: `1px solid ${theme.border}`,
-            background: theme.bgInput,
-            color: theme.text,
-            fontSize: '14px',
-            marginBottom: '12px',
-            outline: 'none'
-          }}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '12px 16px',
-            borderRadius: '12px',
-            border: `1px solid ${theme.border}`,
-            background: theme.bgInput,
-            color: theme.text,
-            fontSize: '14px',
-            marginBottom: '16px',
-            outline: 'none'
-          }}
-        />
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button
-            onClick={signIn}
-            disabled={loading}
-            style={{
-              flex: 1,
-              padding: '12px',
-              borderRadius: '12px',
-              border: 'none',
-              background: theme.accent,
-              color: '#fff',
-              fontWeight: '600',
-              fontSize: '14px',
-              cursor: 'pointer'
-            }}
-          >
-            {loading ? 'Loading...' : 'Sign In'}
-          </button>
-          <button
-            onClick={signUp}
-            disabled={loading}
-            style={{
-              flex: 1,
-              padding: '12px',
-              borderRadius: '12px',
-              border: `1px solid ${theme.border}`,
-              background: 'transparent',
-              color: theme.text,
-              fontWeight: '600',
-              fontSize: '14px',
-              cursor: 'pointer'
-            }}
-          >
-            {loading ? 'Loading...' : 'Sign Up'}
-          </button>
+
+  if (!user) {
+    return (
+      <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="card" style={{ maxWidth: '400px', width: '100%' }}>
+          <h1 className="page-title text-center" style={{ marginBottom: '8px' }}>
+            Discypln
+          </h1>
+          <p className="text-secondary text-center" style={{ marginBottom: '24px' }}>
+            Stay focused. Stay disciplined.
+          </p>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="input"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="input"
+          />
+          <div className="flex gap-3" style={{ marginTop: '8px' }}>
+            <button onClick={signIn} disabled={loading} className="btn btn-primary" style={{ flex: 1 }}>
+              {loading ? 'Loading...' : 'Sign In'}
+            </button>
+            <button onClick={signUp} disabled={loading} className="btn" style={{ flex: 1 }}>
+              {loading ? 'Loading...' : 'Sign Up'}
+            </button>
+          </div>
+          {message && (
+            <p className="text-center" style={{ marginTop: '16px', color: '#EF4444', fontSize: '13px' }}>
+              {message}
+            </p>
+          )}
         </div>
-        {message && (
-          <p style={{
+      </div>
+    )
+  }
+
+  if (viewMode === 'add' || viewMode === 'edit') {
+    return (
+      <div className="container" style={{ maxWidth: '900px' }}>
+        <header className="app-header">
+          <div className="header-left">
+            <button
+              onClick={goBack}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-secondary)',
+                fontSize: '24px',
+                cursor: 'pointer',
+                padding: '8px 0'
+              }}
+            >
+              ← Back
+            </button>
+          </div>
+          <div className="header-right" style={{ gap: '8px' }}>
+            <div className="flex items-center gap-2">
+              <select
+                value={targetLang}
+                onChange={(e) => setTargetLang(e.target.value)}
+                className="select"
+                style={{ padding: '8px 12px', fontSize: '12px', width: 'auto', minWidth: '100px' }}
+              >
+                {ALL_LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.name}
+                  </option>
+                ))}
+              </select>
+              <button onClick={translateNote} className="btn btn-ghost btn-sm" style={{ fontSize: '16px' }}>
+                🌍
+              </button>
+              <button
+                onClick={saveNote}
+                disabled={isSaving}
+                className="btn btn-primary btn-sm"
+                style={{ minWidth: '80px' }}
+              >
+                {isSaving ? 'Saving...' : 'Save'}
+              </button>
+              {saveStatus && (
+                <span className="tiny-label" style={{ color: 'var(--success)' }}>
+                  {saveStatus}
+                </span>
+              )}
+            </div>
+          </div>
+        </header>
+
+        <div style={{ marginTop: '16px' }}>
+          {viewMode === 'add' && (
+            <>
+              <select
+                value={titleFont}
+                onChange={(e) => setTitleFont(e.target.value)}
+                className="select"
+                style={{ marginBottom: '10px' }}
+              >
+                <option value="Inter">Inter - Clean</option>
+                <option value="Georgia">Georgia - Book</option>
+                <option value="Poppins">Poppins - Modern</option>
+                <option value="Merriweather">Merriweather - Readable</option>
+                <option value="'Times New Roman'">Times - Classic</option>
+                <option value="Arial">Arial - Simple</option>
+                <option value="Pacifico">Pacifico - Cursive ✨</option>
+                <option value="Caveat">Caveat - Handwriting</option>
+              </select>
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Title"
+                className="input"
+                style={{
+                  fontSize: '24px',
+                  fontWeight: 600,
+                  fontFamily: titleFont.includes(' ') ? `'${titleFont}', serif` : titleFont
+                }}
+              />
+              <input
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="Add a category (e.g., Discypln, Hyezen, Work)"
+                className="input"
+                style={{ fontSize: '14px', marginBottom: '12px' }}
+              />
+            </>
+          )}
+          {viewMode === 'edit' && (
+            <>
+              <h2 className="card-title" style={{ marginBottom: '12px' }}>{title}</h2>
+              <input
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="Add a category (e.g., Discypln, Hyezen, Work)"
+                className="input"
+                style={{ fontSize: '14px', marginBottom: '12px' }}
+              />
+            </>
+          )}
+          <textarea
+            value={noteText}
+            onChange={(e) => setNoteText(e.target.value)}
+            placeholder="Start typing..."
+            className="textarea"
+            style={{
+              minHeight: '320px',
+              fontFamily: detectedCode ? "'JetBrains Mono', monospace" : fontFamily.includes(' ') ? `'${fontFamily}', serif` : fontFamily,
+              fontSize: fontSize + 'px',
+              background: detectedCode ? '#0d1117' : undefined
+            }}
+            autoFocus
+          />
+        </div>
+
+        <nav
+          style={{
+            display: 'flex',
+            gap: '8px',
             marginTop: '16px',
-            color: message.includes('✅') ? '#22c55e' : '#ef4444',
-            fontSize: '13px',
-            textAlign: 'center'
-          }}>
+            paddingTop: '16px',
+            borderTop: '1px solid var(--border-subtle)',
+            flexWrap: 'wrap'
+          }}
+        >
+          <button
+            onClick={toggleMic}
+            className={`btn btn-ghost btn-sm ${isListening ? 'btn-danger' : ''}`}
+          >
+            {isListening ? '⏹️ Stop' : '🎤 Voice'}
+          </button>
+          <button onClick={() => fileInputRef.current.click()} className="btn btn-ghost btn-sm">
+            📷 Scan
+          </button>
+          <select
+            value={fontFamily}
+            onChange={(e) => setFontFamily(e.target.value)}
+            className="select"
+            style={{ padding: '6px 12px', fontSize: '12px', width: 'auto', minWidth: '100px' }}
+          >
+            <option value="Inter">Inter</option>
+            <option value="Georgia">Georgia</option>
+            <option value="'Times New Roman'">Times</option>
+            <option value="'Courier New'">Courier</option>
+            <option value="Arial">Arial</option>
+            <option value="Poppins">Poppins</option>
+            <option value="'Roboto Slab'">Roboto Slab</option>
+            <option value="Montserrat">Montserrat</option>
+            <option value="Lora">Lora</option>
+            <option value="Merriweather">Merriweather</option>
+            <option value="Ubuntu">Ubuntu</option>
+            <option value="Quicksand">Quicksand</option>
+            <option value="Caveat">Caveat</option>
+            <option value="Pacifico">Pacifico</option>
+          </select>
+          <select
+            value={fontSize}
+            onChange={(e) => setFontSize(e.target.value)}
+            className="select"
+            style={{ padding: '6px 12px', fontSize: '12px', width: 'auto', minWidth: '70px' }}
+          >
+            <option value="14">14px</option>
+            <option value="16">16px</option>
+            <option value="18">18px</option>
+            <option value="20">20px</option>
+            <option value="24">24px</option>
+          </select>
+          {viewMode === 'edit' && (
+            <>
+              <button
+                onClick={() => navigator.clipboard.writeText(noteText)}
+                className="btn btn-ghost btn-sm"
+              >
+                Copy
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm('Delete this note?')) deleteNote(editingNote.id)
+                }}
+                className="btn btn-danger btn-sm"
+              >
+                Delete
+              </button>
+              <button onClick={shareNote} className="btn btn-ghost btn-sm">
+                Share
+              </button>
+            </>
+          )}
+        </nav>
+
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          onChange={handleImageUpload}
+          style={{ display: 'none' }}
+        />
+
+        {message && (
+          <p
+            className="text-center"
+            style={{
+              marginTop: '16px',
+              color: message.includes('✅') ? 'var(--success)' : 'var(--danger)',
+              fontSize: '13px'
+            }}
+          >
             {message}
           </p>
         )}
       </div>
-    </div>
-  )
-}
+    )
+  }
 
-if (viewMode === 'add' || viewMode === 'edit') {
+  // ===== MAIN DASHBOARD =====
+  const greeting = getGreeting()
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: theme.bg,
-      color: theme.text,
-      padding: '20px',
-      maxWidth: '900px',
-      margin: '0 auto'
-    }}>
-      <header style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '20px'
-      }}>
-        <button
-          onClick={goBack}
-          style={{
-            padding: '8px 16px',
-            borderRadius: '10px',
-            border: `1px solid ${theme.border}`,
-            background: 'transparent',
-            color: theme.text,
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
-        >
-          ⬅
-        </button>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <select
-            value={targetLang}
-            onChange={(e) => setTargetLang(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              borderRadius: '10px',
-              border: `1px solid ${theme.border}`,
-              background: theme.bgInput,
-              color: theme.text,
-              fontSize: '12px'
-            }}
-          >
-            {ALL_LANGUAGES.map(lang => (
-              <option key={lang.code} value={lang.code}>{lang.name}</option>
-            ))}
-          </select>
+    <div className="container" data-theme={isDarkMode ? 'dark' : 'light'}>
+      {/* ===== HEADER ===== */}
+      <header className="app-header">
+        <div className="header-left">
+          <div className="logo">Discypln</div>
+          <div className="greeting">
+            {greeting}
+            <span style={{ color: 'var(--text-muted)', marginLeft: '4px' }}>
+              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </div>
+          <div className="date">
+            {currentTime.toLocaleDateString('en-US', {
+              weekday: 'long',
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric'
+            })}
+          </div>
+        </div>
+        <div className="header-right">
+          <div className="search-wrapper">
+            <span className="search-icon">🔍</span>
+            <input
+              type="text"
+              placeholder="Search notes, tasks..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setIsSearchFocused(false)}
+            />
+          </div>
           <button
-            onClick={translateNote}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '10px',
-              border: 'none',
-              background: theme.accent,
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: '13px'
-            }}
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className="theme-toggle"
+            aria-label="Toggle theme"
           >
-            🌍 
+            {isDarkMode ? '🌙' : '☀️'}
           </button>
-          <button
-            onClick={saveNote}
-            style={{
-              padding: '8px 20px',
-              borderRadius: '10px',
-              border: 'none',
-              background: '#22c55e',
-              color: '#fff',
-              fontWeight: '600',
-              cursor: 'pointer',
-              fontSize: '13px'
-            }}
-          >
-            Save
+          <button onClick={signOut} className="btn btn-ghost btn-icon" aria-label="Logout">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 21H5a2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y1="12" />
+            </svg>
           </button>
         </div>
       </header>
 
-      <div>
-        {viewMode === 'add' && (
-          <>
-            <select
-              value={titleFont}
-              onChange={(e) => setTitleFont(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px 14px',
-                borderRadius: '12px',
-                border: `1px solid ${theme.border}`,
-                background: theme.bgInput,
-                color: theme.text,
-                marginBottom: '10px',
-                fontSize: '14px'
-              }}
-            >
-              <option value="Inter">Inter - Clean</option>
-              <option value="Georgia">Georgia - Book</option>
-              <option value="Poppins">Poppins - Modern</option>
-              <option value="Merriweather">Merriweather - Readable</option>
-              <option value="'Times New Roman'">Times - Classic</option>
-              <option value="Arial">Arial - Simple</option>
-              <option value="Pacifico">Pacifico - Cursive ✨</option>
-              <option value="Caveat">Caveat - Handwriting</option>
-            </select>
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Title"
-              style={{
-                width: '100%',
-                padding: '14px 16px',
-                borderRadius: '12px',
-                border: `1px solid ${theme.border}`,
-                background: theme.bgInput,
-                color: theme.text,
-                fontSize: '24px',
-                fontWeight: '600',
-                marginBottom: '12px',
-                outline: 'none',
-                fontFamily: titleFont.includes(' ') ? `'${titleFont}', serif` : titleFont
-              }}
-            />
-            <input
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="Add a category (e.g., Discypln, Hyezen, Work)"
-              style={{
-                width: '100%',
-                padding: '10px 14px',
-                borderRadius: '8px',
-                border: `1px solid ${theme.border}`,
-                background: theme.bgInput,
-                color: theme.text,
-                fontSize: '14px',
-                outline: 'none',
-                marginBottom: '10px'
-              }}
-            />
-          </>
-        )}
-        {viewMode === 'edit' && (
-          <>
-            <h2 style={{
-              fontSize: '24px',
-              fontWeight: '600',
-              marginBottom: '12px',
-              fontFamily: titleFont.includes(' ') ? `'${titleFont}', serif` : titleFont
-            }}>
-              {title}
-            </h2>
-            <input
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="Add a category (e.g., Discypln, Hyezen, Work)"
-              style={{
-                width: '100%',
-                padding: '10px 14px',
-                borderRadius: '8px',
-                border: `1px solid ${theme.border}`,
-                background: theme.bgInput,
-                color: theme.text,
-                fontSize: '14px',
-                outline: 'none',
-                marginBottom: '10px'
-              }}
-            />
-          </>
-        )}
-        <textarea
-          value={noteText}
-          onChange={(e) => setNoteText(e.target.value)}
-          placeholder="Start typing..."
-          style={{
-            width: '100%',
-            minHeight: '300px',
-            padding: '16px',
-            borderRadius: '12px',
-            border: `1px solid ${theme.border}`,
-            background: detectedCode ? '#0d1117' : theme.bgInput,
-            color: detectedCode ? '#c9d1d9' : theme.text,
-            fontSize: fontSize + 'px',
-            lineHeight: '1.8',
-            fontFamily: detectedCode ? "'Courier New', monospace" : (fontFamily.includes(' ') ? `'${fontFamily}', serif` : fontFamily),
-            outline: 'none',
-            resize: 'vertical'
-          }}
-          autoFocus
-        />
-      </div>
-
-      <nav style={{
-        display: 'flex',
-        gap: '8px',
-        marginTop: '16px',
-        paddingTop: '16px',
-        borderTop: `1px solid ${theme.border}`,
-        flexWrap: 'wrap'
-      }}>
-        <button
-          onClick={toggleMic}
-          style={{
-            padding: '8px 16px',
-            borderRadius: '10px',
-            border: `1px solid ${theme.border}`,
-            background: isListening ? '#dc2626' : 'transparent',
-            color: isListening ? '#fff' : theme.text,
-            cursor: 'pointer'
-          }}
-        >
-          {isListening ? 'Stop' : '🎤 Voice'}
-        </button>
-        <button
-          onClick={() => fileInputRef.current.click()}
-          style={{
-            padding: '8px 16px',
-            borderRadius: '10px',
-            border: `1px solid ${theme.border}`,
-            background: 'transparent',
-            color: theme.text,
-            cursor: 'pointer'
-          }}
-        >
-          📷 Scan
-        </button>
-        <select
-          value={fontFamily}
-          onChange={(e) => setFontFamily(e.target.value)}
-          style={{
-            padding: '8px 14px',
-            borderRadius: '10px',
-            border: `1px solid ${theme.border}`,
-            background: theme.bgInput,
-            color: theme.text,
-            fontSize: '13px'
-          }}
-        >
-          <option value="Inter">Inter</option>
-          <option value="Georgia">Georgia</option>
-          <option value="'Times New Roman'">Times</option>
-          <option value="'Courier New'">Courier</option>
-          <option value="Arial">Arial</option>
-          <option value="Poppins">Poppins</option>
-          <option value="'Roboto Slab'">Roboto Slab</option>
-          <option value="Montserrat">Montserrat</option>
-          <option value="Lora">Lora</option>
-          <option value="Merriweather">Merriweather</option>
-          <option value="Ubuntu">Ubuntu</option>
-          <option value="Quicksand">Quicksand</option>
-          <option value="Caveat">Caveat</option>
-          <option value="Pacifico">Pacifico</option>
-        </select>
-        <select
-          value={fontSize}
-          onChange={(e) => setFontSize(e.target.value)}
-          style={{
-            padding: '8px 14px',
-            borderRadius: '10px',
-            border: `1px solid ${theme.border}`,
-            background: theme.bgInput,
-            color: theme.text,
-            fontSize: '13px'
-          }}
-        >
-          <option value="14">14px</option>
-          <option value="16">16px</option>
-          <option value="18">18px</option>
-          <option value="20">20px</option>
-          <option value="24">24px</option>
-        </select>
-        {viewMode === 'edit' && (
-          <>
+      {/* ===== CAPSULE NAVIGATION ===== */}
+      <nav className="capsule-nav">
+        <div className="capsule-nav-inner">
+          {[
+            { id: 'notes', label: 'Notes' },
+            { id: 'tasks', label: 'Tasks' },
+            { id: 'journal', label: 'Journal' }
+          ].map((tab) => (
             <button
-              onClick={() => navigator.clipboard.writeText(noteText)}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '10px',
-                border: `1px solid ${theme.border}`,
-                background: 'transparent',
-                color: theme.text,
-                cursor: 'pointer'
+              key={tab.id}
+              className={activeTab === tab.id ? 'active' : ''}
+              onClick={() => {
+                setActiveTab(tab.id)
+                if (tab.id === 'journal') fetchJournal()
               }}
             >
-              Copy
+              {tab.label}
             </button>
-            <button
-              onClick={() => deleteNote(editingNote.id)}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '10px',
-                border: 'none',
-                background: '#dc2626',
-                color: '#fff',
-                cursor: 'pointer'
-              }}
-            >
-              Delete
-            </button>
-            <button
-              onClick={shareNote}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '10px',
-                border: `1px solid ${theme.border}`,
-                background: 'transparent',
-                color: theme.text,
-                cursor: 'pointer'
-              }}
-            >
-              Share
-            </button>
-          </>
-        )}
+          ))}
+        </div>
       </nav>
 
-      <input
-        type="file"
-        accept="image/*"
-        ref={fileInputRef}
-        onChange={handleImageUpload}
-        style={{ display: 'none' }}
-      />
+            {/* ===== POMODORO & STATS DASHBOARD ===== */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px' }}>
+        {/* Pomodoro Card */}
+        <div className="card" style={{ textAlign: 'center', padding: '32px 24px' }}>
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+            <div
+              style={{
+                fontSize: '56px',
+                fontWeight: 700,
+                fontFamily: "'JetBrains Mono', monospace",
+                color: 'var(--text-primary)',
+                letterSpacing: '-1px',
+                lineHeight: 1,
+                padding: '8px 0'
+              }}
+            >
+              {formatTime(pomodoroTime)}
+            </div>
+            {/* Simplified ring indicator - shown as a subtle glow around the timer */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: '-8px',
+                borderRadius: '50%',
+                border: '2px solid transparent',
+                borderColor: pomodoroRunning ? 'var(--accent)' : pomodoroState === 'paused' ? 'var(--warning)' : 'transparent',
+                opacity: pomodoroState === 'running' ? 0.3 : 0.1,
+                transition: 'all 0.3s ease'
+              }}
+            />
+          </div>
 
-      {message && (
-        <p style={{
-          position: 'fixed',
-          bottom: '30px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          padding: '12px 24px',
-          borderRadius: '12px',
-          background: theme.bgCard,
-          border: `1px solid ${theme.border}`,
-          color: theme.text,
-          boxShadow: theme.shadow,
-          fontSize: '14px',
-          zIndex: 9999
-        }}>
-          {message}
-        </p>
-      )}
-    </div>
-  )
-}
+          <div style={{ marginTop: '4px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+            {isBreak ? '☕ Break Time' : 'Focus Session'}
+            <span style={{ marginLeft: '12px', color: 'var(--text-muted)' }}>
+              {pomodoroSessions} sessions completed
+            </span>
+            <span style={{ marginLeft: '12px', color: 'var(--text-muted)' }}>
+              {formatMinutes(totalMinutes)} total
+            </span>
+          </div>
 
-// ========== MAIN DASHBOARD ==========
-return (
-  <div style={{
-    minHeight: '100vh',
-    background: theme.bg,
-    color: theme.text,
-    padding: '20px',
-    maxWidth: '1000px',
-    margin: '0 auto',
-    transition: 'all 0.3s ease'
-  }}>
-    
-    {/* ===== TOP BAR ===== */}
-<div style={{
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: '24px',
-  flexWrap: 'wrap',
-  gap: '12px'
-}}>
-  <div>
-    <div style={{
-      fontSize: '14px',
-      fontWeight: '700',
-      color: theme.accent,
-      letterSpacing: '0.5px',
-      textTransform: 'uppercase',
-      marginBottom: '2px'
-    }}>
-      Discypln
-    </div>
-    <div style={{
-      fontSize: '36px',
-      fontWeight: '700',
-      letterSpacing: '-0.5px',
-      color: theme.text
-    }}>
-      {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-    </div>
-    <div style={{
-      fontSize: '14px',
-      color: theme.textSecondary,
-      marginTop: '2px'
-    }}>
-      {currentTime.toLocaleDateString('en-US', { 
-        weekday: 'long', 
-        month: 'long', 
-        day: 'numeric',
-        year: 'numeric'
-      })}
-    </div>
-  </div>
-  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-    <input
-      type="text"
-      placeholder="Search..."
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-      style={{
-        padding: '8px 16px',
-        borderRadius: '20px',
-        border: `1px solid ${theme.border}`,
-        background: theme.bgInput,
-        color: theme.text,
-        fontSize: '13px',
-        outline: 'none',
-        width: '140px',
-        transition: 'all 0.3s'
-      }}
-    />
-    <button
-      onClick={() => setIsDarkMode(!isDarkMode)}
-      style={{
-        width: '52px',
-        height: '28px',
-        borderRadius: '14px',
-        border: 'none',
-        background: isDarkMode ? '#2a2a2a' : '#ddd',
-        cursor: 'pointer',
-        position: 'relative',
-        transition: 'all 0.3s ease',
-        flexShrink: 0
-      }}
-    >
-      <div style={{
-        position: 'absolute',
-        top: '3px',
-        left: isDarkMode ? '26px' : '3px',
-        width: '22px',
-        height: '22px',
-        borderRadius: '50%',
-        background: isDarkMode ? '#f59e0b' : '#2563eb',
-        transition: 'all 0.3s ease',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '12px'
-      }}>
-        {isDarkMode ? '🌙' : '☀️'}
+          <div
+            className="progress-bar"
+            style={{ marginTop: '16px', maxWidth: '320px', marginLeft: 'auto', marginRight: 'auto' }}
+          >
+            <div
+              className="progress-bar-fill"
+              style={{
+                width: `${((25 * 60 - pomodoroTime) / (25 * 60)) * 100}%`,
+                background: pomodoroRunning ? 'var(--accent)' : 'var(--text-muted)'
+              }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '16px', flexWrap: 'wrap' }}>
+            <button
+              onClick={togglePomodoro}
+              className={`btn ${pomodoroRunning ? 'btn-danger' : 'btn-primary'}`}
+              style={{ minWidth: '100px' }}
+            >
+              {pomodoroRunning ? '⏸ Pause' : pomodoroState === 'paused' ? '▶ Resume' : '▶ Start'}
+            </button>
+            <button onClick={resetPomodoro} className="btn btn-ghost">
+              ↺ Reset
+            </button>
+          </div>
+
+          {showCelebration && (
+            <div
+              style={{
+                marginTop: '12px',
+                padding: '8px 16px',
+                background: 'var(--success-light)',
+                borderRadius: 'var(--radius-md)',
+                color: 'var(--success)',
+                fontSize: '14px',
+                fontWeight: 600,
+                animation: 'fadeIn 0.5s ease'
+              }}
+            >
+              🎯 Focus Session Complete!
+            </div>
+          )}
+        </div>
+
+        {/* Stats Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+          <div className="card" style={{ textAlign: 'center', padding: '20px 16px' }}>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: '#F59E0B' }}>{streak}</div>
+            <div className="caption" style={{ marginTop: '4px' }}>🔥 Streak</div>
+          </div>
+          <div className="card" style={{ textAlign: 'center', padding: '20px 16px' }}>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--accent)' }}>
+              {formatMinutes(totalMinutes)}
+            </div>
+            <div className="caption" style={{ marginTop: '4px' }}>Focus Time</div>
+          </div>
+          <div className="card" style={{ textAlign: 'center', padding: '20px 16px' }}>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: '#22C55E' }}>
+              {tasks.filter((t) => t.done).length}
+            </div>
+            <div className="caption" style={{ marginTop: '4px' }}>Tasks Done</div>
+          </div>
+          <div className="card" style={{ textAlign: 'center', padding: '20px 16px' }}>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: '#A855F7' }}>{weeklyScore}%</div>
+            <div className="caption" style={{ marginTop: '4px' }}>Weekly Score</div>
+          </div>
+        </div>
       </div>
-    </button>
-    <button
-      onClick={signOut}
-      style={{
-        padding: '6px 14px',
-        borderRadius: '20px',
-        border: `1px solid ${theme.border}`,
-        background: 'transparent',
-        color: theme.textSecondary,
-        fontSize: '12px',
-        cursor: 'pointer'
-      }}
-    >
-      Logout
-    </button>
-  </div>
-</div>
 
-{/* ===== CAPSULE NAVIGATION ===== */}
-<div style={{
-  display: 'flex',
-  justifyContent: 'center',
-  marginBottom: '28px'
-}}>
-  <div style={{
-    display: 'flex',
-    background: theme.bgCard,
-    borderRadius: '30px',
-    padding: '4px',
-    gap: '4px',
-    border: `1px solid ${theme.border}`
-  }}>
-    {[
-      { id: 'notes', label: ' Notes' },
-      { id: 'tasks', label: ' Tasks' },
-      { id: 'journal', label: ' Journal' }
-    ].map(tab => (
-      <button
-        key={tab.id}
-        onClick={() => {
-          setActiveTab(tab.id)
-          if (tab.id === 'journal') fetchJournal()
-        }}
-        style={{
-          padding: '10px 28px',
-          borderRadius: '24px',
-          border: 'none',
-          background: activeTab === tab.id 
-            ? (isDarkMode ? '#2a2a2a' : '#e8e8e8')
-            : 'transparent',
-          color: activeTab === tab.id 
-            ? (isDarkMode ? '#fff' : '#1a1a1a')
-            : (isDarkMode ? '#666' : '#999'),
-          fontSize: '14px',
-          fontWeight: activeTab === tab.id ? '600' : '400',
-          cursor: 'pointer',
-          transition: 'all 0.3s ease',
-          boxShadow: activeTab === tab.id 
-            ? (isDarkMode ? '0 4px 12px rgba(0,0,0,0.4)' : '0 2px 8px rgba(0,0,0,0.1)')
-            : 'none'
-        }}
-      >
-        {tab.label}
-      </button>
-    ))}
-  </div>
-</div>
+      {/* ===== HEATMAP ===== */}
+      <div className="card" style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div>
+            <div className="card-title" style={{ marginBottom: '0' }}>Heatmap</div>
+            <div className="caption" style={{ marginTop: '2px' }}>
+              {tasks.filter((t) => t.done).length} tasks done in last 30 days
+            </div>
+          </div>
+        </div>
+        <div className="heatmap-grid">
+          {Array.from({ length: 30 }).map((_, i) => {
+            const date = new Date()
+            date.setDate(date.getDate() - (29 - i))
+            const dateStr = date.toISOString().split('T')[0]
 
-{/* ===== POMODORO & STATS DASHBOARD - SINGLE COLUMN ===== */}
-<div style={{
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '16px',
-  marginBottom: '20px'
-}}>
-  {/* Pomodoro Card */}
-  <div style={{
-    background: theme.bgCard,
-    borderRadius: '16px',
-    padding: '24px',
-    border: `1px solid ${theme.border}`
-  }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <div style={{ 
-        fontSize: '12px', 
-        color: theme.textMuted,
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px',
-        fontWeight: '600'
-      }}>
-        {isBreak ? '☕ Break' : 'Focus'}
-      </div>
-      <div style={{ display: 'flex', gap: '8px' }}>
-        <button
-          onClick={togglePomodoro}
+            const dayTasks = tasks.filter((t) => {
+              if (!t.done) return false
+              const taskDate = new Date(t.updated_at || t.due_date).toISOString().split('T')[0]
+              return taskDate === dateStr
+            })
+
+            const minutes = dayTasks.reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
+            const intensity = minutes === 0 ? 0 : minutes < 30 ? 1 : minutes < 60 ? 2 : minutes < 120 ? 3 : 4
+            const colors = ['#1a1a1a', '#0e4429', '#006d32', '#26a641', '#39d353']
+            const isToday = dateStr === new Date().toISOString().split('T')[0]
+
+            return (
+              <div
+                key={dateStr}
+                className={`heatmap-cell ${isToday ? 'today' : ''}`}
+                title={`${dateStr}: ${dayTasks.length} tasks, ${formatMinutes(minutes)}`}
+                style={{
+                  background: colors[intensity],
+                  borderColor: isToday ? 'var(--accent)' : 'var(--border-subtle)',
+                  borderWidth: isToday ? '2px' : '1px'
+                }}
+              >
+                {date.getDate()}
+              </div>
+            )
+          })}
+        </div>
+        <div
           style={{
-            padding: '8px 16px',
-            borderRadius: '12px',
-            border: 'none',
-            background: pomodoroRunning ? '#ef4444' : '#22c55e',
-            color: '#fff',
-            fontWeight: '600',
-            cursor: 'pointer',
-            fontSize: '13px',
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            height: '36px'
+            marginTop: '12px',
+            fontSize: '11px',
+            color: 'var(--text-muted)'
           }}
         >
-          <span>{pomodoroRunning ? '' : '▶'}</span> {pomodoroRunning ? 'Pause' : 'Start'}
-        </button>
-        <button
-          onClick={resetPomodoro}
-          style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '12px',
-            border: `1px solid ${theme.border}`,
-            background: 'transparent',
-            color: theme.textSecondary,
-            cursor: 'pointer',
-            fontSize: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          ↺
-        </button>
-      </div>
-    </div>
-    <div style={{
-      fontSize: '48px',
-      fontWeight: '700',
-      color: theme.text,
-      fontVariantNumeric: 'tabular-nums',
-      lineHeight: '1.2',
-      marginTop: '4px'
-    }}>
-      {formatTime(pomodoroTime)}
-    </div>
-    <div style={{
-      marginTop: '14px',
-      height: '4px',
-      background: isDarkMode ? '#2a2a2a' : '#e0e0e0',
-      borderRadius: '4px',
-      overflow: 'hidden'
-    }}>
-      <div style={{
-        width: `${((25 * 60 - pomodoroTime) / (25 * 60)) * 100}%`,
-        height: '100%',
-        background: pomodoroRunning 
-          ? (isBreak ? '#f59e0b' : '#22c55e')
-          : isDarkMode ? '#444' : '#ccc',
-        transition: 'width 1s linear',
-        borderRadius: '4px'
-      }} />
-    </div>
-    <div style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      fontSize: '13px',
-      color: theme.textMuted,
-      marginTop: '8px'
-    }}>
-      <span>{pomodoroSessions} sessions completed</span>
-      <span>{formatMinutes(totalMinutes)} total</span>
-    </div>
-  </div>
-
-  {/* Stats Card - Single Row */}
-  <div style={{
-    background: theme.bgCard,
-    borderRadius: '16px',
-    padding: '20px 24px',
-    border: `1px solid ${theme.border}`
-  }}>
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(4, 1fr)',
-      gap: '12px'
-    }}>
-      <div style={{
-        background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-        padding: '14px 12px',
-        borderRadius: '12px',
-        textAlign: 'center'
-      }}>
-        <div style={{ fontSize: '24px', fontWeight: '700', color: '#f59e0b' }}>{streak}</div>
-        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>🔥 Streak</div>
-      </div>
-      <div style={{
-        background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-        padding: '14px 12px',
-        borderRadius: '12px',
-        textAlign: 'center'
-      }}>
-        <div style={{ fontSize: '24px', fontWeight: '700', color: '#60a5fa' }}>{formatMinutes(totalMinutes)}</div>
-        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}> Focus Time</div>
-      </div>
-      <div style={{
-        background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-        padding: '14px 12px',
-        borderRadius: '12px',
-        textAlign: 'center'
-      }}>
-        <div style={{ fontSize: '24px', fontWeight: '700', color: '#34d399' }}>{tasks.filter(t => t.done).length}</div>
-        <div style={{ fontSize: '11px', color: theme.textMuted, marginTop: '2px' }}>Tasks Completed</div>
-      </div>
-      <div style={{
-        background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-        padding: '14px 12px',
-        borderRadius: '12px',
-        textAlign: 'center'
-      }}>
-        <div style={{ fontSize: '20px', fontWeight: '700', color: '#a78bfa' }}>{weeklyScore}%</div>
-        <div style={{ fontSize: '8px', color: theme.textMuted, marginTop: '2px' }}> Weekly Task Completion</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-{/* ===== HEATMAP ===== */}
-<div style={{
-  background: theme.bgCard,
-  borderRadius: '16px',
-  padding: '20px 24px',
-  border: `1px solid ${theme.border}`,
-  marginBottom: '16px'
-}}>
-  <div style={{ 
-    fontSize: '14px', 
-    fontWeight: '600', 
-    color: theme.text, 
-    marginBottom: '12px'
-  }}>
-     Heatmap
-    <span style={{ 
-      fontSize: '12px', 
-      fontWeight: '400', 
-      color: theme.textMuted,
-      marginLeft: '8px'
-    }}>
-      {tasks.filter(t => t.done).length} tasks done in last 30 days
-    </span>
-  </div>
-  <div style={{
-    display: 'grid',
-    gridTemplateColumns: 'repeat(10, 1fr)',
-    gap: '4px',
-    maxWidth: '100%',
-    width: '100%'
-  }}>
-    {Array.from({length: 30}).map((_, i) => {
-      const date = new Date()
-      date.setDate(date.getDate() - (29 - i))
-      const dateStr = date.toISOString().split('T')[0]
-
-      const dayTasks = tasks.filter(t => {
-        if (!t.done) return false
-        const taskDate = new Date(t.updated_at || t.due_date).toISOString().split('T')[0]
-        return taskDate === dateStr
-      })
-
-      const minutes = dayTasks.reduce((sum, t) => sum + (t.estimated_minutes || 0), 0)
-      const intensity = minutes === 0 ? 0 : minutes < 30 ? 1 : minutes < 60 ? 2 : minutes < 120 ? 3 : 4
-      const colors = ['#1a1a1a', '#0e4429', '#006d32', '#26a641', '#39d353']
-
-      return (
-        <div
-          key={dateStr}
-          title={`${dateStr}: ${dayTasks.length} tasks, ${formatMinutes(minutes)}`}
-          style={{
-            aspectRatio: '1',
-            background: colors[intensity],
-            border: `1px solid ${isDarkMode ? '#2a2a2a' : '#e0e0e0'}`,
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '9px',
-            color: intensity > 2 ? '#fff' : (isDarkMode ? '#666' : '#999'),
-            cursor: 'default',
-            transition: 'all 0.2s'
-          }}
-        >
-          {date.getDate()}
+          <span>Less</span>
+          {['#1a1a1a', '#0e4429', '#006d32', '#26a641', '#39d353'].map((color) => (
+            <div
+              key={color}
+              style={{
+                width: '16px',
+                height: '16px',
+                background: color,
+                borderRadius: '3px',
+                border: '1px solid var(--border-subtle)'
+              }}
+            />
+          ))}
+          <span>More</span>
         </div>
-      )
-    })}
-  </div>
-  <div style={{
-    display: 'flex',
-    gap: '6px',
-    alignItems: 'center',
-    marginTop: '10px',
-    fontSize: '10px',
-    color: theme.textMuted
-  }}>
-    <span>Less</span>
-    <div style={{ width: '16px', height: '16px', background: '#1a1a1a', border: `1px solid ${isDarkMode ? '#333' : '#ddd'}`, borderRadius: '3px' }}></div>
-    <div style={{ width: '16px', height: '16px', background: '#0e4429', border: `1px solid ${isDarkMode ? '#333' : '#ddd'}`, borderRadius: '3px' }}></div>
-    <div style={{ width: '16px', height: '16px', background: '#006d32', border: `1px solid ${isDarkMode ? '#333' : '#ddd'}`, borderRadius: '3px' }}></div>
-    <div style={{ width: '16px', height: '16px', background: '#26a641', border: `1px solid ${isDarkMode ? '#333' : '#ddd'}`, borderRadius: '3px' }}></div>
-    <div style={{ width: '16px', height: '16px', background: '#39d353', border: `1px solid ${isDarkMode ? '#333' : '#ddd'}`, borderRadius: '3px' }}></div>
-    <span>More</span>
-  </div>
-</div>
+      </div>
 
       {/* ===== FAILED DAYS ===== */}
       {failedDays.length > 0 && (
-        <div style={{
-          background: theme.bgCard,
-          borderRadius: '16px',
-          padding: '16px 20px',
-          border: `1px solid #dc2626`,
-          marginBottom: '16px'
-        }}>
-          <div style={{ fontSize: '14px', fontWeight: '600', color: '#dc2626', marginBottom: '4px' }}>
+        <div
+          className="card"
+          style={{
+            borderColor: 'var(--danger)',
+            marginBottom: '16px',
+            padding: '16px 20px'
+          }}
+        >
+          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--danger)', marginBottom: '4px' }}>
             ⚠️ Failed Days This Week
           </div>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            {failedDays.map(day => (
-              <span key={day.date} style={{ fontSize: '13px', color: theme.textSecondary }}>
+            {failedDays.map((day) => (
+              <span key={day.date} className="text-secondary" style={{ fontSize: '13px' }}>
                 {formatDate(day.date)}: {day.completed}/{day.total} habits
               </span>
             ))}
           </div>
         </div>
       )}
-  
-      {/* ===== CONTENT AREA ===== */}
-      <div style={{
-        background: theme.bgCard,
-        borderRadius: '20px',
-        padding: '24px',
-        border: `1px solid ${theme.border}`,
-        minHeight: '400px',
-        transition: 'all 0.3s ease'
-      }}>
 
+      {/* ===== CONTENT AREA ===== */}
+      <div className="card" style={{ minHeight: '400px', padding: '24px' }}>
         {/* ===== NOTES TAB ===== */}
         {activeTab === 'notes' && (
           <div>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '16px'
-            }}>
-              <h2 style={{
-                fontSize: '18px',
-                fontWeight: '600',
-                margin: 0,
-                color: theme.text
-              }}>
-                 Notes
-                <span style={{
-                  fontSize: '13px',
-                  color: theme.textMuted,
-                  marginLeft: '10px',
-                  fontWeight: '400'
-                }}>
-                  {notes.length}
-                </span>
-              </h2>
-              <button
-                onClick={openAddNote}
-                style={{
-                  padding: '8px 18px',
-                  borderRadius: '20px',
-                  border: 'none',
-                  background: theme.accent,
-                  color: '#fff',
-                  fontSize: '13px',
-                  fontWeight: '500',
-                  cursor: 'pointer'
-                }}
-              >
-                + New Note
-              </button>
-            </div>
+            <div className="section-title">Notes</div>
+            <div className="section-subtitle">Capture, organize and retrieve information quickly.</div>
 
-            {/* NOTES CATEGORY TABS */}
-            <div style={{
-              display: 'flex',
-              gap: '6px',
-              marginBottom: '16px',
-              flexWrap: 'wrap'
-            }}>
-              {allCategories.map(cat => (
+            {/* Category Tabs */}
+            <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', flexWrap: 'wrap' }}>
+              {allCategories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveNoteCategory(cat)}
+                  className={`btn btn-sm ${activeNoteCategory === cat ? 'btn-primary' : 'btn-ghost'}`}
                   style={{
+                    borderRadius: '999px',
                     padding: '6px 16px',
-                    borderRadius: '20px',
-                    border: activeNoteCategory === cat 
-                      ? `1px solid ${theme.accent}`
-                      : `1px solid ${theme.border}`,
-                    background: activeNoteCategory === cat 
-                      ? (isDarkMode ? '#1a3a5c' : '#e8f0fe')
-                      : 'transparent',
-                    color: activeNoteCategory === cat 
-                      ? (isDarkMode ? '#60a5fa' : theme.accent)
-                      : theme.textSecondary,
                     fontSize: '12px',
-                    fontWeight: activeNoteCategory === cat ? '600' : '400',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
+                    height: '32px',
+                    background: activeNoteCategory === cat ? 'var(--accent)' : 'transparent',
+                    color: activeNoteCategory === cat ? 'var(--text-inverse)' : 'var(--text-secondary)',
+                    borderColor: activeNoteCategory === cat ? 'var(--accent)' : 'var(--border-subtle)'
                   }}
                 >
-                  {cat === 'All' ? (
-                    `${cat} (${notes.length})`
-                  ) : (
-                    `${cat} (${notes.filter(n => (n.category || 'Uncategorized') === cat).length})`
-                  )}
+                  {cat} ({notes.filter((n) => (n.category || 'Uncategorized') === cat).length})
                 </button>
               ))}
             </div>
 
+            {/* Notes Grid */}
             {filteredNotes.length > 0 ? (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-                gap: '12px'
-              }}>
-                {filteredNotes.map(note => (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
+                {filteredNotes.map((note) => (
                   <div
                     key={note.id}
+                    className="card"
                     onClick={() => openEditNote(note)}
                     style={{
-                      padding: '16px',
-                      borderRadius: '14px',
-                      background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-                      border: `1px solid ${theme.border}`,
                       cursor: 'pointer',
-                      transition: 'all 0.2s'
+                      padding: '20px',
+                      transition: 'all 0.2s ease',
+                      border: '1px solid var(--border-subtle)',
+                      borderRadius: '20px',
+                      background: 'var(--bg-card)'
                     }}
                     onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border-hover)'
                       e.currentTarget.style.transform = 'translateY(-2px)'
-                      e.currentTarget.style.borderColor = theme.borderHover
                     }}
                     onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border-subtle)'
                       e.currentTarget.style.transform = 'translateY(0)'
-                      e.currentTarget.style.borderColor = theme.border
                     }}
                   >
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      marginBottom: '6px'
-                    }}>
-                      <h4 style={{
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        margin: 0,
-                        color: theme.text
-                      }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div
+                        style={{
+                          fontSize: '18px',
+                          fontWeight: 700,
+                          color: 'var(--text-primary)',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          lineHeight: 1.3,
+                          flex: 1,
+                          marginRight: '8px'
+                        }}
+                      >
                         {note.title || 'Untitled'}
-                      </h4>
-                      <span style={{
-                        fontSize: '9px',
-                        padding: '1px 10px',
-                        borderRadius: '12px',
-                        background: '#2563eb',
-                        color: '#fff',
-                        flexShrink: 0
-                      }}>
+                      </div>
+                      <span
+                        className="chip chip-tag"
+                        style={{
+                          flexShrink: 0,
+                          marginTop: '2px',
+                          fontSize: '10px',
+                          height: '24px',
+                          padding: '0 10px'
+                        }}
+                      >
                         {note.category || 'Uncategorized'}
                       </span>
                     </div>
-                    <p style={{
-                      fontSize: '13px',
-                      color: theme.textSecondary,
-                      margin: 0,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      lineHeight: '1.5'
-                    }}>
+
+                    <div
+                      style={{
+                        fontSize: '14px',
+                        color: 'var(--text-secondary)',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        lineHeight: 1.5,
+                        marginTop: '8px'
+                      }}
+                    >
                       {note.content || 'No content'}
-                    </p>
-                    <div style={{
-                      marginTop: '10px',
-                      fontSize: '11px',
-                      color: theme.textMuted,
-                      display: 'flex',
-                      justifyContent: 'space-between'
-                    }}>
-                      <span>{formatDate(note.date)}</span>
-                      <span>{formatNoteTime(note.created_at)}</span>
+                    </div>
+
+                    <div
+                      style={{
+                        marginTop: '12px',
+                        fontSize: '12px',
+                        color: 'var(--text-muted)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <span>
+                        Updated {formatDate(note.date)}
+                        <span style={{ marginLeft: '8px', opacity: 0.5 }}>•</span>
+                        <span style={{ marginLeft: '8px' }}>{getWordCount(note.content)} words</span>
+                        <span style={{ marginLeft: '8px', opacity: 0.5 }}>•</span>
+                        <span style={{ marginLeft: '8px' }}>{getReadingTime(note.content)} min read</span>
+                      </span>
+                      <span style={{ fontSize: '11px', opacity: 0.6 }}>{formatNoteTime(note.created_at)}</span>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div style={{
-                textAlign: 'center',
-                padding: '60px 20px',
-                color: theme.textMuted
-              }}>
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
                 <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
-                <p style={{ fontSize: '16px', margin: 0 }}>No notes yet</p>
-                <p style={{ fontSize: '13px', marginTop: '4px' }}>Create your first note</p>
+                <p style={{ fontSize: '16px', margin: 0, color: 'var(--text-secondary)' }}>
+                  No notes available.
+                </p>
+                <p style={{ fontSize: '14px', marginTop: '4px' }}>
+                  Create your first note to start building your knowledge base.
+                </p>
+                <button onClick={openAddNote} className="btn btn-primary" style={{ marginTop: '16px' }}>
+                  + New Note
+                </button>
               </div>
             )}
 
-            {/* EXPORT NOTES */}
-            <div style={{
-              marginTop: '20px',
-              paddingTop: '16px',
-              borderTop: `1px solid ${theme.border}`
-            }}>
-              <div style={{
-                display: 'flex',
-                gap: '10px',
-                flexWrap: 'wrap'
-              }}>
+            {/* Export Section */}
+            <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border-subtle)' }}>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 <button
                   onClick={() => setShowExport(!showExport)}
-                  style={{
-                    padding: '8px 18px',
-                    borderRadius: '10px',
-                    border: `1px solid ${theme.border}`,
-                    background: 'transparent',
-                    color: theme.textSecondary,
-                    fontSize: '13px',
-                    cursor: 'pointer'
-                  }}
+                  className={`btn btn-sm ${showExport ? 'btn-primary' : 'btn-ghost'}`}
                 >
-                  {showExport ? '📄 Hide Export' : '📄 Export Notes'}
+                  {showExport ? 'Hide Export' : '📄 Export Notes'}
                 </button>
               </div>
 
               {showExport && notes.length > 0 && (
-                <div style={{
-                  marginTop: '12px',
-                  padding: '16px',
-                  background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-                  borderRadius: '12px',
-                  border: `1px solid ${theme.border}`
-                }}>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: theme.text, marginBottom: '10px' }}>
+                <div
+                  className="card"
+                  style={{ marginTop: '12px', padding: '16px', background: 'var(--bg-secondary)' }}
+                >
+                  <div className="caption" style={{ marginBottom: '10px' }}>
                     Select Notes to Export as PDF
                   </div>
-                  {notes.map(note => (
-                    <label key={note.id} style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      padding: '6px 0',
-                      fontSize: '13px',
-                      color: theme.textSecondary,
-                      cursor: 'pointer'
-                    }}>
+                  {notes.map((note) => (
+                    <label
+                      key={note.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '4px 0',
+                        fontSize: '13px',
+                        color: 'var(--text-secondary)',
+                        cursor: 'pointer'
+                      }}
+                    >
                       <input
                         type="checkbox"
                         checked={selectedNotes.includes(note.id)}
                         onChange={() => toggleSelect(note.id)}
-                        style={{ accentColor: theme.accent }}
+                        className="custom-checkbox"
+                        style={{ width: '18px', height: '18px' }}
                       />
                       {note.title || 'Untitled'}
                     </label>
@@ -2287,28 +2086,16 @@ return (
                     <button
                       onClick={exportNotesPDF}
                       disabled={selectedNotes.length === 0}
-                      style={{
-                        padding: '8px 20px',
-                        borderRadius: '8px',
-                        border: 'none',
-                        background: selectedNotes.length > 0 ? theme.accent : isDarkMode ? '#2a2a2a' : '#ddd',
-                        color: selectedNotes.length > 0 ? '#fff' : isDarkMode ? '#555' : '#999',
-                        fontWeight: '500',
-                        cursor: selectedNotes.length > 0 ? 'pointer' : 'not-allowed'
-                      }}
+                      className="btn btn-primary btn-sm"
                     >
                       Export {selectedNotes.length} Selected
                     </button>
                     <button
-                      onClick={() => { setShowExport(false); setSelectedNotes([]) }}
-                      style={{
-                        padding: '8px 20px',
-                        borderRadius: '8px',
-                        border: `1px solid ${theme.border}`,
-                        background: 'transparent',
-                        color: theme.textSecondary,
-                        cursor: 'pointer'
+                      onClick={() => {
+                        setShowExport(false)
+                        setSelectedNotes([])
                       }}
+                      className="btn btn-ghost btn-sm"
                     >
                       Cancel
                     </button>
@@ -2322,87 +2109,24 @@ return (
         {/* ===== TASKS TAB ===== */}
         {activeTab === 'tasks' && (
           <div>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '16px'
-            }}>
-              <h2 style={{
-                fontSize: '18px',
-                fontWeight: '600',
-                margin: 0,
-                color: theme.text
-              }}>
-                 Tasks
-                <span style={{
-                  fontSize: '13px',
-                  color: theme.textMuted,
-                  marginLeft: '10px',
-                  fontWeight: '400'
-                }}>
-                  {tasks.filter(t => t.done).length}/{tasks.length} done
-                </span>
-              </h2>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button
-                  onClick={exportTasksWord}
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: '16px',
-                    border: `1px solid ${theme.border}`,
-                    background: 'transparent',
-                    color: theme.textSecondary,
-                    fontSize: '12px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Export
-                </button>
-                <button
-                  onClick={exportWeeklyReport}
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: '16px',
-                    border: 'none',
-                    background: theme.accent,
-                    color: '#fff',
-                    fontSize: '12px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Weekly Report
-                </button>
-              </div>
-            </div>
+            <div className="section-title">Tasks</div>
+            <div className="section-subtitle">Organize your day efficiently.</div>
 
-            {/* TASK CATEGORY TABS */}
-            <div style={{
-              display: 'flex',
-              gap: '6px',
-              marginBottom: '16px',
-              flexWrap: 'wrap'
-            }}>
-              {['all', 'daily', 'weekly', 'custom'].map(cat => (
+            {/* Task Category Tabs */}
+            <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', flexWrap: 'wrap' }}>
+              {['all', 'daily', 'weekly', 'custom'].map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
+                  className={`btn btn-sm ${activeCategory === cat ? 'btn-primary' : 'btn-ghost'}`}
                   style={{
+                    borderRadius: '999px',
                     padding: '6px 16px',
-                    borderRadius: '20px',
-                    border: activeCategory === cat 
-                      ? `1px solid ${theme.accent}`
-                      : `1px solid ${theme.border}`,
-                    background: activeCategory === cat 
-                      ? (isDarkMode ? '#1a3a5c' : '#e8f0fe')
-                      : 'transparent',
-                    color: activeCategory === cat 
-                      ? (isDarkMode ? '#60a5fa' : theme.accent)
-                      : theme.textSecondary,
                     fontSize: '12px',
-                    fontWeight: activeCategory === cat ? '600' : '400',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
+                    height: '32px',
+                    background: activeCategory === cat ? 'var(--accent)' : 'transparent',
+                    color: activeCategory === cat ? 'var(--text-inverse)' : 'var(--text-secondary)',
+                    borderColor: activeCategory === cat ? 'var(--accent)' : 'var(--border-subtle)'
                   }}
                 >
                   {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -2410,95 +2134,53 @@ return (
               ))}
             </div>
 
-            {/* TASK INPUT - COMPLETE VERSION WITH MULTIPLE SUBTASKS & ADD BUTTON AT BOTTOM */}
-            <div style={{
-              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-              borderRadius: '12px',
-              padding: '20px',
-              border: `1px solid ${theme.border}`,
-              marginBottom: '16px'
-            }}>
-              {/* Row 1: Task name */}
-              <div style={{
-                width: '100%',
-                marginBottom: '12px'
-              }}>
-                <input
-                  value={task}
-                  onChange={e => setTask(e.target.value)}
-                  placeholder="Add a task..."
-                  onKeyDown={(e) => e.key === 'Enter' && addTask()}
-                  style={{
-                    padding: '12px 16px',
-                    borderRadius: '10px',
-                    border: `1px solid ${theme.border}`,
-                    background: theme.bgInput,
-                    color: theme.text,
-                    fontSize: '14px',
-                    outline: 'none',
-                    width: '100%'
-                  }}
-                />
-              </div>
+                        {/* Task Input */}
+            <div
+              className="card"
+              style={{
+                padding: '20px',
+                marginBottom: '16px',
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border-subtle)'
+              }}
+            >
+              <input
+                value={task}
+                onChange={(e) => setTask(e.target.value)}
+                placeholder="Add a task..."
+                className="input"
+                style={{ marginBottom: '12px' }}
+                onKeyDown={(e) => e.key === 'Enter' && addTask()}
+              />
 
-              {/* Row 2: Category + Time/Day/Date */}
-              <div style={{
-                display: 'flex',
-                gap: '10px',
-                marginBottom: '12px',
-                flexWrap: 'wrap'
-              }}>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '12px' }}>
                 <select
                   value={taskCategory}
-                  onChange={e => setTaskCategory(e.target.value)}
-                  style={{
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    border: `1px solid ${theme.border}`,
-                    background: theme.bgInput,
-                    color: theme.text,
-                    fontSize: '13px',
-                    outline: 'none',
-                    flex: 1,
-                    maxWidth: '200px'
-                  }}
+                  onChange={(e) => setTaskCategory(e.target.value)}
+                  className="select"
+                  style={{ flex: 1, minWidth: '120px' }}
                 >
                   <option value="daily">Daily</option>
                   <option value="weekly">Weekly</option>
                   <option value="custom">One-time</option>
                 </select>
-                
+
                 {taskCategory === 'daily' && (
                   <input
                     type="time"
                     value={taskTime}
-                    onChange={e => setTaskTime(e.target.value)}
-                    style={{
-                      padding: '10px 14px',
-                      borderRadius: '8px',
-                      border: `1px solid ${theme.border}`,
-                      background: theme.bgInput,
-                      color: theme.text,
-                      fontSize: '13px',
-                      outline: 'none',
-                      width: '140px'
-                    }}
+                    onChange={(e) => setTaskTime(e.target.value)}
+                    className="input"
+                    style={{ width: '140px' }}
                   />
                 )}
 
                 {taskCategory === 'weekly' && (
                   <select
                     value={taskWeekDay}
-                    onChange={e => setTaskWeekDay(e.target.value)}
-                    style={{
-                      padding: '10px 14px',
-                      borderRadius: '8px',
-                      border: `1px solid ${theme.border}`,
-                      background: theme.bgInput,
-                      color: theme.text,
-                      fontSize: '13px',
-                      outline: 'none'
-                    }}
+                    onChange={(e) => setTaskWeekDay(e.target.value)}
+                    className="select"
+                    style={{ width: '140px' }}
                   >
                     <option value="monday">Monday</option>
                     <option value="tuesday">Tuesday</option>
@@ -2514,98 +2196,43 @@ return (
                   <input
                     type="date"
                     value={taskDueDate}
-                    onChange={e => setTaskDueDate(e.target.value)}
-                    style={{
-                      padding: '10px 14px',
-                      borderRadius: '8px',
-                      border: `1px solid ${theme.border}`,
-                      background: theme.bgInput,
-                      color: theme.text,
-                      fontSize: '13px',
-                      outline: 'none',
-                      width: '160px'
-                    }}
+                    onChange={(e) => setTaskDueDate(e.target.value)}
+                    className="input"
+                    style={{ width: '160px' }}
                   />
                 )}
               </div>
 
-                            {/* Row 3: Extra fields */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-                paddingTop: '16px',
-                borderTop: `1px solid ${theme.border}`
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px'
-                }}>
-                  <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>📊 Difficulty</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <span className="tiny-label" style={{ minWidth: '60px' }}>Difficulty</span>
                   <select
                     value={taskDifficulty}
-                    onChange={e => setTaskDifficulty(e.target.value)}
-                    style={{
-                      padding: '8px 14px',
-                      borderRadius: '8px',
-                      border: `1px solid ${theme.border}`,
-                      background: theme.bgInput,
-                      color: theme.text,
-                      fontSize: '13px',
-                      outline: 'none',
-                      width: '160px'
-                    }}
+                    onChange={(e) => setTaskDifficulty(e.target.value)}
+                    className="select"
+                    style={{ width: '140px' }}
                   >
                     <option value="easy">Easy</option>
                     <option value="medium">Medium</option>
                     <option value="hard">Hard</option>
                   </select>
-                </div>
 
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px'
-                }}>
-                  <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>⏱️ Minutes</label>
+                  <span className="tiny-label" style={{ minWidth: '50px' }}>Mins</span>
                   <input
                     type="number"
                     value={taskMinutes}
-                    onChange={e => setTaskMinutes(Number(e.target.value))}
+                    onChange={(e) => setTaskMinutes(Number(e.target.value))}
                     placeholder="30"
-                    style={{
-                      padding: '8px 14px',
-                      borderRadius: '8px',
-                      border: `1px solid ${theme.border}`,
-                      background: theme.bgInput,
-                      color: theme.text,
-                      fontSize: '13px',
-                      outline: 'none',
-                      width: '100px'
-                    }}
+                    className="input"
+                    style={{ width: '80px' }}
                   />
-                </div>
 
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px'
-                }}>
-                  <label style={{ fontSize: '13px', color: theme.textMuted, minWidth: '80px', flexShrink: 0 }}>🏷️ Tag</label>
+                  <span className="tiny-label" style={{ minWidth: '30px' }}>Tag</span>
                   <select
                     value={taskTag}
-                    onChange={e => setTaskTag(e.target.value)}
-                    style={{
-                      padding: '8px 14px',
-                      borderRadius: '8px',
-                      border: `1px solid ${theme.border}`,
-                      background: theme.bgInput,
-                      color: theme.text,
-                      fontSize: '13px',
-                      outline: 'none',
-                      width: '160px'
-                    }}
+                    onChange={(e) => setTaskTag(e.target.value)}
+                    className="select"
+                    style={{ width: '140px' }}
                   >
                     <option value="general">General</option>
                     <option value="school">School</option>
@@ -2615,92 +2242,69 @@ return (
                   </select>
                 </div>
 
-                {/* SUBTASK FIELD - MULTIPLE */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  paddingTop: '8px',
-                  borderTop: `1px dashed ${theme.border}`,
-                  width: '100%',
-                  flexWrap: 'wrap'
-                }}>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     value={newSubTask}
-                    onChange={e => setNewSubTask(e.target.value)}
+                    onChange={(e) => setNewSubTask(e.target.value)}
                     placeholder="Add a subtask"
+                    className="input"
+                    style={{ flex: 1, maxWidth: '260px', fontSize: '13px', padding: '6px 12px' }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && newSubTask.trim()) {
-                        setSubTasksToAdd([...subTasksToAdd, { id: Date.now().toString(), text: newSubTask.trim(), done: false }])
+                        setSubTasksToAdd([
+                          ...subTasksToAdd,
+                          { id: Date.now().toString(), text: newSubTask.trim(), done: false }
+                        ])
                         setNewSubTask('')
-                        setMessage(' Subtask added!')
+                        showToast('Subtask added!', 'success')
                       }
-                    }}
-                    style={{
-                      padding: '6px 10px',
-                      borderRadius: '6px',
-                      border: `1px solid ${theme.border}`,
-                      background: theme.bgInput,
-                      color: theme.text,
-                      fontSize: '12px',
-                      outline: 'none',
-                      flex: 1,
-                      maxWidth: '200px'
                     }}
                   />
                   <button
                     onClick={() => {
                       if (newSubTask.trim()) {
-                        setSubTasksToAdd([...subTasksToAdd, { id: Date.now().toString(), text: newSubTask.trim(), done: false }])
+                        setSubTasksToAdd([
+                          ...subTasksToAdd,
+                          { id: Date.now().toString(), text: newSubTask.trim(), done: false }
+                        ])
                         setNewSubTask('')
-                        setMessage(' Subtask added!')
+                        showToast('Subtask added!', 'success')
                       }
                     }}
-                    style={{
-                      padding: '4px 12px',
-                      borderRadius: '6px',
-                      border: 'none',
-                      background: theme.accent,
-                      color: '#fff',
-                      fontSize: '12px',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                      flexShrink: 0
-                    }}
+                    className="btn btn-ghost btn-sm"
                   >
                     Add
                   </button>
                 </div>
 
                 {subTasksToAdd.length > 0 && (
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '4px',
-                    marginTop: '4px'
-                  }}>
-                    {subTasksToAdd.map(st => (
-                      <div key={st.id} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '4px 10px',
-                        background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
-                        borderRadius: '6px',
-                        width: 'fit-content',
-                        maxWidth: '100%'
-                      }}>
-                        <span style={{ fontSize: '12px', color: theme.text }}>📋 {st.text}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {subTasksToAdd.map((st) => (
+                      <div
+                        key={st.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '4px 10px',
+                          background: 'var(--accent-light)',
+                          borderRadius: '6px',
+                          width: 'fit-content'
+                        }}
+                      >
+                        <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>📋 {st.text}</span>
                         <button
-                          onClick={() => setSubTasksToAdd(subTasksToAdd.filter(s => s.id !== st.id))}
+                          onClick={() =>
+                            setSubTasksToAdd(subTasksToAdd.filter((s) => s.id !== st.id))
+                          }
                           style={{
                             padding: '1px 4px',
                             borderRadius: '4px',
                             border: 'none',
                             background: 'transparent',
-                            color: theme.textMuted,
+                            color: 'var(--text-muted)',
                             cursor: 'pointer',
-                            fontSize: '12px'
+                            fontSize: '14px'
                           }}
                         >
                           ×
@@ -2709,210 +2313,167 @@ return (
                     ))}
                   </div>
                 )}
-              </div>
 
-              {/* ADD BUTTON AT THE BOTTOM */}
-              <div style={{
-                marginTop: '16px',
-                paddingTop: '16px',
-                borderTop: `1px solid ${theme.border}`,
-                display: 'flex',
-                justifyContent: 'flex-end'
-              }}>
-                <button
-                  onClick={addTask}
-                  style={{
-                    padding: '12px 40px',
-                    borderRadius: '10px',
-                    border: 'none',
-                    background: theme.accent,
-                    color: '#fff',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    fontSize: '15px',
-                    width: '100%'
-                  }}
-                >
-                  + Add Task
+                <button onClick={addTask} disabled={taskSaving} className="btn btn-primary" style={{ width: '100%' }}>
+                  {taskSaving ? 'Adding...' : '+ Add Task'}
                 </button>
               </div>
             </div>
 
-            {/* TASK LIST */}
+            {/* Task List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {filteredTasks.length > 0 ? (
-                filteredTasks.map(t => {
+                filteredTasks.map((t) => {
                   const taskSubtasks = subTasks[t.id] || []
-                  const completedSubtasks = taskSubtasks.filter(st => st.done).length
+                  const completedSubtasks = taskSubtasks.filter((st) => st.done).length
                   const isExpanded = activeTaskId === t.id
 
                   return (
                     <div
                       key={t.id}
+                      className="card"
                       style={{
-                        background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-                        borderRadius: '14px',
-                        border: `1px solid ${theme.border}`,
+                        padding: '14px 16px',
                         overflow: 'hidden',
-                        transition: 'all 0.2s'
+                        border: isExpanded ? '1px solid var(--accent-light)' : '1px solid var(--border-subtle)',
+                        transition: 'all 0.2s ease'
                       }}
                     >
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '12px 16px'
-                      }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => setActiveTaskId(isExpanded ? null : t.id)}
+                      >
                         <input
                           type="checkbox"
                           checked={t.done}
-                          onChange={() => toggleTask(t.id)}
+                          onChange={(e) => {
+                            e.stopPropagation()
+                            toggleTask(t.id)
+                          }}
                           className="custom-checkbox"
                         />
+
                         <div style={{ flex: 1 }}>
-                          <div style={{
-                            fontSize: '14px',
-                            color: t.done ? theme.textMuted : theme.text,
-                            textDecoration: t.done ? 'line-through' : 'none'
-                          }}>
+                          <div
+                            style={{
+                              fontSize: '18px',
+                              fontWeight: 700,
+                              color: t.done ? 'var(--text-muted)' : 'var(--text-primary)',
+                              textDecoration: t.done ? 'line-through' : 'none',
+                              letterSpacing: '-0.2px'
+                            }}
+                          >
                             {t.content}
                           </div>
-                          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '4px' }}>
+                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
                             {t.difficulty && (
-                              <span style={{
-                                fontSize: '9px',
-                                padding: '1px 10px',
-                                borderRadius: '12px',
-                                background: t.difficulty === 'hard' ? '#dc2626' :
-                                           t.difficulty === 'medium' ? '#f59e0b' : '#22c55e',
-                                color: '#fff'
-                              }}>
+                              <span
+                                className={`chip ${
+                                  t.difficulty === 'hard'
+                                    ? 'chip-hard'
+                                    : t.difficulty === 'medium'
+                                    ? 'chip-medium'
+                                    : 'chip-easy'
+                                }`}
+                                style={{ height: '28px', fontSize: '11px' }}
+                              >
                                 {t.difficulty}
                               </span>
                             )}
                             {t.estimated_minutes && (
-                              <span style={{
-                                fontSize: '9px',
-                                padding: '1px 10px',
-                                borderRadius: '12px',
-                                background: isDarkMode ? '#2a2a2a' : '#e8e8e8',
-                                color: theme.textSecondary
-                              }}>
+                              <span className="chip chip-minutes" style={{ height: '28px', fontSize: '11px' }}>
                                 {t.estimated_minutes}m
                               </span>
                             )}
                             {t.category_tag && t.category_tag !== 'general' && (
-                              <span style={{
-                                fontSize: '9px',
-                                padding: '1px 10px',
-                                borderRadius: '12px',
-                                background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
-                                color: isDarkMode ? '#60a5fa' : theme.accent
-                              }}>
+                              <span className="chip chip-tag" style={{ height: '28px', fontSize: '11px' }}>
                                 #{t.category_tag}
                               </span>
                             )}
                             {t.time && (
-                              <span style={{
-                                fontSize: '9px',
-                                padding: '1px 10px',
-                                borderRadius: '12px',
-                                background: isDarkMode ? '#2a1a1a' : '#fde8e8',
-                                color: isDarkMode ? '#f87171' : '#dc2626'
-                              }}>
+                              <span
+                                className="chip"
+                                style={{
+                                  background: 'var(--danger-light)',
+                                  color: 'var(--danger)',
+                                  height: '28px',
+                                  fontSize: '11px'
+                                }}
+                              >
                                 {t.time}
                               </span>
                             )}
                             {taskSubtasks.length > 0 && (
-                              <span style={{
-                                fontSize: '9px',
-                                padding: '1px 10px',
-                                borderRadius: '12px',
-                                background: isDarkMode ? '#1a1a3a' : '#e8e8f0',
-                                color: isDarkMode ? '#818cf8' : '#4f46e5'
-                              }}>
+                              <span
+                                className="chip chip-progress"
+                                style={{ height: '28px', fontSize: '11px' }}
+                              >
                                 📋 {completedSubtasks}/{taskSubtasks.length}
                               </span>
                             )}
                           </div>
                         </div>
-                        <button
-                          onClick={() => setActiveTaskId(isExpanded ? null : t.id)}
-                          style={{
-                            padding: '4px 8px',
-                            borderRadius: '6px',
-                            border: 'none',
-                            background: 'transparent',
-                            color: theme.textSecondary,
-                            cursor: 'pointer',
-                            fontSize: '14px'
-                          }}
-                        >
-                          {isExpanded ? '▲' : '▼'}
-                        </button>
-                        <button
-                          onClick={() => deleteTask(t.id)}
-                          style={{
-                            padding: '4px 8px',
-                            borderRadius: '6px',
-                            border: 'none',
-                            background: 'transparent',
-                            color: theme.textMuted,
-                            cursor: 'pointer',
-                            fontSize: '18px'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
-                          onMouseLeave={(e) => e.currentTarget.style.color = theme.textMuted}
-                        >
-                          ×
-                        </button>
+
+                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                          <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                            {isExpanded ? '▲' : '▼'}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              deleteTask(t.id)
+                            }}
+                            style={{
+                              padding: '4px 8px',
+                              borderRadius: '6px',
+                              border: 'none',
+                              background: 'transparent',
+                              color: 'var(--text-muted)',
+                              cursor: 'pointer',
+                              fontSize: '18px'
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--danger)')}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
+                          >
+                            ×
+                          </button>
+                        </div>
                       </div>
 
                       {/* Subtasks Section */}
                       {isExpanded && (
-                        <div style={{
-                          padding: '12px 16px',
-                          borderTop: `1px solid ${theme.border}`,
-                          background: isDarkMode ? '#111' : '#fafafa'
-                        }}>
+                        <div
+                          style={{
+                            paddingTop: '12px',
+                            marginTop: '12px',
+                            borderTop: '1px solid var(--border-subtle)',
+                            animation: 'fadeIn 0.25s ease'
+                          }}
+                        >
                           <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
                             <input
                               value={newSubTask}
                               onChange={(e) => setNewSubTask(e.target.value)}
                               placeholder="Add subtask..."
+                              className="input"
+                              style={{ flex: 1, fontSize: '13px', padding: '6px 12px' }}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                   addSubTask(t.id)
                                 }
                               }}
-                              style={{
-                                flex: 1,
-                                padding: '6px 12px',
-                                borderRadius: '8px',
-                                border: `1px solid ${theme.border}`,
-                                background: theme.bgInput,
-                                color: theme.text,
-                                fontSize: '13px',
-                                outline: 'none'
-                              }}
                             />
-                            <button
-                              onClick={() => addSubTask(t.id)}
-                              style={{
-                                padding: '6px 14px',
-                                borderRadius: '8px',
-                                border: 'none',
-                                background: theme.accent,
-                                color: '#fff',
-                                fontSize: '12px',
-                                cursor: 'pointer'
-                              }}
-                            >
+                            <button onClick={() => addSubTask(t.id)} className="btn btn-primary btn-sm">
                               Add
                             </button>
                           </div>
                           {taskSubtasks.length > 0 ? (
-                            taskSubtasks.map(st => (
+                            taskSubtasks.map((st) => (
                               <div
                                 key={st.id}
                                 style={{
@@ -2929,16 +2490,18 @@ return (
                                   style={{
                                     width: '16px',
                                     height: '16px',
-                                    accentColor: theme.accent,
+                                    accentColor: 'var(--accent)',
                                     cursor: 'pointer'
                                   }}
                                 />
-                                <span style={{
-                                  fontSize: '13px',
-                                  color: st.done ? theme.textMuted : theme.text,
-                                  textDecoration: st.done ? 'line-through' : 'none',
-                                  flex: 1
-                                }}>
+                                <span
+                                  style={{
+                                    fontSize: '14px',
+                                    color: st.done ? 'var(--text-muted)' : 'var(--text-secondary)',
+                                    textDecoration: st.done ? 'line-through' : 'none',
+                                    flex: 1
+                                  }}
+                                >
                                   {st.text}
                                 </span>
                                 <button
@@ -2948,24 +2511,19 @@ return (
                                     borderRadius: '4px',
                                     border: 'none',
                                     background: 'transparent',
-                                    color: theme.textMuted,
+                                    color: 'var(--text-muted)',
                                     cursor: 'pointer',
                                     fontSize: '14px'
                                   }}
-                                  onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
-                                  onMouseLeave={(e) => e.currentTarget.style.color = theme.textMuted}
+                                  onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--danger)')}
+                                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
                                 >
                                   ×
                                 </button>
                               </div>
                             ))
                           ) : (
-                            <p style={{
-                              fontSize: '13px',
-                              color: theme.textMuted,
-                              margin: 0,
-                              textAlign: 'center'
-                            }}>
+                            <p className="text-center" style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
                               No subtasks yet
                             </p>
                           )}
@@ -2975,473 +2533,364 @@ return (
                   )
                 })
               ) : (
-                <div style={{
-                  textAlign: 'center',
-                  padding: '40px',
-                  color: theme.textMuted
-                }}>
-                  No tasks in this category
+                <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                  <div style={{ fontSize: '40px', marginBottom: '8px' }}>🎯</div>
+                  <p style={{ fontSize: '16px', margin: 0, color: 'var(--text-secondary)' }}>
+                    Nothing scheduled today.
+                  </p>
+                  <p style={{ fontSize: '14px', marginTop: '4px' }}>Enjoy the calm or add a new challenge.</p>
+                  <button
+                    onClick={() => {
+                      // Focus the task input
+                      document.querySelector('input[placeholder="Add a task..."]')?.focus()
+                    }}
+                    className="btn btn-primary"
+                    style={{ marginTop: '16px' }}
+                  >
+                    + Add Task
+                  </button>
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {/* ===== JOURNAL TAB ===== */}
-{activeTab === 'journal' && (
-  <div>
-    <div style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '16px'
-    }}>
-      <h2 style={{
-        fontSize: '18px',
-        fontWeight: '600',
-        margin: 0,
-        color: theme.text
-      }}>
-         Journal
-        <span style={{
-          fontSize: '13px',
-          color: theme.textMuted,
-          marginLeft: '10px',
-          fontWeight: '400'
-        }}>
-          {journalEntries.length} entries
-        </span>
-      </h2>
-    </div>
+                {/* ===== JOURNAL TAB ===== */}
+        {activeTab === 'journal' && (
+          <div>
+            <div className="section-title">Journal</div>
+            <div className="section-subtitle">Reflect on your progress.</div>
 
-    {/* ===== FILTERS ===== */}
-    <div style={{
-      display: 'flex',
-      gap: '10px',
-      marginBottom: '16px',
-      flexWrap: 'wrap',
-      alignItems: 'center',
-      background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-      padding: '12px 16px',
-      borderRadius: '12px',
-      border: `1px solid ${theme.border}`
-    }}>
-      <label style={{ fontSize: '12px', color: theme.textMuted }}>📅 Date</label>
-      <input
-        type="date"
-        value={journalDateFilter}
-        onChange={(e) => {
-          setJournalDateFilter(e.target.value)
-          fetchJournal()
-        }}
-        style={{
-          padding: '6px 12px',
-          borderRadius: '6px',
-          border: `1px solid ${theme.border}`,
-          background: theme.bgInput,
-          color: theme.text,
-          fontSize: '12px',
-          outline: 'none',
-          width: '160px'
-        }}
-      />
-      {journalDateFilter && (
-        <button
-          onClick={() => {
-            setJournalDateFilter('')
-            fetchJournal()
-          }}
-          style={{
-            padding: '4px 12px',
-            borderRadius: '6px',
-            border: 'none',
-            background: '#dc2626',
-            color: '#fff',
-            fontSize: '11px',
-            cursor: 'pointer'
-          }}
-        >
-          Clear
-        </button>
-      )}
-      
-      <label style={{ fontSize: '12px', color: theme.textMuted, marginLeft: '10px' }}>🏷️ Tag</label>
-      <select
-        value={journalTagFilter}
-        onChange={(e) => {
-          setJournalTagFilter(e.target.value)
-        }}
-        style={{
-          padding: '6px 12px',
-          borderRadius: '6px',
-          border: `1px solid ${theme.border}`,
-          background: theme.bgInput,
-          color: theme.text,
-          fontSize: '12px',
-          outline: 'none',
-          width: '140px'
-        }}
-      >
-        <option value="">All Tags</option>
-        {[...new Set(journalEntries.map(e => e.tags || '').filter(t => t.trim()))].map(tag => (
-          <option key={tag} value={tag}>{tag}</option>
-        ))}
-      </select>
-      {journalTagFilter && (
-        <button
-          onClick={() => {
-            setJournalTagFilter('')
-          }}
-          style={{
-            padding: '4px 12px',
-            borderRadius: '6px',
-            border: 'none',
-            background: '#dc2626',
-            color: '#fff',
-            fontSize: '11px',
-            cursor: 'pointer'
-          }}
-        >
-          Clear
-        </button>
-      )}
-    </div>
-
-    {/* ===== JOURNAL INPUT ===== */}
-    <div style={{
-      marginBottom: '20px',
-      padding: '16px',
-      background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-      borderRadius: '14px',
-      border: `1px solid ${theme.border}`
-    }}>
-      <textarea
-        value={journalEntry}
-        onChange={(e) => setJournalEntry(e.target.value)}
-        placeholder="What's on your mind today? ✍️"
-        style={{
-          width: '100%',
-          minHeight: '100px',
-          padding: '12px',
-          borderRadius: '10px',
-          border: `1px solid ${theme.border}`,
-          background: theme.bgInput,
-          color: theme.text,
-          fontSize: '14px',
-          resize: 'vertical',
-          outline: 'none',
-          fontFamily: 'inherit'
-        }}
-      />
-      <div style={{
-        display: 'flex',
-        gap: '12px',
-        marginTop: '10px',
-        flexWrap: 'wrap',
-        alignItems: 'center'
-      }}>
-        <div style={{ flex: 1, minWidth: '120px' }}>
-          <label style={{ fontSize: '12px', color: theme.textMuted, display: 'block', marginBottom: '2px' }}>Mood</label>
-          <input
-            value={journalMood}
-            onChange={(e) => setJournalMood(e.target.value)}
-            placeholder="e.g., happy, stressed, calm"
-            style={{
-              width: '100%',
-              padding: '6px 12px',
-              borderRadius: '6px',
-              border: `1px solid ${theme.border}`,
-              background: theme.bgInput,
-              color: theme.text,
-              fontSize: '12px',
-              outline: 'none'
-            }}
-          />
-        </div>
-        <div style={{ flex: 2, minWidth: '180px' }}>
-          <label style={{ fontSize: '12px', color: theme.textMuted, display: 'block', marginBottom: '2px' }}>Tags (comma separated)</label>
-          <input
-            value={journalTags}
-            onChange={(e) => setJournalTags(e.target.value)}
-            placeholder="e.g., work, personal, ideas"
-            style={{
-              width: '100%',
-              padding: '6px 12px',
-              borderRadius: '6px',
-              border: `1px solid ${theme.border}`,
-              background: theme.bgInput,
-              color: theme.text,
-              fontSize: '12px',
-              outline: 'none'
-            }}
-          />
-        </div>
-        <button
-          onClick={saveJournal}
-          style={{
-            padding: '8px 24px',
-            borderRadius: '10px',
-            border: 'none',
-            background: theme.accent,
-            color: '#fff',
-            fontWeight: '500',
-            cursor: 'pointer',
-            fontSize: '13px',
-            alignSelf: 'flex-end',
-            marginTop: '8px'
-          }}
-        >
-          Save Entry 
-        </button>
-      </div>
-    </div>
-
-    {/* ===== JOURNAL ENTRIES LIST ===== */}
-    
-       {/* ===== JOURNAL ENTRIES LIST WITH PREVIEW & EXPAND ===== */}
-<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-  {journalEntries
-    .filter(entry => {
-      if (!journalTagFilter) return true
-      const tags = (entry.tags || '').split(',').map(t => t.trim())
-      return tags.includes(journalTagFilter)
-    })
-    .map(entry => {
-      const isExpanded = expandedEntries[entry.id] || false
-      const previewLength = 100 // characters to show in preview
-
-      return (
-        <div
-          key={entry.id}
-          style={{
-            padding: '16px',
-            borderRadius: '14px',
-            background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-            border: `1px solid ${theme.border}`,
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onClick={() => setExpandedEntries(prev => ({
-            ...prev,
-            [entry.id]: !prev[entry.id]
-          }))}
-        >
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '8px'
-          }}>
-            <span style={{
-              fontSize: '12px',
-              color: theme.textMuted
-            }}>
-              {new Date(entry.created_at).toLocaleString()}
-              {entry.mood && (
-  <span style={{
-    marginLeft: '12px',
-    background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
-    padding: '1px 10px',
-    borderRadius: '12px',
-    fontSize: '11px',
-    color: isDarkMode ? '#60a5fa' : '#2563eb'
-  }}>
-    {entry.mood}
-  </span>
-)}
-              {entry.tags && entry.tags.split(',').map(t => t.trim()).filter(Boolean).map(tag => (
-                <span key={tag} style={{
-                  marginLeft: '8px',
-                  background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
-                  padding: '1px 10px',
-                  borderRadius: '12px',
-                  fontSize: '11px',
-                  color: isDarkMode ? '#60a5fa' : '#2563eb'
-                }}>
-                  #{tag}
-                </span>
-              ))}
-            </span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                deleteJournalEntry(entry.id)
-              }}
+            {/* Filters */}
+            <div
               style={{
-                padding: '2px 8px',
-                borderRadius: '6px',
-                border: 'none',
-                background: 'transparent',
-                color: theme.textMuted,
-                cursor: 'pointer',
-                fontSize: '16px'
+                display: 'flex',
+                gap: '10px',
+                marginBottom: '16px',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                padding: '12px 16px',
+                background: 'var(--bg-secondary)',
+                borderRadius: '12px',
+                border: '1px solid var(--border-subtle)'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
-              onMouseLeave={(e) => e.currentTarget.style.color = theme.textMuted}
             >
-              ×
-            </button>
-          </div>
-          
-          {/* Content - Preview or Full */}
-          <div style={{
-            fontSize: '14px',
-            lineHeight: '1.6',
-            color: theme.text,
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word'
-          }}>
-            {isExpanded ? (
-              entry.content
-            ) : (
-              entry.content.length > previewLength 
-                ? entry.content.slice(0, previewLength) + '...' 
-                : entry.content
-            )}
-          </div>
-          
-          {/* Expand/Collapse Button */}
-          {entry.content.length > previewLength && (
-            <div style={{
-              marginTop: '8px',
-              display: 'flex',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setExpandedEntries(prev => ({
-                    ...prev,
-                    [entry.id]: !prev[entry.id]
-                  }))
+              <span className="tiny-label">📅 Date</span>
+              <input
+                type="date"
+                value={journalDateFilter}
+                onChange={(e) => {
+                  setJournalDateFilter(e.target.value)
+                  fetchJournal()
                 }}
+                className="input"
+                style={{ width: '160px', padding: '6px 12px', fontSize: '12px' }}
+              />
+              {journalDateFilter && (
+                <button
+                  onClick={() => {
+                    setJournalDateFilter('')
+                    fetchJournal()
+                  }}
+                  className="btn btn-sm"
+                  style={{ background: 'var(--danger)', color: 'var(--text-inverse)', border: 'none' }}
+                >
+                  Clear
+                </button>
+              )}
+
+              <span className="tiny-label" style={{ marginLeft: '8px' }}>
+                🏷️ Tag
+              </span>
+              <select
+                value={journalTagFilter}
+                onChange={(e) => setJournalTagFilter(e.target.value)}
+                className="select"
+                style={{ width: '140px', padding: '6px 12px', fontSize: '12px' }}
+              >
+                <option value="">All Tags</option>
+                {[...new Set(journalEntries.map((e) => e.tags || '').filter((t) => t.trim()))].map((tag) => (
+                  <option key={tag} value={tag}>
+                    {tag}
+                  </option>
+                ))}
+              </select>
+              {journalTagFilter && (
+                <button
+                  onClick={() => setJournalTagFilter('')}
+                  className="btn btn-sm"
+                  style={{ background: 'var(--danger)', color: 'var(--text-inverse)', border: 'none' }}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+
+            {/* Journal Editor */}
+            <div
+              style={{
+                marginBottom: '20px',
+                padding: '16px',
+                background: 'var(--bg-secondary)',
+                borderRadius: '14px',
+                border: '1px solid var(--border-subtle)'
+              }}
+            >
+              <textarea
+                value={journalEntry}
+                onChange={(e) => setJournalEntry(e.target.value)}
+                placeholder="What's on your mind today? ✍️"
+                className="textarea"
                 style={{
-                  padding: '4px 16px',
-                  borderRadius: '20px',
-                  border: `1px solid ${theme.border}`,
-                  background: 'transparent',
-                  color: theme.textSecondary,
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
+                  minHeight: '200px',
+                  fontSize: '16px',
+                  lineHeight: 1.8,
+                  maxWidth: '100%'
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = theme.accent
-                  e.currentTarget.style.color = theme.text
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = theme.border
-                  e.currentTarget.style.color = theme.textSecondary
+              />
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '12px',
+                  marginTop: '10px',
+                  flexWrap: 'wrap',
+                  alignItems: 'center'
                 }}
               >
-                {isExpanded ? '▲ Show less' : '▼ Read more'}
-              </button>
+                <div style={{ flex: 1, minWidth: '120px' }}>
+                  <span className="tiny-label" style={{ display: 'block', marginBottom: '2px' }}>
+                    Mood
+                  </span>
+                  <input
+                    value={journalMood}
+                    onChange={(e) => setJournalMood(e.target.value)}
+                    placeholder="e.g., happy, stressed, calm"
+                    className="input"
+                    style={{ padding: '6px 12px', fontSize: '12px' }}
+                  />
+                </div>
+                <div style={{ flex: 2, minWidth: '180px' }}>
+                  <span className="tiny-label" style={{ display: 'block', marginBottom: '2px' }}>
+                    Tags (comma separated)
+                  </span>
+                  <input
+                    value={journalTags}
+                    onChange={(e) => setJournalTags(e.target.value)}
+                    placeholder="e.g., work, personal, ideas"
+                    className="input"
+                    style={{ padding: '6px 12px', fontSize: '12px' }}
+                  />
+                </div>
+                <button
+                  onClick={saveJournal}
+                  disabled={journalSaving}
+                  className="btn btn-primary"
+                  style={{ alignSelf: 'flex-end', marginTop: '8px', minWidth: '100px' }}
+                >
+                  {journalSaving ? 'Saving...' : 'Save Entry'}
+                </button>
+              </div>
             </div>
-          )}
-        </div>
-      )
-    })}
-  {journalEntries.length === 0 && (
-    <div style={{
-      textAlign: 'center',
-      padding: '40px',
-      color: theme.textMuted
-    }}>
-      <div style={{ fontSize: '40px', marginBottom: '8px' }}>📖</div>
-      <p style={{ fontSize: '14px', margin: 0 }}>No journal entries yet</p>
-      <p style={{ fontSize: '13px', marginTop: '4px' }}>Write your first entry above</p>
-    </div>
-  )}
-</div>       
-            
-  </div>
-)}
+
+            {/* Journal Entries - Grouped by Today/Yesterday/This Week/Earlier */}
+            {journalEntries.length > 0 ? (
+              (() => {
+                const groups = {}
+                journalEntries.forEach((entry) => {
+                  const group = formatEntryDate(entry.created_at)
+                  if (!groups[group]) groups[group] = []
+                  groups[group].push(entry)
+                })
+
+                const groupOrder = ['Today', 'Yesterday', 'This Week', 'Earlier']
+
+                return groupOrder.map((group) => {
+                  if (!groups[group] || groups[group].length === 0) return null
+                  return (
+                    <div key={group} style={{ marginBottom: '16px' }}>
+                      <div
+                        className="tiny-label"
+                        style={{
+                          marginBottom: '8px',
+                          color: 'var(--text-secondary)',
+                          fontSize: '13px',
+                          fontWeight: 600
+                        }}
+                      >
+                        {group}
+                      </div>
+                      {groups[group]
+                        .filter((entry) => {
+                          if (!journalTagFilter) return true
+                          const tags = (entry.tags || '').split(',').map((t) => t.trim())
+                          return tags.includes(journalTagFilter)
+                        })
+                        .map((entry) => {
+                          const isExpanded = expandedEntries[entry.id] || false
+                          const previewLength = 120
+
+                          return (
+                            <div
+                              key={entry.id}
+                              className="card"
+                              style={{
+                                padding: '16px',
+                                marginBottom: '10px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease'
+                              }}
+                              onClick={() =>
+                                setExpandedEntries((prev) => ({
+                                  ...prev,
+                                  [entry.id]: !prev[entry.id]
+                                }))
+                              }
+                            >
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  marginBottom: '6px'
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                  <span className="caption" style={{ fontSize: '12px' }}>
+                                    {new Date(entry.created_at).toLocaleString()}
+                                  </span>
+                                  {entry.mood && (
+                                    <span
+                                      className="chip chip-tag"
+                                      style={{
+                                        height: '24px',
+                                        fontSize: '10px',
+                                        padding: '0 10px',
+                                        background: 'var(--accent-light)',
+                                        color: 'var(--accent)'
+                                      }}
+                                    >
+                                      {entry.mood}
+                                    </span>
+                                  )}
+                                  {entry.tags &&
+                                    entry.tags
+                                      .split(',')
+                                      .map((t) => t.trim())
+                                      .filter(Boolean)
+                                      .map((tag) => (
+                                        <span
+                                          key={tag}
+                                          className="chip chip-tag"
+                                          style={{ height: '24px', fontSize: '10px', padding: '0 10px' }}
+                                        >
+                                          #{tag}
+                                        </span>
+                                      ))}
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (confirm('Delete this entry?')) deleteJournalEntry(entry.id)
+                                  }}
+                                  style={{
+                                    padding: '2px 8px',
+                                    borderRadius: '6px',
+                                    border: 'none',
+                                    background: 'transparent',
+                                    color: 'var(--text-muted)',
+                                    cursor: 'pointer',
+                                    fontSize: '16px'
+                                  }}
+                                  onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--danger)')}
+                                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
+                                >
+                                  ×
+                                </button>
+                              </div>
+
+                              <div
+                                style={{
+                                  fontSize: '15px',
+                                  lineHeight: 1.8,
+                                  color: 'var(--text-primary)',
+                                  whiteSpace: 'pre-wrap',
+                                  wordBreak: 'break-word',
+                                  maxWidth: '70ch'
+                                }}
+                              >
+                                {isExpanded
+                                  ? entry.content
+                                  : entry.content.length > previewLength
+                                  ? entry.content.slice(0, previewLength) + '...'
+                                  : entry.content}
+                              </div>
+
+                              {entry.content.length > previewLength && (
+                                <div style={{ marginTop: '8px' }}>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setExpandedEntries((prev) => ({
+                                        ...prev,
+                                        [entry.id]: !prev[entry.id]
+                                      }))
+                                    }}
+                                    className="btn btn-ghost btn-sm"
+                                    style={{
+                                      padding: '2px 12px',
+                                      fontSize: '12px',
+                                      height: '28px',
+                                      borderRadius: '999px'
+                                    }}
+                                  >
+                                    {isExpanded ? '▲ Show less' : '▼ Read more'}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                    </div>
+                  )
+                })
+              })()
+            ) : (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                <div style={{ fontSize: '40px', marginBottom: '8px' }}>📖</div>
+                <p style={{ fontSize: '16px', margin: 0, color: 'var(--text-secondary)' }}>
+                  No journal entries yet.
+                </p>
+                <p style={{ fontSize: '14px', marginTop: '4px' }}>Write your first entry above.</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* ===== MESSAGE TOAST ===== */}
-      {message && (
-        <div style={{
-          position: 'fixed',
-          bottom: '30px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          padding: '12px 24px',
-          borderRadius: '12px',
-          background: theme.bgCard,
-          border: `1px solid ${theme.border}`,
-          color: theme.text,
-          boxShadow: theme.shadow,
-          fontSize: '14px',
-          zIndex: 9999,
-          animation: 'fadeInUp 0.3s ease'
-        }}>
-          {message}
+      {/* ===== TOAST ===== */}
+      {toast.show && (
+        <div className={`toast show ${toast.type}`}>
+          {toast.message}
+          {toast.undo && (
+            <span className="undo" onClick={toast.undo}>
+              Undo
+            </span>
+          )}
         </div>
       )}
 
+      {/* ===== INJECT ANIMATION STYLES ===== */}
       <style>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-          to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        @keyframes fadeIn {
+          0% { opacity: 0; transform: translateY(8px); }
+          100% { opacity: 1; transform: translateY(0); }
         }
-        ::-webkit-scrollbar {
-          width: 6px;
-          height: 6px;
+        .fade-in {
+          animation: fadeIn 0.22s ease-out;
         }
-        ::-webkit-scrollbar-track {
-          background: ${theme.bg};
-        }
-        ::-webkit-scrollbar-thumb {
-          background: ${theme.border};
-          border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: ${theme.textMuted};
-        }
-
-        /* Custom Checkbox */
-        .custom-checkbox {
-          width: 22px;
-          height: 22px;
-          border-radius: 50%;
-          border: 2px solid #555;
-          background: transparent;
-          cursor: pointer;
-          position: relative;
-          flex-shrink: 0;
-          transition: all 0.3s ease;
-          appearance: none;
-          -webkit-appearance: none;
-          outline: none;
-        }
-
-        .custom-checkbox:hover {
-          border-color: #2563eb;
-          box-shadow: 0 0 12px rgba(37, 99, 235, 0.3);
-        }
-
-        .custom-checkbox:checked {
-          background: #2563eb;
-          border-color: #2563eb;
-          box-shadow: 0 0 16px rgba(37, 99, 235, 0.4);
-          animation: checkboxPop 0.3s ease;
-        }
-
-        .custom-checkbox:checked::after {
-          content: '✓';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          color: #fff;
-          font-size: 14px;
-          font-weight: 700;
-        }
-
-        @keyframes checkboxPop {
-          0% { transform: scale(0.8); }
-          50% { transform: scale(1.1); }
-          100% { transform: scale(1); }
+        .card-press:active {
+          transform: scale(0.98);
+          transition-duration: 120ms;
         }
       `}</style>
     </div>
