@@ -1644,28 +1644,159 @@ export default function App() {
   return (
     <div className="container" data-theme={isDarkMode ? 'dark' : 'light'}>
     {/* ===== HEADER ===== */}
-<header className="app-header" style={{
+<header style={{
   display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: '24px',
-  flexWrap: 'wrap',
-  gap: '12px'
+  flexDirection: 'column',
+  gap: '4px',
+  marginBottom: '20px',
+  paddingBottom: '16px',
+  borderBottom: '1px solid var(--border-subtle)'
 }}>
-  {/* Left: Logo */}
-  <div className="header-left">
-    <div className="logo">Discypln</div>
+  {/* Row 1: Logo + Three Dots */}
+  <div style={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  }}>
+    {/* Logo - Bigger */}
+    <div className="logo" style={{
+      fontSize: '42px',
+      fontWeight: 900,
+      letterSpacing: '-1.5px',
+      lineHeight: 1,
+      color: 'var(--text-primary)'
+    }}>
+      Discypln
+    </div>
+
+    {/* Three Dots Menu */}
+    <div style={{ position: 'relative' }} ref={userMenuRef}>
+      <button
+        onClick={() => setShowUserMenu(!showUserMenu)}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: 'var(--text-secondary)',
+          fontSize: '24px',
+          cursor: 'pointer',
+          padding: '8px 12px',
+          borderRadius: '8px',
+          transition: 'background 0.2s',
+          letterSpacing: '2px',
+          fontWeight: 700
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-hover)'}
+        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+      >
+        •••
+      </button>
+
+      {/* Dropdown Menu */}
+      {showUserMenu && (
+        <div style={{
+          position: 'absolute',
+          top: 'calc(100% + 8px)',
+          right: 0,
+          minWidth: '200px',
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: '12px',
+          padding: '8px',
+          boxShadow: 'var(--shadow-lg)',
+          zIndex: 100,
+          animation: 'fadeIn 0.15s ease'
+        }}>
+          {/* Email */}
+          <div style={{
+            padding: '10px 14px',
+            fontSize: '13px',
+            color: 'var(--text-secondary)',
+            borderBottom: '1px solid var(--border-subtle)',
+            marginBottom: '4px',
+            fontWeight: 500
+          }}>
+            {user?.email || 'user@example.com'}
+          </div>
+
+          {/* Theme Toggle */}
+          <button
+            onClick={() => {
+              setIsDarkMode(!isDarkMode)
+              setShowUserMenu(false)
+            }}
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              border: 'none',
+              borderRadius: '8px',
+              background: 'transparent',
+              color: 'var(--text-primary)',
+              fontSize: '14px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              transition: 'background 0.2s',
+              fontFamily: 'var(--font-family)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-hover)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+          >
+            <span style={{ fontSize: '18px' }}>{isDarkMode ? '🌙' : '☀️'}</span>
+            {isDarkMode ? 'Dark Mode' : 'Light Mode'}
+          </button>
+
+          {/* Logout */}
+          <button
+            onClick={() => {
+              signOut()
+              setShowUserMenu(false)
+            }}
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              border: 'none',
+              borderRadius: '8px',
+              background: 'transparent',
+              color: 'var(--danger)',
+              fontSize: '14px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              transition: 'background 0.2s',
+              fontFamily: 'var(--font-family)',
+              borderTop: '1px solid var(--border-subtle)',
+              marginTop: '4px',
+              paddingTop: '10px'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--danger-light)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+          >
+            <span style={{ fontSize: '18px' }}>🚪</span>
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
   </div>
 
-  {/* Center: Greeting & Date */}
-  <div style={{ textAlign: 'center' }}>
-    <div className="greeting" style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>
+  {/* Row 2: Greeting + Date under logo */}
+  <div>
+    <div style={{
+      fontSize: '15px',
+      color: 'var(--text-secondary)',
+      marginTop: '2px'
+    }}>
       {greeting}
       <span style={{ color: 'var(--text-muted)', marginLeft: '6px' }}>
         {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </span>
     </div>
-    <div className="date" style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+    <div style={{
+      fontSize: '13px',
+      color: 'var(--text-muted)'
+    }}>
       {currentTime.toLocaleDateString('en-US', {
         weekday: 'long',
         month: 'long',
@@ -1675,8 +1806,8 @@ export default function App() {
     </div>
   </div>
 
-  {/* Right: Search + Theme + Logout */}
-  <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+  {/* Row 3: Search Bar */}
+  <div style={{ marginTop: '8px' }}>
     <div className="search-wrapper">
       <span className="search-icon">🔍</span>
       <input
@@ -1686,22 +1817,27 @@ export default function App() {
         onChange={(e) => setSearchQuery(e.target.value)}
         onFocus={() => setIsSearchFocused(true)}
         onBlur={() => setIsSearchFocused(false)}
+        style={{
+          width: '100%',
+          padding: '10px 16px 10px 40px',
+          borderRadius: '12px',
+          border: '1px solid var(--border-subtle)',
+          background: 'var(--bg-input)',
+          color: 'var(--text-primary)',
+          fontSize: '14px',
+          outline: 'none',
+          transition: 'all 0.2s'
+        }}
+        onFocus={(e) => {
+          e.target.style.borderColor = 'var(--accent)'
+          e.target.style.boxShadow = '0 0 0 3px var(--accent-light)'
+        }}
+        onBlur={(e) => {
+          e.target.style.borderColor = 'var(--border-subtle)'
+          e.target.style.boxShadow = 'none'
+        }}
       />
     </div>
-    <button
-      onClick={() => setIsDarkMode(!isDarkMode)}
-      className="theme-toggle"
-      aria-label="Toggle theme"
-    >
-      {isDarkMode ? '🌙' : '☀️'}
-    </button>
-    <button onClick={signOut} className="btn btn-ghost btn-icon" aria-label="Logout">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M9 21H5a2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-        <polyline points="16 17 21 12 16 7" />
-        <line x1="21" y1="12" x2="9" y1="12" />
-      </svg>
-    </button>
   </div>
 </header>
 
