@@ -228,6 +228,10 @@ export default function App() {
   const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [expandedEntries, setExpandedEntries] = useState({})
 
+  // ===== THREE DOTS MENU =====
+  const [showUserMenu, setShowUserMenu] = useState(false)
+  const userMenuRef = useRef(null)
+
   // ===== NOTES =====
   const [notes, setNotes] = useState([])
   const [title, setTitle] = useState('')
@@ -440,6 +444,17 @@ export default function App() {
       return () => clearTimeout(timer)
     }
   }, [message])
+
+  // ===== CLOSE MENU ON CLICK OUTSIDE =====
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
