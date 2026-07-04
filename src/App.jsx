@@ -1811,39 +1811,6 @@ export default function App() {
     </div>
   </div>
 
-  {/* Row 3: Search Bar */}
-  <div style={{ marginTop: '8px' }}>
-    <div className="search-wrapper">
-      <span className="search-icon">🔍</span>
-      <input
-        type="text"
-        placeholder="Search notes, tasks..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        onFocus={() => setIsSearchFocused(true)}
-        onBlur={() => setIsSearchFocused(false)}
-        style={{
-          width: '100%',
-          padding: '10px 16px 10px 40px',
-          borderRadius: '12px',
-          border: '1px solid var(--border-subtle)',
-          background: 'var(--bg-input)',
-          color: 'var(--text-primary)',
-          fontSize: '14px',
-          outline: 'none',
-          transition: 'all 0.2s'
-        }}
-        onFocus={(e) => {
-          e.target.style.borderColor = 'var(--accent)'
-          e.target.style.boxShadow = '0 0 0 3px var(--accent-light)'
-        }}
-        onBlur={(e) => {
-          e.target.style.borderColor = 'var(--border-subtle)'
-          e.target.style.boxShadow = 'none'
-        }}
-      />
-    </div>
-  </div>
 </header>
 
       {/* ===== CAPSULE NAVIGATION ===== */}
@@ -2102,7 +2069,64 @@ export default function App() {
     </div>
 
     <div className="section-subtitle">Capture, organize and retrieve information quickly.</div>
-
+{/* Search Bar - with clear button */}
+<div className="search-wrapper" style={{ position: 'relative', marginBottom: '16px' }}>
+  <span className="search-icon">🔍</span>
+  <input
+    type="text"
+    placeholder="Search notes..."
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    onFocus={() => setIsSearchFocused(true)}
+    onBlur={() => setIsSearchFocused(false)}
+    style={{
+      width: '100%',
+      padding: '10px 16px 10px 40px',
+      borderRadius: '12px',
+      border: '1px solid var(--border-subtle)',
+      background: 'var(--bg-input)',
+      color: 'var(--text-primary)',
+      fontSize: '14px',
+      outline: 'none',
+      transition: 'all 0.2s'
+    }}
+    onFocus={(e) => {
+      e.target.style.borderColor = 'var(--accent)'
+      e.target.style.boxShadow = '0 0 0 3px var(--accent-light)'
+    }}
+    onBlur={(e) => {
+      e.target.style.borderColor = 'var(--border-subtle)'
+      e.target.style.boxShadow = 'none'
+    }}
+  />
+  {/* Clear button - only shows when there's text */}
+  {searchQuery && (
+    <button
+      onClick={() => setSearchQuery('')}
+      style={{
+        position: 'absolute',
+        right: '12px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        background: 'none',
+        border: 'none',
+        color: 'var(--text-muted)',
+        cursor: 'pointer',
+        fontSize: '18px',
+        padding: '4px 8px',
+        borderRadius: '4px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'color 0.2s'
+      }}
+      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+    >
+      ✕
+    </button>
+  )}
+</div>
     {/* Category Tabs  */}
     
             <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', flexWrap: 'wrap' }}>
