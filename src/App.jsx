@@ -444,6 +444,12 @@ export default function App() {
       return () => clearTimeout(timer)
     }
   }, [message])
+  
+  // ===== THEME FIX ======
+  useEffect(() => {
+  // Apply the theme to the <body> so all CSS variables update
+  document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+}, [isDarkMode]);
 
   // ===== CLOSE MENU ON CLICK OUTSIDE =====
   useEffect(() => {
@@ -1642,7 +1648,7 @@ export default function App() {
   const greeting = getGreeting()
 
   return (
-    <div className="container" data-theme={isDarkMode ? 'dark' : 'light'}>
+    <div className="container">
     {/* ===== HEADER ===== */}
 <header style={{
   display: 'flex',
