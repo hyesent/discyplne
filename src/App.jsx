@@ -132,14 +132,15 @@ export default function App() {
   const [activeTaskId, setActiveTaskId] = useState(null)
   const [subTasksToAdd, setSubTasksToAdd] = useState([])
 
-  // ========== JOURNAL STATE ==========
+ // ========== JOURNAL STATE ==========
 const [journalEntries, setJournalEntries] = useState([])
 const [journalEntry, setJournalEntry] = useState('')
 const [journalMood, setJournalMood] = useState('')          
 const [journalTags, setJournalTags] = useState('')          
 const [journalDateFilter, setJournalDateFilter] = useState('') 
-const [journalTagFilter, setJournalTagFilter] = useState('') 
-
+const [journalTagFilter, setJournalTagFilter] = useState('')
+const [expandedEntries, setExpandedEntries] = useState({}) 
+  
   // ========== POMODORO STATE ==========
   const [pomodoroTime, setPomodoroTime] = useState(25 * 60)
   const [pomodoroRunning, setPomodoroRunning] = useState(false)
@@ -2986,7 +2987,6 @@ return (
           </div>
         )}
 
-                {/* ===== JOURNAL TAB ===== */}
         {/* ===== JOURNAL TAB ===== */}
 {activeTab === 'journal' && (
   <div>
@@ -3197,100 +3197,163 @@ return (
     </div>
 
     {/* ===== JOURNAL ENTRIES LIST ===== */}
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      {journalEntries
-        .filter(entry => {
-          // Apply tag filter client-side
-          if (!journalTagFilter) return true
-          const tags = (entry.tags || '').split(',').map(t => t.trim())
-          return tags.includes(journalTagFilter)
-        })
-        .map(entry => (
-          <div
-            key={entry.id}
-            style={{
-              padding: '16px',
-              borderRadius: '14px',
-              background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
-              border: `1px solid ${theme.border}`
-            }}
-          >
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '8px'
+    
+       {/* ===== JOURNAL ENTRIES LIST WITH PREVIEW & EXPAND ===== */}
+<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+  {journalEntries
+    .filter(entry => {
+      if (!journalTagFilter) return true
+      const tags = (entry.tags || '').split(',').map(t => t.trim())
+      return tags.includes(journalTagFilter)
+    })
+    .map(entry => {
+      const isExpanded = expandedEntries[entry.id] || false
+      const previewLength = 100 // characters to show in preview
+
+      return (
+        <div
+          key={entry.id}
+          style={{
+            padding: '16px',
+            borderRadius: '14px',
+            background: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+            border: `1px solid ${theme.border}`,
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+          onClick={() => setExpandedEntries(prev => ({
+            ...prev,
+            [entry.id]: !prev[entry.id]
+          }))}
+        >
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '8px'
+          }}>
+            <span style={{
+              fontSize: '12px',
+              color: theme.textMuted
             }}>
-              <span style={{
-                fontSize: '12px',
-                color: theme.textMuted
-              }}>
-                {new Date(entry.created_at).toLocaleString()}
-                {entry.mood && (
-                  <span style={{
-                    marginLeft: '12px',
-                    background: isDarkMode ? '#2a2a2a' : '#e0e0e0',
-                    padding: '1px 10px',
-                    borderRadius: '12px',
-                    fontSize: '11px',
-                    color: theme.textSecondary
-                  }}>
-                    😌 {entry.mood}
-                  </span>
-                )}
-                {entry.tags && entry.tags.split(',').map(t => t.trim()).filter(Boolean).map(tag => (
-                  <span key={tag} style={{
-                    marginLeft: '8px',
-                    background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
-                    padding: '1px 10px',
-                    borderRadius: '12px',
-                    fontSize: '11px',
-                    color: isDarkMode ? '#60a5fa' : '#2563eb'
-                  }}>
-                    #{tag}
-                  </span>
-                ))}
-              </span>
+              {new Date(entry.created_at).toLocaleString()}
+              {entry.mood && (
+  <span style={{
+    marginLeft: '12px',
+    background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
+    padding: '1px 10px',
+    borderRadius: '12px',
+    fontSize: '11px',
+    color: isDarkMode ? '#60a5fa' : '#2563eb'
+  }}>
+    {entry.mood}
+  </span>
+)}
+              {entry.tags && entry.tags.split(',').map(t => t.trim()).filter(Boolean).map(tag => (
+                <span key={tag} style={{
+                  marginLeft: '8px',
+                  background: isDarkMode ? '#1a3a5c' : '#e8f0fe',
+                  padding: '1px 10px',
+                  borderRadius: '12px',
+                  fontSize: '11px',
+                  color: isDarkMode ? '#60a5fa' : '#2563eb'
+                }}>
+                  #{tag}
+                </span>
+              ))}
+            </span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                deleteJournalEntry(entry.id)
+              }}
+              style={{
+                padding: '2px 8px',
+                borderRadius: '6px',
+                border: 'none',
+                background: 'transparent',
+                color: theme.textMuted,
+                cursor: 'pointer',
+                fontSize: '16px'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
+              onMouseLeave={(e) => e.currentTarget.style.color = theme.textMuted}
+            >
+              ×
+            </button>
+          </div>
+          
+          {/* Content - Preview or Full */}
+          <div style={{
+            fontSize: '14px',
+            lineHeight: '1.6',
+            color: theme.text,
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word'
+          }}>
+            {isExpanded ? (
+              entry.content
+            ) : (
+              entry.content.length > previewLength 
+                ? entry.content.slice(0, previewLength) + '...' 
+                : entry.content
+            )}
+          </div>
+          
+          {/* Expand/Collapse Button */}
+          {entry.content.length > previewLength && (
+            <div style={{
+              marginTop: '8px',
+              display: 'flex',
+              justifyContent: 'center'
+            }}>
               <button
-                onClick={() => deleteJournalEntry(entry.id)}
-                style={{
-                  padding: '2px 8px',
-                  borderRadius: '6px',
-                  border: 'none',
-                  background: 'transparent',
-                  color: theme.textMuted,
-                  cursor: 'pointer',
-                  fontSize: '16px'
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setExpandedEntries(prev => ({
+                    ...prev,
+                    [entry.id]: !prev[entry.id]
+                  }))
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
-                onMouseLeave={(e) => e.currentTarget.style.color = theme.textMuted}
+                style={{
+                  padding: '4px 16px',
+                  borderRadius: '20px',
+                  border: `1px solid ${theme.border}`,
+                  background: 'transparent',
+                  color: theme.textSecondary,
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = theme.accent
+                  e.currentTarget.style.color = theme.text
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = theme.border
+                  e.currentTarget.style.color = theme.textSecondary
+                }}
               >
-                ×
+                {isExpanded ? '▲ Show less' : '▼ Read more'}
               </button>
             </div>
-            <p style={{
-              fontSize: '14px',
-              lineHeight: '1.6',
-              margin: 0,
-              color: theme.text,
-              whiteSpace: 'pre-wrap'
-            }}>
-              {entry.content}
-            </p>
-          </div>
-        ))}
-      {journalEntries.length === 0 && (
-        <div style={{
-          textAlign: 'center',
-          padding: '40px',
-          color: theme.textMuted
-        }}>
-          <div style={{ fontSize: '40px', marginBottom: '8px' }}>📖</div>
-          <p style={{ fontSize: '14px', margin: 0 }}>No journal entries yet</p>
-          <p style={{ fontSize: '13px', marginTop: '4px' }}>Write your first entry above</p>
+          )}
         </div>
-      )}
+      )
+    })}
+  {journalEntries.length === 0 && (
+    <div style={{
+      textAlign: 'center',
+      padding: '40px',
+      color: theme.textMuted
+    }}>
+      <div style={{ fontSize: '40px', marginBottom: '8px' }}>📖</div>
+      <p style={{ fontSize: '14px', margin: 0 }}>No journal entries yet</p>
+      <p style={{ fontSize: '13px', marginTop: '4px' }}>Write your first entry above</p>
     </div>
+  )}
+</div>       
+            
   </div>
 )}
       </div>
