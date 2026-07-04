@@ -282,9 +282,11 @@ export default function App() {
   const [isBreak, setIsBreak] = useState(false)
   const [pomodoroSessions, setPomodoroSessions] = useState(0)
   const [totalMinutes, setTotalMinutes] = useState(0)
-  const [pomodoroState, setPomodoroState] = useState('idle') // idle | running | paused | finished
+  const [pomodoroState, setPomodoroState] = useState('idle') 
   const [showCelebration, setShowCelebration] = useState(false)
-
+  const [focusDuration, setFocusDuration] = useState(25)   
+  const [breakDuration, setBreakDuration] = useState(5) 
+  
   // ===== VOICE =====
   const recognitionRef = useRef(null)
   const [isListening, setIsListening] = useState(false)
@@ -537,66 +539,117 @@ export default function App() {
   }, [user, tasks])
 
   // ===== POMODORO =====
-  useEffect(() => {
-    let interval
-    if (pomodoroRunning) {
-      setPomodoroState('running')
-      interval = setInterval(() => {
-        setPomodoroTime(prev => {
-          if (prev <= 1) {
-            handlePomodoroComplete()
-            return isBreak ? 25 * 60 : 5 * 60
-          }
-          return prev - 1
-        })
-      }, 1000)
-    } else {
-      setPomodoroState(pomodoroTime === 0 ? 'finished' : 'idle')
-    }
-    return () => clearInterval(interval)
-  }, [pomodoroRunning, isBreak])
-
-  const togglePomodoro = () => {
-    if (!pomodoroRunning && pomodoroTime === 0) {
-      setPomodoroTime(25 * 60)
-      setIsBreak(false)
-    }
-    setPomodoroRunning(!pomodoroRunning)
-    setPomodoroState(!pomodoroRunning ? 'running' : 'paused')
-  }
-
-  const resetPomodoro = () => {
-    setPomodoroRunning(false)
-    setIsBreak(false)
-    setPomodoroTime(25 * 60)
-    setPomodoroState('idle')
-    setShowCelebration(false)
-  }
-
-  const handlePomodoroComplete = async () => {
-    if (!isBreak) {
-      const newSessions = pomodoroSessions + 1
-      const newMinutes = totalMinutes + 25
-      setPomodoroSessions(newSessions)
-      setTotalMinutes(newMinutes)
-      setShowCelebration(true)
-      setTimeout(() => setShowCelebration(false), 3000)
-
-      const today = new Date().toISOString().split('T')[0]
-      await supabase.from('pomodoro_sessions').upsert({
-        user_id: user.id,
-        date: today,
-        sessions_completed: newSessions,
-        total_minutes: newMinutes
+useEffect(() => {
+  let interval
+  if (pomodoroRunning) {
+    setPomodoroState('running')
+    interval = setInterval(() => {
+      setPomodoroTime(prev => {
+        if (prev <= 1) {
+          handlePomodoroComplete()
+          return isBreak ? breakDuration * 60 : focusDuration * 60
+        }
+        return prev - 1
       })
-      showToast('🎯 Focus Session Complete! Take a break.', 'success')
-    } else {
-      showToast('☕ Break over. Ready to focus?', 'success')
-    }
-    setIsBreak(!isBreak)
-    setPomodoroRunning(false)
-    setPomodoroState('finished')
+    }, 1000)
+  } else {
+    setPomodoroState(pomodoroTime === 0 ? 'finished' : 'idle')
   }
+  return () => clearInterval(interval)
+}, [pomodoroRunning, isBreak, focusDuration, breakDuration]) // add deps
+
+const togglePomodoro = () => {
+  if (!pomodoroRunning && pomodoroTime === 0) {
+    setPomodoroTime(focusDuration * 60)
+    setIsBreak(false)
+  }
+  setPomodoroRunning(!pomodoroRunning)
+  setPomodoroState(!pomodoroRunning ? 'running' : 'paused')
+}
+
+const resetPomodoro = () => {
+  setPomodoroRunning(false)
+  setIsBreak(false)
+  setPomodoroTime(focusDuration * 60)
+  setPomodoroState('idle')
+  setShowCelebration(false)
+}
+
+const handlePomodoroComplete = async () => {
+  if (!isBreak) {
+    const newSessions = pomodoroSessions + 1
+    const newMinutes = totalMinutes + focusDuration   // use focusDuration
+    setPomodoroSessions(newSessions)
+    setTotalMinutes(newMinutes)
+    setShowCelebration(true)
+    setTimeout(() => setShowCelebration(false), 3000)
+
+    const today = new Date().toISOString().split('T')[0]
+    await supabase.from('pomodoro_sessions').upsert({
+      user_id: user.id,
+      date: today,
+      sessions_completed: newSessions,
+      total_minutes: newMinutes
+    })
+    showToast('🎯 Focus Session Complete! Take a break.', 'success')
+    // Set next timer to break duration
+    setPomodoroTime(breakDuration * 60)
+  } else {
+    showToast('☕ Break over. Ready to focus?', 'success')
+    // Set next timer to focus duration
+    setPomodoroTime(focusDuration * 60)
+  }
+  setIsBreak(!isBreak)
+  setPomodoroRunning(false)
+  setPomodoroState('finished')
+    }
+  useEffect(() => {
+  const saved = localStorage.getItem('pomodoroState')
+  if (saved) {
+    try {
+      const state = JSON.parse(saved)
+      setFocusDuration(state.focusDuration ?? 25)
+      setBreakDuration(state.breakDuration ?? 5)
+      setPomodoroSessions(state.pomodoroSessions ?? 0)
+      setTotalMinutes(state.totalMinutes ?? 0)
+      setIsBreak(state.isBreak ?? false)
+      
+      if (state.pomodoroRunning && state.timestamp) {
+        const elapsed = (Date.now() - state.timestamp) / 1000
+        const remaining = Math.max(0, state.pomodoroTime - elapsed)
+        setPomodoroTime(remaining)
+        if (remaining > 0) {
+          setPomodoroRunning(true)
+          setPomodoroState('running')
+        } else {
+          // Timer expired while away – reset to idle with correct duration
+          setPomodoroRunning(false)
+          setPomodoroState('idle')
+          setPomodoroTime((state.isBreak ? state.breakDuration : state.focusDuration) * 60)
+        }
+      } else {
+        // Not running – set initial time
+        setPomodoroTime((state.isBreak ? state.breakDuration : state.focusDuration) * 60)
+        setPomodoroRunning(false)
+        setPomodoroState('idle')
+      }
+    } catch (e) {}
+  }
+}, [])
+  useEffect(() => {
+  const state = {
+    pomodoroTime,
+    pomodoroRunning,
+    isBreak,
+    pomodoroSessions,
+    totalMinutes,
+    focusDuration,
+    breakDuration,
+    timestamp: Date.now()
+  }
+  localStorage.setItem('pomodoroState', JSON.stringify(state))
+}, [pomodoroTime, pomodoroRunning, isBreak, pomodoroSessions, totalMinutes, focusDuration, breakDuration])
+  
   // ========== VOICE RECOGNITION ==========
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -1838,88 +1891,143 @@ export default function App() {
             {/* ===== POMODORO & STATS DASHBOARD ===== */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px' }}>
         {/* Pomodoro Card */}
-        <div className="card" style={{ textAlign: 'center', padding: '32px 24px' }}>
-          <div style={{ position: 'relative', display: 'inline-block' }}>
-            <div
-              style={{
-                fontSize: '56px',
-                fontWeight: 700,
-                fontFamily: "'JetBrains Mono', monospace",
-                color: 'var(--text-primary)',
-                letterSpacing: '-1px',
-                lineHeight: 1,
-                padding: '8px 0'
-              }}
-            >
-              {formatTime(pomodoroTime)}
-            </div>
-            {/* Simplified ring indicator - shown as a subtle glow around the timer */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: '-8px',
-                borderRadius: '50%',
-                border: '2px solid transparent',
-                borderColor: pomodoroRunning ? 'var(--accent)' : pomodoroState === 'paused' ? 'var(--warning)' : 'transparent',
-                opacity: pomodoroState === 'running' ? 0.3 : 0.1,
-                transition: 'all 0.3s ease'
-              }}
-            />
-          </div>
+<div className="card" style={{ textAlign: 'center', padding: '32px 24px' }}>
+  <div style={{ position: 'relative', display: 'inline-block' }}>
+    <div
+      style={{
+        fontSize: '56px',
+        fontWeight: 700,
+        fontFamily: "'JetBrains Mono', monospace",
+        color: 'var(--text-primary)',
+        letterSpacing: '-1px',
+        lineHeight: 1,
+        padding: '8px 0'
+      }}
+    >
+      {formatTime(pomodoroTime)}
+    </div>
+    {/* Simplified ring indicator */}
+    <div
+      style={{
+        position: 'absolute',
+        inset: '-8px',
+        borderRadius: '50%',
+        border: '2px solid transparent',
+        borderColor: pomodoroRunning ? 'var(--accent)' : pomodoroState === 'paused' ? 'var(--warning)' : 'transparent',
+        opacity: pomodoroState === 'running' ? 0.3 : 0.1,
+        transition: 'all 0.3s ease'
+      }}
+    />
+  </div>
 
-          <div style={{ marginTop: '4px', fontSize: '13px', color: 'var(--text-secondary)' }}>
-            {isBreak ? '☕ Break Time' : 'Focus Session'}
-            <span style={{ marginLeft: '12px', color: 'var(--text-muted)' }}>
-              {pomodoroSessions} sessions completed
-            </span>
-            <span style={{ marginLeft: '12px', color: 'var(--text-muted)' }}>
-              {formatMinutes(totalMinutes)} total
-            </span>
-          </div>
+  {/* ✨ DURATION CONTROLS ✨ */}
+  <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginTop: '8px', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <span className="tiny-label">Focus</span>
+      <input
+        type="number"
+        min="10"
+        max="60"
+        value={focusDuration}
+        onChange={(e) => {
+          const val = Math.min(60, Math.max(10, Number(e.target.value) || 10))
+          setFocusDuration(val)
+          if (!pomodoroRunning && !isBreak) setPomodoroTime(val * 60)
+        }}
+        style={{
+          width: '60px',
+          padding: '4px 6px',
+          borderRadius: '6px',
+          border: '1px solid var(--border-subtle)',
+          background: 'var(--bg-input)',
+          color: 'var(--text-primary)',
+          fontSize: '14px',
+          textAlign: 'center'
+        }}
+      />
+      <span className="tiny-label">min</span>
+    </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <span className="tiny-label">Break</span>
+      <input
+        type="number"
+        min="1"
+        max="15"
+        value={breakDuration}
+        onChange={(e) => {
+          const val = Math.min(15, Math.max(1, Number(e.target.value) || 1))
+          setBreakDuration(val)
+          if (!pomodoroRunning && isBreak) setPomodoroTime(val * 60)
+        }}
+        style={{
+          width: '60px',
+          padding: '4px 6px',
+          borderRadius: '6px',
+          border: '1px solid var(--border-subtle)',
+          background: 'var(--bg-input)',
+          color: 'var(--text-primary)',
+          fontSize: '14px',
+          textAlign: 'center'
+        }}
+      />
+      <span className="tiny-label">min</span>
+    </div>
+  </div>
 
-          <div
-            className="progress-bar"
-            style={{ marginTop: '16px', maxWidth: '320px', marginLeft: 'auto', marginRight: 'auto' }}
-          >
-            <div
-              className="progress-bar-fill"
-              style={{
-                width: `${((25 * 60 - pomodoroTime) / (25 * 60)) * 100}%`,
-                background: pomodoroRunning ? 'var(--accent)' : 'var(--text-muted)'
-              }}
-            />
-          </div>
+  <div style={{ marginTop: '4px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+    {isBreak ? '☕ Break Time' : 'Focus Session'}
+    <span style={{ marginLeft: '12px', color: 'var(--text-muted)' }}>
+      {pomodoroSessions} sessions completed
+    </span>
+    <span style={{ marginLeft: '12px', color: 'var(--text-muted)' }}>
+      {formatMinutes(totalMinutes)} total
+    </span>
+  </div>
 
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '16px', flexWrap: 'wrap' }}>
-            <button
-              onClick={togglePomodoro}
-              className={`btn ${pomodoroRunning ? 'btn-danger' : 'btn-primary'}`}
-              style={{ minWidth: '100px' }}
-            >
-              {pomodoroRunning ? ' Pause' : pomodoroState === 'paused' ? '▶ Resume' : '▶ Start'}
-            </button>
-            <button onClick={resetPomodoro} className="btn btn-ghost">
-              ↺ Reset
-            </button>
-          </div>
+  {/* ✨ DYNAMIC PROGRESS BAR - uses focusDuration ✨ */}
+  <div
+    className="progress-bar"
+    style={{ marginTop: '16px', maxWidth: '320px', marginLeft: 'auto', marginRight: 'auto' }}
+  >
+    <div
+      className="progress-bar-fill"
+      style={{
+        width: `${((focusDuration * 60 - pomodoroTime) / (focusDuration * 60)) * 100}%`,
+        background: pomodoroRunning ? 'var(--accent)' : 'var(--text-muted)'
+      }}
+    />
+  </div>
 
-          {showCelebration && (
-            <div
-              style={{
-                marginTop: '12px',
-                padding: '8px 16px',
-                background: 'var(--success-light)',
-                borderRadius: 'var(--radius-md)',
-                color: 'var(--success)',
-                fontSize: '14px',
-                fontWeight: 600,
-                animation: 'fadeIn 0.5s ease'
-              }}
-            >
-              🎯 Focus Session Complete!
-            </div>
-          )}
-        </div>
+  <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '16px', flexWrap: 'wrap' }}>
+    <button
+      onClick={togglePomodoro}
+      className={`btn ${pomodoroRunning ? 'btn-danger' : 'btn-primary'}`}
+      style={{ minWidth: '100px' }}
+    >
+      {pomodoroRunning ? ' Pause' : pomodoroState === 'paused' ? '▶ Resume' : '▶ Start'}
+    </button>
+    <button onClick={resetPomodoro} className="btn btn-ghost">
+      ↺ Reset
+    </button>
+  </div>
+
+  {showCelebration && (
+    <div
+      style={{
+        marginTop: '12px',
+        padding: '8px 16px',
+        background: 'var(--success-light)',
+        borderRadius: 'var(--radius-md)',
+        color: 'var(--success)',
+        fontSize: '14px',
+        fontWeight: 600,
+        animation: 'fadeIn 0.5s ease'
+      }}
+    >
+      🎯 Focus Session Complete!
+    </div>
+  )}
+</div>
 
         {/* Stats Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
