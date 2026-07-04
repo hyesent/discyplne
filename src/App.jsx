@@ -2100,7 +2100,7 @@ export default function App() {
     {/* Category Tabs  */}
     
             <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', flexWrap: 'wrap' }}>
-              {allCategories.map((cat) => (
+              
               {allCategories.map((cat) => {
   const count = cat === 'All' 
     ? notes.length 
