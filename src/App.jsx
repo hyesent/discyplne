@@ -248,6 +248,8 @@ export default function App() {
   const [activeNoteCategory, setActiveNoteCategory] = useState('All')
   const [isSaving, setIsSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState('')
+  const [selectedNotes, setSelectedNotes] = useState([])
+  const [selectionMode, setSelectionMode] = useState(false)
 
   // ===== TASKS =====
   const [tasks, setTasks] = useState([])
@@ -295,7 +297,6 @@ export default function App() {
 
   // ===== EXPORT =====
   const [showExport, setShowExport] = useState(false)
-  const [selectedNotes, setSelectedNotes] = useState([])
   const [targetLang, setTargetLang] = useState('fr')
 
   // ===== TOAST =====
@@ -449,7 +450,6 @@ export default function App() {
   
   // ===== THEME FIX ======
   useEffect(() => {
-  // Apply the theme to the <body> so all CSS variables update
   document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
 }, [isDarkMode]);
 
@@ -528,7 +528,7 @@ export default function App() {
         }
       }
       if (resetCount > 0) {
-        showToast(`🔄 ${resetCount} task${resetCount > 1 ? 's' : ''} reset!`, 'success')
+        showToast(`${resetCount} task${resetCount > 1 ? 's' : ''} reset!`, 'success')
         fetchTasks()
       }
     }
@@ -591,10 +591,10 @@ const handlePomodoroComplete = async () => {
       sessions_completed: newSessions,
       total_minutes: newMinutes
     })
-    showToast('🎯 Focus Session Complete! Take a break.', 'success')
+    showToast('Focus Session Complete! Take a break.', 'success')
     setPomodoroTime(Math.round(breakDuration * 60))
   } else {
-    showToast('☕ Break over. Ready to focus?', 'success')
+    showToast('Break over. Ready to focus?', 'success')
     setPomodoroTime(Math.round(focusDuration * 60))
   }
   setIsBreak(!isBreak)
@@ -921,6 +921,61 @@ useEffect(() => {
     }
   }
 
+  async function deleteMultipleNotes() {
+    const { error } = await supabase
+      .from('notes')
+      .delete()
+      .in('id', selectedNotes)
+      .eq('user_id', user.id)
+
+    if (error) {
+      setMessage('Delete failed: ' + error.message)
+    } else {
+      showToast(`${selectedNotes.length} note(s) deleted`, 'success', () => {})
+      setSelectedNotes([])
+      setSelectionMode(false)
+      await fetchNotes()
+      setViewMode('home')
+    }
+  }
+
+  function exportSelectedNotes() {
+    const notesToExport = notes.filter((n) => selectedNotes.includes(n.id))
+    if (notesToExport.length === 0) {
+      setMessage('Select notes to export')
+      return
+    }
+    
+    const doc = new jsPDF()
+    doc.setFontSize(18)
+    doc.text(`Discypln Notes - ${selectedDate}`, 20, 20)
+    let yPos = 40
+    notesToExport.forEach((note, idx) => {
+      if (yPos > 250) {
+        doc.addPage()
+        yPos = 20
+      }
+      doc.setFontSize(14)
+      doc.text(`${idx + 1}. ${note.title}`, 20, yPos)
+      doc.setFontSize(11)
+      const splitText = doc.splitTextToSize(note.content, 170)
+      splitText.forEach((line) => {
+        if (yPos > 270) {
+          doc.addPage()
+          yPos = 20
+        }
+        doc.text(line, 20, yPos)
+        yPos += 6
+      })
+      doc.text(`Category: ${note.category || 'Uncategorized'}`, 20, yPos)
+      yPos += 12
+    })
+    doc.save(`discypln-notes-${selectedDate}.pdf`)
+    showToast(`${selectedNotes.length} note(s) exported!`, 'success')
+    setSelectedNotes([])
+    setSelectionMode(false)
+  }
+
   async function shareNote() {
     if (!editingNote) return
     const shareText = `${editingNote.title}\n\n${editingNote.content}`
@@ -1127,7 +1182,7 @@ useEffect(() => {
       .eq('user_id', user.id)
     if (!error) {
       if (!task.done) {
-        showToast(' Task completed!', 'success')
+        showToast('Task completed!', 'success')
       }
       fetchTasks()
     }
@@ -1271,7 +1326,7 @@ useEffect(() => {
     }
   }
 
-    // ========== EXPORT FUNCTIONS ==========
+  // ========== EXPORT FUNCTIONS ==========
   const toggleSelect = (id) => {
     setSelectedNotes((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
@@ -1920,7 +1975,7 @@ useEffect(() => {
     />
   </div>
 
-  {/* ✨ DURATION CONTROLS ✨ */}
+  {/* DURATION CONTROLS */}
   <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginTop: '8px', flexWrap: 'wrap' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
       <span className="tiny-label">Focus</span>
@@ -2041,7 +2096,7 @@ useEffect(() => {
   </div>
 
   <div style={{ marginTop: '4px', fontSize: '13px', color: 'var(--text-secondary)' }}>
-    {isBreak ? '☕ Break Time' : 'Focus Session'}
+    {isBreak ? 'Break Time' : 'Focus Session'}
     <span style={{ marginLeft: '12px', color: 'var(--text-muted)' }}>
       {pomodoroSessions} sessions completed
     </span>
@@ -2050,7 +2105,7 @@ useEffect(() => {
     </span>
   </div>
 
-  {/* ✨ DYNAMIC PROGRESS BAR - uses focusDuration ✨ */}
+  {/* DYNAMIC PROGRESS BAR - uses focusDuration */}
   <div
     className="progress-bar"
     style={{ marginTop: '16px', maxWidth: '320px', marginLeft: 'auto', marginRight: 'auto' }}
@@ -2090,7 +2145,7 @@ useEffect(() => {
         animation: 'fadeIn 0.5s ease'
       }}
     >
-      🎯 Focus Session Complete!
+      Focus Session Complete!
     </div>
   )}
 </div>
@@ -2099,7 +2154,7 @@ useEffect(() => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
           <div className="card" style={{ textAlign: 'center', padding: '20px 16px' }}>
             <div style={{ fontSize: '28px', fontWeight: 700, color: '#F59E0B' }}>{streak}</div>
-            <div className="caption" style={{ marginTop: '4px' }}>🔥 Streak</div>
+            <div className="caption" style={{ marginTop: '4px' }}>Streak</div>
           </div>
           <div className="card" style={{ textAlign: 'center', padding: '20px 16px' }}>
             <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--accent)' }}>
@@ -2201,7 +2256,7 @@ useEffect(() => {
           }}
         >
           <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--danger)', marginBottom: '4px' }}>
-            ⚠️ Failed Days This Week
+            Failed Days This Week
           </div>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             {failedDays.map((day) => (
@@ -2217,211 +2272,357 @@ useEffect(() => {
       <div className="card" style={{ minHeight: '400px', padding: '24px' }}>
         {/* ===== NOTES TAB ===== */}
         {activeTab === 'notes' && (
-  <div>
-    {/* Heading row with "+" button */}
-    <div style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '4px'
-    }}>
-      <div className="section-title" style={{ marginBottom: 0 }}>Notes</div>
-      <button
-        onClick={openAddNote}
-        className="btn btn-primary"
-        style={{
-          borderRadius: '999px',
-          padding: '8px 20px',
-          fontSize: '14px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px'
-        }}
-      >
-        <span style={{ fontSize: '20px', lineHeight: 1 }}>+</span> New Note
-      </button>
-    </div>
+          <div>
+            {/* Heading row with action buttons */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '4px',
+              flexWrap: 'wrap',
+              gap: '8px'
+            }}>
+              <div className="section-title" style={{ marginBottom: 0 }}>Notes</div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {selectionMode && (
+                  <>
+                    <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                      {selectedNotes.length} selected
+                    </span>
+                    <button
+                      onClick={() => {
+                        if (selectedNotes.length === filteredNotes.length) {
+                          setSelectedNotes([])
+                        } else {
+                          setSelectedNotes(filteredNotes.map(n => n.id))
+                        }
+                      }}
+                      className="btn btn-sm btn-ghost"
+                      style={{
+                        borderRadius: '999px',
+                        padding: '6px 16px',
+                        fontSize: '12px',
+                        height: '32px'
+                      }}
+                    >
+                      {selectedNotes.length === filteredNotes.length ? 'Deselect All' : 'Select All'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (selectedNotes.length === 0) {
+                          showToast('Select notes first', 'error')
+                          return
+                        }
+                        if (confirm(`Delete ${selectedNotes.length} selected note(s)?`)) {
+                          deleteMultipleNotes()
+                        }
+                      }}
+                      className="btn btn-danger btn-sm"
+                      style={{
+                        borderRadius: '999px',
+                        padding: '6px 16px',
+                        fontSize: '12px',
+                        height: '32px'
+                      }}
+                    >
+                      Delete {selectedNotes.length > 0 && `(${selectedNotes.length})`}
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (selectedNotes.length === 0) {
+                          showToast('Select notes to export', 'error')
+                          return
+                        }
+                        exportSelectedNotes()
+                      }}
+                      className="btn btn-primary btn-sm"
+                      style={{
+                        borderRadius: '999px',
+                        padding: '6px 16px',
+                        fontSize: '12px',
+                        height: '32px'
+                      }}
+                    >
+                      Export {selectedNotes.length > 0 && `(${selectedNotes.length})`}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectionMode(false)
+                        setSelectedNotes([])
+                      }}
+                      className="btn btn-ghost btn-sm"
+                      style={{
+                        borderRadius: '999px',
+                        padding: '6px 16px',
+                        fontSize: '12px',
+                        height: '32px'
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                )}
+                {!selectionMode && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setSelectionMode(true)
+                        setSelectedNotes([])
+                      }}
+                      className="btn btn-ghost btn-sm"
+                      style={{
+                        borderRadius: '999px',
+                        padding: '6px 16px',
+                        fontSize: '12px',
+                        height: '32px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      Select
+                    </button>
+                    <button
+                      onClick={openAddNote}
+                      className="btn btn-primary"
+                      style={{
+                        borderRadius: '999px',
+                        padding: '6px 20px',
+                        fontSize: '12px',
+                        height: '32px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <span style={{ fontSize: '18px', lineHeight: 1 }}>+</span> New
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
 
-    <div className="section-subtitle">Capture, organize and retrieve information quickly.</div>
-{/* Search Bar - with clear button */}
-<div className="search-wrapper" style={{ position: 'relative', marginBottom: '16px' }}>
-  <span className="search-icon">🔍</span>
-  <input
-    type="text"
-    placeholder="Search notes..."
-    value={searchQuery}
-    onChange={(e) => setSearchQuery(e.target.value)}
-    onFocus={() => setIsSearchFocused(true)}
-    onBlur={() => setIsSearchFocused(false)}
-    style={{
-      width: '100%',
-      padding: '10px 16px 10px 40px',
-      borderRadius: '12px',
-      border: '1px solid var(--border-subtle)',
-      background: 'var(--bg-input)',
-      color: 'var(--text-primary)',
-      fontSize: '14px',
-      outline: 'none',
-      transition: 'all 0.2s'
-    }}
-    onFocus={(e) => {
-      e.target.style.borderColor = 'var(--accent)'
-      e.target.style.boxShadow = '0 0 0 3px var(--accent-light)'
-    }}
-    onBlur={(e) => {
-      e.target.style.borderColor = 'var(--border-subtle)'
-      e.target.style.boxShadow = 'none'
-    }}
-  />
-  {/* Clear button - only shows when there's text */}
-  {searchQuery && (
-    <button
-      onClick={() => setSearchQuery('')}
-      style={{
-        position: 'absolute',
-        right: '12px',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        background: 'none',
-        border: 'none',
-        color: 'var(--text-muted)',
-        cursor: 'pointer',
-        fontSize: '18px',
-        padding: '4px 8px',
-        borderRadius: '4px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: 'color 0.2s'
-      }}
-      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
-      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
-    >
-      ✕
-    </button>
-  )}
-</div>
-    {/* Category Tabs  */}
-    
+            <div className="section-subtitle">Capture, organize and retrieve information quickly.</div>
+
+            {/* Search Bar - with clear button */}
+            <div className="search-wrapper" style={{ position: 'relative', marginBottom: '16px' }}>
+              <span className="search-icon">🔍</span>
+              <input
+                type="text"
+                placeholder="Search notes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setIsSearchFocused(false)}
+                style={{
+                  width: '100%',
+                  padding: '10px 16px 10px 40px',
+                  borderRadius: '12px',
+                  border: '1px solid var(--border-subtle)',
+                  background: 'var(--bg-input)',
+                  color: 'var(--text-primary)',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'all 0.2s'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--accent)'
+                  e.target.style.boxShadow = '0 0 0 3px var(--accent-light)'
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'var(--border-subtle)'
+                  e.target.style.boxShadow = 'none'
+                }}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'color 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Category Tabs */}
             <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', flexWrap: 'wrap' }}>
-              
               {allCategories.map((cat) => {
-  const count = cat === 'All' 
-    ? notes.length 
-    : notes.filter((n) => (n.category || 'Uncategorized') === cat).length;
-  return (
-    <button
-      key={cat}
-      onClick={() => setActiveNoteCategory(cat)}
-      className={`btn btn-sm ${activeNoteCategory === cat ? 'btn-primary' : 'btn-ghost'}`}
-      style={{
-        borderRadius: '999px',
-        padding: '6px 16px',
-        fontSize: '12px',
-        height: '32px',
-        background: activeNoteCategory === cat ? 'var(--accent)' : 'transparent',
-        color: activeNoteCategory === cat ? 'var(--text-inverse)' : 'var(--text-secondary)',
-        borderColor: activeNoteCategory === cat ? 'var(--accent)' : 'var(--border-subtle)'
-      }}
-    >
-      {cat} ({count})
-    </button>
-  );
-})}
+                const count = cat === 'All' 
+                  ? notes.length 
+                  : notes.filter((n) => (n.category || 'Uncategorized') === cat).length;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveNoteCategory(cat)}
+                    className={`btn btn-sm ${activeNoteCategory === cat ? 'btn-primary' : 'btn-ghost'}`}
+                    style={{
+                      borderRadius: '999px',
+                      padding: '6px 16px',
+                      fontSize: '12px',
+                      height: '32px',
+                      background: activeNoteCategory === cat ? 'var(--accent)' : 'transparent',
+                      color: activeNoteCategory === cat ? 'var(--text-inverse)' : 'var(--text-secondary)',
+                      borderColor: activeNoteCategory === cat ? 'var(--accent)' : 'var(--border-subtle)'
+                    }}
+                  >
+                    {cat} ({count})
+                  </button>
+                );
+              })}
             </div>
 
             {/* Notes Grid */}
             {filteredNotes.length > 0 ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
-                {filteredNotes.map((note) => (
-                  <div
-                    key={note.id}
-                    className="card"
-                    onClick={() => openEditNote(note)}
-                    style={{
-                      cursor: 'pointer',
-                      padding: '20px',
-                      transition: 'all 0.2s ease',
-                      border: '1px solid var(--border-subtle)',
-                      borderRadius: '20px',
-                      background: 'var(--bg-card)'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--border-hover)'
-                      e.currentTarget.style.transform = 'translateY(-2px)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--border-subtle)'
-                      e.currentTarget.style.transform = 'translateY(0)'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                {filteredNotes.map((note) => {
+                  const isSelected = selectedNotes.includes(note.id)
+                  return (
+                    <div
+                      key={note.id}
+                      className="card"
+                      onClick={() => {
+                        if (selectionMode) {
+                          toggleSelect(note.id)
+                        } else {
+                          openEditNote(note)
+                        }
+                      }}
+                      style={{
+                        cursor: selectionMode ? 'pointer' : 'pointer',
+                        padding: '20px',
+                        transition: 'all 0.2s ease',
+                        border: selectionMode && isSelected 
+                          ? '2px solid var(--accent)' 
+                          : selectionMode 
+                            ? '2px solid var(--border-subtle)' 
+                            : '1px solid var(--border-subtle)',
+                        borderRadius: '20px',
+                        background: selectionMode && isSelected 
+                          ? 'var(--accent-light)' 
+                          : 'var(--bg-card)',
+                        transform: selectionMode && isSelected ? 'scale(0.98)' : 'scale(1)',
+                        position: 'relative'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!selectionMode) {
+                          e.currentTarget.style.borderColor = 'var(--border-hover)'
+                          e.currentTarget.style.transform = 'translateY(-2px)'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!selectionMode) {
+                          e.currentTarget.style.borderColor = 'var(--border-subtle)'
+                          e.currentTarget.style.transform = 'translateY(0)'
+                        }
+                      }}
+                    >
+                      {selectionMode && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '8px',
+                          right: '8px',
+                          width: '22px',
+                          height: '22px',
+                          borderRadius: '50%',
+                          border: isSelected ? '2px solid var(--accent)' : '2px solid var(--text-muted)',
+                          background: isSelected ? 'var(--accent)' : 'transparent',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          transition: 'all 0.2s ease'
+                        }}>
+                          {isSelected && '✓'}
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div
+                          style={{
+                            fontSize: '18px',
+                            fontWeight: 700,
+                            color: 'var(--text-primary)',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            lineHeight: 1.3,
+                            flex: 1,
+                            marginRight: '8px'
+                          }}
+                        >
+                          {note.title || 'Untitled'}
+                        </div>
+                        <span
+                          className="chip chip-tag"
+                          style={{
+                            flexShrink: 0,
+                            marginTop: '2px',
+                            fontSize: '10px',
+                            height: '24px',
+                            padding: '0 10px'
+                          }}
+                        >
+                          {note.category || 'Uncategorized'}
+                        </span>
+                      </div>
+
                       <div
                         style={{
-                          fontSize: '18px',
-                          fontWeight: 700,
-                          color: 'var(--text-primary)',
+                          fontSize: '14px',
+                          color: 'var(--text-secondary)',
                           display: '-webkit-box',
-                          WebkitLineClamp: 2,
+                          WebkitLineClamp: 3,
                           WebkitBoxOrient: 'vertical',
                           overflow: 'hidden',
-                          lineHeight: 1.3,
-                          flex: 1,
-                          marginRight: '8px'
+                          lineHeight: 1.5,
+                          marginTop: '8px'
                         }}
                       >
-                        {note.title || 'Untitled'}
+                        {note.content || 'No content'}
                       </div>
-                      <span
-                        className="chip chip-tag"
+
+                      <div
                         style={{
-                          flexShrink: 0,
-                          marginTop: '2px',
-                          fontSize: '10px',
-                          height: '24px',
-                          padding: '0 10px'
+                          marginTop: '12px',
+                          fontSize: '12px',
+                          color: 'var(--text-muted)',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
                         }}
                       >
-                        {note.category || 'Uncategorized'}
-                      </span>
+                        <span>
+                          Updated {formatDate(note.date)}
+                          <span style={{ marginLeft: '8px', opacity: 0.5 }}>•</span>
+                          <span style={{ marginLeft: '8px' }}>{getWordCount(note.content)} words</span>
+                          <span style={{ marginLeft: '8px', opacity: 0.5 }}>•</span>
+                          <span style={{ marginLeft: '8px' }}>{getReadingTime(note.content)} min read</span>
+                        </span>
+                        <span style={{ fontSize: '11px', opacity: 0.6 }}>{formatNoteTime(note.created_at)}</span>
+                      </div>
                     </div>
-
-                    <div
-                      style={{
-                        fontSize: '14px',
-                        color: 'var(--text-secondary)',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        lineHeight: 1.5,
-                        marginTop: '8px'
-                      }}
-                    >
-                      {note.content || 'No content'}
-                    </div>
-
-                    <div
-                      style={{
-                        marginTop: '12px',
-                        fontSize: '12px',
-                        color: 'var(--text-muted)',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <span>
-                        Updated {formatDate(note.date)}
-                        <span style={{ marginLeft: '8px', opacity: 0.5 }}>•</span>
-                        <span style={{ marginLeft: '8px' }}>{getWordCount(note.content)} words</span>
-                        <span style={{ marginLeft: '8px', opacity: 0.5 }}>•</span>
-                        <span style={{ marginLeft: '8px' }}>{getReadingTime(note.content)} min read</span>
-                      </span>
-                      <span style={{ fontSize: '11px', opacity: 0.6 }}>{formatNoteTime(note.created_at)}</span>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
@@ -2437,70 +2638,6 @@ useEffect(() => {
                 </button>
               </div>
             )}
-
-            {/* Export Section */}
-            <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border-subtle)' }}>
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                <button
-                  onClick={() => setShowExport(!showExport)}
-                  className={`btn btn-sm ${showExport ? 'btn-primary' : 'btn-ghost'}`}
-                >
-                  {showExport ? 'Hide Export' : '📄 Export Notes'}
-                </button>
-              </div>
-
-              {showExport && notes.length > 0 && (
-                <div
-                  className="card"
-                  style={{ marginTop: '12px', padding: '16px', background: 'var(--bg-secondary)' }}
-                >
-                  <div className="caption" style={{ marginBottom: '10px' }}>
-                    Select Notes to Export as PDF
-                  </div>
-                  {notes.map((note) => (
-                    <label
-                      key={note.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        padding: '4px 0',
-                        fontSize: '13px',
-                        color: 'var(--text-secondary)',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedNotes.includes(note.id)}
-                        onChange={() => toggleSelect(note.id)}
-                        className="custom-checkbox"
-                        style={{ width: '18px', height: '18px' }}
-                      />
-                      {note.title || 'Untitled'}
-                    </label>
-                  ))}
-                  <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
-                    <button
-                      onClick={exportNotesPDF}
-                      disabled={selectedNotes.length === 0}
-                      className="btn btn-primary btn-sm"
-                    >
-                      Export {selectedNotes.length} Selected
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowExport(false)
-                        setSelectedNotes([])
-                      }}
-                      className="btn btn-ghost btn-sm"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         )}
 
@@ -2939,7 +3076,6 @@ useEffect(() => {
                   <p style={{ fontSize: '14px', marginTop: '4px' }}>Enjoy the calm or add a new challenge.</p>
                   <button
                     onClick={() => {
-                      // Focus the task input
                       document.querySelector('input[placeholder="Add a task..."]')?.focus()
                     }}
                     className="btn btn-primary"
@@ -2953,7 +3089,7 @@ useEffect(() => {
           </div>
         )}
 
-                {/* ===== JOURNAL TAB ===== */}
+        {/* ===== JOURNAL TAB ===== */}
         {activeTab === 'journal' && (
           <div>
             <div className="section-title">Journal</div>
@@ -3293,4 +3429,4 @@ useEffect(() => {
       `}</style>
     </div>
   )
-        }
+}
