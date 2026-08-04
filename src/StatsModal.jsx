@@ -234,7 +234,6 @@ export default function StatsModal({
       <div className="stats-modal" ref={modalRef} onClick={(e) => e.stopPropagation()}>
         <div className="stats-modal-header">
           <div className="stats-modal-title">
-            <IconTrophy size={22} style={{ marginRight: '8px' }} />
             Full Stats Dashboard
           </div>
           <button className="stats-modal-close" onClick={onClose}>
