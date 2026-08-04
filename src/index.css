@@ -1,6 +1,6 @@
 /* ============================================================
    DISCYPLN V3 — Apple Liquid Glass System
-   GPU Accelerated · Zero Glitching · Premium Performance
+   Glow ONLY on Stats Hero Card
    ============================================================ */
 
 /* ----- Imports ----- */
@@ -18,21 +18,19 @@
   /* ----- Gradients ----- */
   --gradient-primary: linear-gradient(135deg, var(--brand-cyan) 0%, var(--brand-blue) 45%, var(--brand-purple) 100%);
 
-  /* ----- Glass System (Single Source of Truth) ----- */
+  /* ----- Glass System ----- */
   --glass-bg: rgba(255, 255, 255, 0.04);
   --glass-bg-hover: rgba(255, 255, 255, 0.07);
-  --glass-bg-active: rgba(255, 255, 255, 0.10);
   --glass-border: rgba(255, 255, 255, 0.06);
-  --glass-border-hover: rgba(255, 255, 255, 0.12);
-  --glass-border-active: rgba(255, 255, 255, 0.16);
+  --glass-border-hover: rgba(255, 255, 255, 0.10);
   --glass-blur: 12px;
   --glass-blur-heavy: 16px;
   --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.03);
   --glass-shadow-heavy: 0 8px 40px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
-  /* ----- Glow System (GPU-only) ----- */
-  --glow-color: rgba(79, 140, 255, 0.06);
-  --glow-color-strong: rgba(79, 140, 255, 0.10);
+  /* ----- Glow System (ONLY for Stats Hero) ----- */
+  --glow-color: rgba(79, 140, 255, 0.08);
+  --glow-color-strong: rgba(79, 140, 255, 0.12);
 
   /* ----- Elevation ----- */
   --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12);
@@ -49,7 +47,7 @@
   --text-muted: #5A6272;
   --text-inverse: #080A0E;
 
-  /* ----- Transitions (GPU-friendly) ----- */
+  /* ----- Transitions ----- */
   --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
@@ -58,7 +56,7 @@
   --duration-slow: 400ms;
   --duration-slower: 600ms;
 
-  /* ----- Spacing (8px grid) ----- */
+  /* ----- Spacing ----- */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -87,14 +85,12 @@
 [data-theme="light"] {
   --glass-bg: rgba(255, 255, 255, 0.50);
   --glass-bg-hover: rgba(255, 255, 255, 0.70);
-  --glass-bg-active: rgba(255, 255, 255, 0.85);
   --glass-border: rgba(0, 0, 0, 0.06);
   --glass-border-hover: rgba(0, 0, 0, 0.10);
-  --glass-border-active: rgba(0, 0, 0, 0.14);
   --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.80);
   --glass-shadow-heavy: 0 8px 40px rgba(0, 0, 0, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.80);
-  --glow-color: rgba(79, 140, 255, 0.04);
-  --glow-color-strong: rgba(79, 140, 255, 0.08);
+  --glow-color: rgba(79, 140, 255, 0.06);
+  --glow-color-strong: rgba(79, 140, 255, 0.10);
   --bg-primary: #F0F2F5;
   --bg-secondary: #FFFFFF;
   --bg-surface: #F8F9FA;
@@ -131,7 +127,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 2 — AURORA BACKGROUND (GPU-only)
+   PHASE 2 — AURORA BACKGROUND
    ============================================================ */
 .aurora-bg {
   position: fixed;
@@ -171,7 +167,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 2 — GLASS ENGINE (Single Implementation)
+   PHASE 2 — GLASS ENGINE
    ============================================================ */
 .glass {
   position: relative;
@@ -197,213 +193,81 @@ body {
   border-color: var(--glass-border-hover);
 }
 
-/* ----- Glass Content Layer ----- */
 .glass > * {
   position: relative;
-  z-index: 2;
-}
-
-/* ============================================================
-   PHASE 3 — GLOW ENGINE (GPU-only: transform + opacity)
-   ============================================================ */
-.glow {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-}
-
-/* Primary glow - expands on hover (GPU accelerated) */
-.glow::before {
-  content: '';
-  position: absolute;
-  inset: -40px;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at var(--glow-x, 40%) var(--glow-y, 50%), var(--glow-color), transparent 70%);
-  opacity: 0;
-  transform: scale(0.6) translateZ(0);
-  transition: opacity var(--duration-slower) var(--ease-smooth),
-              transform var(--duration-slower) var(--ease-smooth);
-  will-change: transform, opacity;
-}
-
-.glow:hover::before {
-  opacity: 1;
-  transform: scale(1.4) translateZ(0);
-}
-
-/* Secondary glow - floating (GPU accelerated) */
-.glow::after {
-  content: '';
-  position: absolute;
-  inset: -50px;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at 70% 40%, var(--glow-color-strong), transparent 70%);
-  opacity: 0.3;
-  transform: translateZ(0);
-  will-change: transform;
-  animation: floatGlow 20s var(--ease-smooth) infinite alternate;
-}
-
-.glow > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* Glow animations - only transform + opacity */
-@keyframes floatGlow {
-  0% { transform: translate(-8%, -8%) scale(1) translateZ(0); opacity: 0.20; }
-  33% { transform: translate(8%, -12%) scale(1.15) translateZ(0); opacity: 0.35; }
-  66% { transform: translate(-12%, 8%) scale(0.85) translateZ(0); opacity: 0.25; }
-  100% { transform: translate(10%, 10%) scale(1.05) translateZ(0); opacity: 0.30; }
-}
-
-/* ============================================================
-   PHASE 4 — REFLECTION ENGINE (Apple-style shine)
-   ============================================================ */
-.reflect {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-}
-
-/* Glass reflection - top shine */
-.reflect::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.06) 0%,
-    transparent 30%,
-    transparent 70%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-  border-radius: inherit;
-}
-
-/* Light refraction - subtle bend */
-.reflect::after {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  background: linear-gradient(
-    180deg,
-    transparent 40%,
-    rgba(255, 255, 255, 0.015) 45%,
-    rgba(255, 255, 255, 0.02) 50%,
-    rgba(255, 255, 255, 0.015) 55%,
-    transparent 60%
-  );
-  opacity: 0.6;
-  transform: translateZ(0);
-}
-
-.reflect > * {
-  position: relative;
   z-index: 1;
 }
 
 /* ============================================================
-   PHASE 5 — NOISE TEXTURE (Subtle realism)
+   PHASE 3 — STATS HERO GLOW (ONLY THIS CARD)
    ============================================================ */
-.noise {
-  position: relative;
-  isolation: isolate;
-}
-
-.noise::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-  opacity: 0.3;
-  mix-blend-mode: overlay;
-  pointer-events: none;
-}
-
-.noise > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* ============================================================
-   PHASE 8 — PREMIUM GLASS COMBO (All layers together)
-   ============================================================ */
-.premium-glass {
+.stats-hero {
   position: relative;
   isolation: isolate;
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur-heavy));
   -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
   border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-6);
   box-shadow: var(--glass-shadow-heavy);
-  overflow: hidden;
   transition: border var(--duration-fast) var(--ease-out),
-              box-shadow var(--duration-fast) var(--ease-out),
-              transform var(--duration-medium) var(--spring);
+              box-shadow var(--duration-fast) var(--ease-out);
+  overflow: hidden;
 }
 
-/* Glow layer */
-.premium-glass::before {
+/* ===== GLOW ONLY ON STATS HERO ===== */
+.stats-hero::before {
   content: '';
   position: absolute;
-  inset: -40px;
+  inset: -50px;
   z-index: 0;
   pointer-events: none;
   background: radial-gradient(circle at var(--glow-x, 40%) var(--glow-y, 50%), var(--glow-color), transparent 70%);
-  opacity: 0;
-  transform: scale(0.6) translateZ(0);
-  transition: opacity var(--duration-slower) var(--ease-smooth),
-              transform var(--duration-slower) var(--ease-smooth);
-  will-change: transform, opacity;
+  opacity: 0.4;
+  transform: translateZ(0);
+  will-change: transform;
+  animation: floatGlow 20s var(--ease-smooth) infinite alternate;
 }
 
-.premium-glass:hover::before {
-  opacity: 1;
-  transform: scale(1.4) translateZ(0);
-}
-
-/* Reflection layer */
-.premium-glass::after {
+/* Second glow layer - slower, different angle */
+.stats-hero::after {
   content: '';
   position: absolute;
-  inset: 0;
+  inset: -50px;
   z-index: 0;
   pointer-events: none;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    transparent 25%,
-    transparent 75%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-  border-radius: inherit;
+  background: radial-gradient(circle at var(--glow-x2, 60%) var(--glow-y2, 40%), var(--glow-color-strong), transparent 70%);
+  opacity: 0.2;
+  transform: translateZ(0);
+  will-change: transform;
+  animation: floatGlowReverse 25s var(--ease-smooth) infinite alternate;
 }
 
-.premium-glass > * {
+.stats-hero > * {
   position: relative;
   z-index: 1;
 }
 
-.premium-glass:hover {
+.stats-hero:hover {
   border-color: var(--glass-border-hover);
-  box-shadow: var(--glass-shadow-heavy);
-  transform: translateY(-2px) translateZ(0);
+}
+
+@keyframes floatGlow {
+  0% { transform: translate(-10%, -10%) scale(1) translateZ(0); opacity: 0.3; }
+  33% { transform: translate(10%, -15%) scale(1.2) translateZ(0); opacity: 0.5; }
+  66% { transform: translate(-15%, 10%) scale(0.8) translateZ(0); opacity: 0.35; }
+  100% { transform: translate(12%, 12%) scale(1.1) translateZ(0); opacity: 0.4; }
+}
+
+@keyframes floatGlowReverse {
+  0% { transform: translate(10%, 10%) scale(1) translateZ(0); opacity: 0.15; }
+  50% { transform: translate(-10%, -10%) scale(1.3) translateZ(0); opacity: 0.3; }
+  100% { transform: translate(10%, 10%) scale(0.9) translateZ(0); opacity: 0.2; }
 }
 
 /* ============================================================
-   PHASE 1 — ANIMATIONS (GPU-only)
+   PHASE 1 — ANIMATIONS
    ============================================================ */
 @keyframes fadeIn {
   0% { opacity: 0; }
@@ -431,18 +295,11 @@ body {
   100% { background-position: 0% 50%; }
 }
 
-@keyframes breathe {
-  0%, 100% { opacity: 0.6; transform: scale(1) translateZ(0); }
-  50% { opacity: 0.9; transform: scale(1.02) translateZ(0); }
-}
-
-/* Animation Classes */
 .fade-in { animation: fadeIn 0.4s var(--ease-out) forwards; }
 .slide-up { animation: slideUp 0.5s var(--spring) forwards; }
 .slide-down { animation: slideDown 0.2s var(--ease-out) forwards; }
-.breathe { animation: breathe 4s var(--ease-smooth) infinite; }
 
-/* Stagger Children */
+/* Stagger */
 .stagger > * {
   animation: slideUp 0.5s var(--spring) both;
 }
@@ -454,7 +311,7 @@ body {
 .stagger > *:nth-child(6) { animation-delay: 200ms; }
 
 /* ============================================================
-   PHASE 7 — TYPOGRAPHY (Static gradient + slow shimmer)
+   PHASE 7 — TYPOGRAPHY
    ============================================================ */
 .hero-title {
   font-size: 42px;
@@ -530,7 +387,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 6 — HEADER
+   PHASE 6 — HEADER (No Glow)
    ============================================================ */
 .app-header {
   display: flex;
@@ -540,8 +397,6 @@ body {
   margin-bottom: var(--space-6);
   border-radius: var(--radius-xl);
   min-height: 68px;
-  position: relative;
-  isolation: isolate;
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
@@ -549,49 +404,6 @@ body {
   box-shadow: var(--glass-shadow);
   transition: border var(--duration-fast) var(--ease-out),
               box-shadow var(--duration-fast) var(--ease-out);
-  overflow: hidden;
-}
-
-/* Header glow */
-.app-header::before {
-  content: '';
-  position: absolute;
-  inset: -40px;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at 30% 50%, var(--glow-color), transparent 70%);
-  opacity: 0;
-  transform: scale(0.6) translateZ(0);
-  transition: opacity var(--duration-slower) var(--ease-smooth),
-              transform var(--duration-slower) var(--ease-smooth);
-  will-change: transform, opacity;
-}
-
-.app-header:hover::before {
-  opacity: 1;
-  transform: scale(1.4) translateZ(0);
-}
-
-/* Header reflection */
-.app-header::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.04) 0%,
-    transparent 30%,
-    transparent 70%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-  border-radius: inherit;
-}
-
-.app-header > * {
-  position: relative;
-  z-index: 1;
 }
 
 .app-header:hover {
@@ -695,7 +507,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 3 — CAPSULE NAV
+   PHASE 3 — CAPSULE NAV (No Glow)
    ============================================================ */
 .capsule-nav {
   display: flex;
@@ -704,8 +516,6 @@ body {
 }
 
 .capsule-nav-inner {
-  position: relative;
-  isolation: isolate;
   display: flex;
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur-heavy));
@@ -718,26 +528,6 @@ body {
   width: 100%;
   max-width: 400px;
   box-shadow: var(--glass-shadow);
-  overflow: hidden;
-}
-
-/* Nav glow - floating */
-.capsule-nav-inner::before {
-  content: '';
-  position: absolute;
-  inset: -50px;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at 50% 50%, var(--glow-color), transparent 70%);
-  opacity: 0.3;
-  transform: translateZ(0);
-  will-change: transform;
-  animation: floatGlow 25s var(--ease-smooth) infinite alternate;
-}
-
-.capsule-nav-inner > * {
-  position: relative;
-  z-index: 1;
 }
 
 .capsule-nav-inner button {
@@ -772,11 +562,9 @@ body {
 }
 
 /* ============================================================
-   PHASE 5 — CARDS (Premium Glass)
+   PHASE 5 — CARDS (No Glow)
    ============================================================ */
 .card {
-  position: relative;
-  isolation: isolate;
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
@@ -787,49 +575,6 @@ body {
   transition: border var(--duration-fast) var(--ease-out),
               box-shadow var(--duration-fast) var(--ease-out),
               transform var(--duration-medium) var(--spring);
-  overflow: hidden;
-}
-
-/* Card glow */
-.card::before {
-  content: '';
-  position: absolute;
-  inset: -40px;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at 30% 40%, var(--glow-color), transparent 70%);
-  opacity: 0;
-  transform: scale(0.6) translateZ(0);
-  transition: opacity var(--duration-slower) var(--ease-smooth),
-              transform var(--duration-slower) var(--ease-smooth);
-  will-change: transform, opacity;
-}
-
-.card:hover::before {
-  opacity: 1;
-  transform: scale(1.4) translateZ(0);
-}
-
-/* Card reflection */
-.card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.03) 0%,
-    transparent 30%,
-    transparent 70%,
-    rgba(255, 255, 255, 0.015) 100%
-  );
-  border-radius: inherit;
-}
-
-.card > * {
-  position: relative;
-  z-index: 1;
 }
 
 .card:hover {
@@ -843,13 +588,9 @@ body {
   transition-duration: var(--duration-fast);
 }
 
-/* Card with extra glow */
+/* Card with extra shadow - still no glow */
 .card-glow {
   box-shadow: var(--glass-shadow);
-}
-
-.card-glow::before {
-  background: radial-gradient(circle at 60% 50%, var(--glow-color-strong), transparent 70%);
 }
 
 .card-glow:hover {
@@ -857,11 +598,9 @@ body {
 }
 
 /* ============================================================
-   PHASE 4 — BUTTONS
+   PHASE 4 — BUTTONS (No Glow)
    ============================================================ */
 .btn {
-  position: relative;
-  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -881,32 +620,6 @@ body {
   white-space: nowrap;
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
-  overflow: hidden;
-}
-
-/* Button glow */
-.btn::before {
-  content: '';
-  position: absolute;
-  inset: -30px;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at 50% 50%, var(--glow-color), transparent 70%);
-  opacity: 0;
-  transform: scale(0.6) translateZ(0);
-  transition: opacity var(--duration-slower) var(--ease-smooth),
-              transform var(--duration-slower) var(--ease-smooth);
-  will-change: transform, opacity;
-}
-
-.btn:hover::before {
-  opacity: 1;
-  transform: scale(1.4) translateZ(0);
-}
-
-.btn > * {
-  position: relative;
-  z-index: 1;
 }
 
 .btn:hover {
@@ -925,10 +638,6 @@ body {
   border: none;
   color: var(--text-inverse);
   box-shadow: 0 4px 16px rgba(79, 140, 255, 0.25);
-}
-
-.btn-primary::before {
-  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08), transparent 70%);
 }
 
 .btn-primary:hover {
@@ -987,11 +696,10 @@ body {
 }
 
 /* ============================================================
-   PHASE 6 — INPUTS (Wrapped - no ::before on inputs)
+   PHASE 6 — INPUTS
    ============================================================ */
 .input-wrapper {
   position: relative;
-  isolation: isolate;
 }
 
 .input-wrapper .input,
@@ -1009,26 +717,6 @@ body {
   font-family: var(--font-family);
   transition: all var(--duration-medium);
   outline: none;
-  position: relative;
-  z-index: 1;
-}
-
-/* Input glow behind */
-.input-wrapper::before {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  z-index: 0;
-  border-radius: var(--radius-lg);
-  background: radial-gradient(circle at 50% 50%, var(--glow-color), transparent 70%);
-  opacity: 0;
-  transition: opacity var(--duration-slower) var(--ease-smooth);
-  will-change: opacity;
-  pointer-events: none;
-}
-
-.input-wrapper:focus-within::before {
-  opacity: 1;
 }
 
 .input-wrapper .input:hover,
@@ -1254,43 +942,6 @@ body {
 /* ============================================================
    PHASE 9 — STATS DASHBOARD
    ============================================================ */
-.stats-hero {
-  position: relative;
-  isolation: isolate;
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur-heavy));
-  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-2xl);
-  padding: var(--space-6);
-  box-shadow: var(--glass-shadow-heavy);
-  transition: border var(--duration-fast) var(--ease-out),
-              box-shadow var(--duration-fast) var(--ease-out);
-  overflow: hidden;
-}
-
-.stats-hero::before {
-  content: '';
-  position: absolute;
-  inset: -50px;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at 40% 50%, var(--glow-color), transparent 70%);
-  opacity: 0.3;
-  transform: translateZ(0);
-  will-change: transform;
-  animation: floatGlow 22s var(--ease-smooth) infinite alternate;
-}
-
-.stats-hero > * {
-  position: relative;
-  z-index: 1;
-}
-
-.stats-hero:hover {
-  border-color: var(--glass-border-hover);
-}
-
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -1299,8 +950,6 @@ body {
 }
 
 .stat-item {
-  position: relative;
-  isolation: isolate;
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
@@ -1309,28 +958,6 @@ body {
   padding: var(--space-3) var(--space-4);
   text-align: center;
   transition: all var(--duration-fast) var(--spring);
-  overflow: hidden;
-}
-
-.stat-item::before {
-  content: '';
-  position: absolute;
-  inset: -30px;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at 50% 50%, var(--glow-color), transparent 70%);
-  opacity: 0;
-  transition: opacity var(--duration-slower) var(--ease-smooth);
-  will-change: opacity;
-}
-
-.stat-item:hover::before {
-  opacity: 1;
-}
-
-.stat-item > * {
-  position: relative;
-  z-index: 1;
 }
 
 .stat-item:hover {
@@ -1466,7 +1093,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 9 — STATS MODAL
+   PHASE 9 — STATS MODAL (No Glow - Clean)
    ============================================================ */
 .stats-modal-overlay {
   position: fixed;
@@ -1745,28 +1372,9 @@ body {
     transition-duration: 0.01ms !important;
   }
 
-  .glow::before,
-  .glow::after,
-  .card::before,
-  .card::after,
-  .btn::before,
-  .app-header::before,
-  .app-header::after,
-  .capsule-nav-inner::before,
   .stats-hero::before,
-  .stat-item::before {
-    opacity: 0 !important;
-    transform: none !important;
-    animation: none !important;
-  }
-
-  .breathe {
-    animation: none !important;
-    opacity: 0.8 !important;
-  }
-
-  .floatGlow {
-    animation: none !important;
+  .stats-hero::after {
     opacity: 0.15 !important;
+    animation: none !important;
   }
 }
