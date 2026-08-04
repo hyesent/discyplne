@@ -1,6 +1,6 @@
 /* ============================================================
-   DISCYPLN - Premium Liquid Glass v2.0 (CALM GLOW)
-   Gentle Flowing Glow - No Glitching
+   DISCYPLN - Apple Liquid Glass System
+   GPU Accelerated - No Glitching - Premium Performance
    ============================================================ */
 
 /* ----- Imports ----- */
@@ -19,31 +19,16 @@
 
   /* ----- Gradients ----- */
   --gradient-primary: linear-gradient(135deg, var(--brand-cyan) 0%, var(--brand-blue) 45%, var(--brand-purple) 100%);
-  --gradient-aurora: linear-gradient(135deg, rgba(34, 226, 255, 0.04), rgba(79, 140, 255, 0.04), rgba(180, 61, 255, 0.04));
-  
-  /* ----- Calm Glow Gradient (Flowing underneath) ----- */
-  --gradient-flow: linear-gradient(
-    135deg,
-    rgba(34, 226, 255, 0.06) 0%,
-    rgba(79, 140, 255, 0.06) 33%,
-    rgba(180, 61, 255, 0.06) 66%,
-    rgba(34, 226, 255, 0.06) 100%
-  );
-  --gradient-flow-slow: linear-gradient(
-    225deg,
-    rgba(180, 61, 255, 0.04) 0%,
-    rgba(34, 226, 255, 0.04) 33%,
-    rgba(79, 140, 255, 0.04) 66%,
-    rgba(180, 61, 255, 0.04) 100%
-  );
 
-  /* ----- Glass System (Simplified - No Glitching) ----- */
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-bg-hover: rgba(255, 255, 255, 0.06);
+  /* ----- Glass System (Apple-style - Single Implementation) ----- */
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-bg-hover: rgba(255, 255, 255, 0.07);
   --glass-border: rgba(255, 255, 255, 0.06);
-  --glass-border-hover: rgba(255, 255, 255, 0.10);
-  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
-  --glass-shadow-heavy: 0 8px 40px rgba(0, 0, 0, 0.35);
+  --glass-border-hover: rgba(255, 255, 255, 0.12);
+  --glass-blur: blur(12px);
+  --glass-blur-heavy: blur(16px);
+  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  --glass-shadow-heavy: 0 8px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
   /* ----- Elevation ----- */
   --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12);
@@ -62,15 +47,13 @@
   --text-muted: #5A6272;
   --text-inverse: #080A0E;
 
-  /* ----- Transitions (Slower for calm feel) ----- */
+  /* ----- Transitions (GPU-friendly) ----- */
   --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   --duration-fast: 150ms;
   --duration-medium: 250ms;
   --duration-slow: 400ms;
-  --duration-slower: 600ms;
-  --duration-calm: 800ms;
 
   /* ----- Spacing ----- */
   --space-1: 4px;
@@ -103,8 +86,8 @@
   --glass-bg-hover: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(0, 0, 0, 0.06);
   --glass-border-hover: rgba(0, 0, 0, 0.10);
-  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-  --glass-shadow-heavy: 0 8px 40px rgba(0, 0, 0, 0.10);
+  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --glass-shadow-heavy: 0 8px 40px rgba(0, 0, 0, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.8);
 
   --bg-primary: #F0F2F5;
   --bg-secondary: #FFFFFF;
@@ -115,22 +98,6 @@
   --text-tertiary: #6A7282;
   --text-muted: #8E96A3;
   --text-inverse: #FFFFFF;
-
-  --gradient-aurora: linear-gradient(135deg, rgba(34, 226, 255, 0.03), rgba(79, 140, 255, 0.03), rgba(180, 61, 255, 0.03));
-  --gradient-flow: linear-gradient(
-    135deg,
-    rgba(34, 226, 255, 0.04) 0%,
-    rgba(79, 140, 255, 0.04) 33%,
-    rgba(180, 61, 255, 0.04) 66%,
-    rgba(34, 226, 255, 0.04) 100%
-  );
-  --gradient-flow-slow: linear-gradient(
-    225deg,
-    rgba(180, 61, 255, 0.03) 0%,
-    rgba(34, 226, 255, 0.03) 33%,
-    rgba(79, 140, 255, 0.03) 66%,
-    rgba(180, 61, 255, 0.03) 100%
-  );
 }
 
 /* ============================================================
@@ -153,22 +120,19 @@ body {
   font-family: var(--font-family);
   font-size: 15px;
   line-height: 1.6;
-  transition: background var(--duration-medium) var(--ease-out),
-              color var(--duration-medium) var(--ease-out);
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
 }
 
 /* ============================================================
-   4. AURORA BACKGROUND (Fixed - No Glitching)
+   4. AURORA BACKGROUND (GPU-friendly)
    ============================================================ */
 .aurora-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.4;
   overflow: hidden;
 }
 
@@ -202,21 +166,24 @@ body {
 }
 
 /* ============================================================
-   6. GLASS UTILITIES (Simplified - No Glitching)
+   6. GLASS SYSTEM (Single Implementation - Apple Style)
    ============================================================ */
 .glass {
+  position: relative;
+  isolation: isolate;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
+  transition: border var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out),
+              transform var(--duration-medium) var(--spring);
 }
 
 .glass-heavy {
-  background: var(--glass-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
   box-shadow: var(--glass-shadow-heavy);
 }
 
@@ -226,7 +193,75 @@ body {
 }
 
 /* ============================================================
-   7. ANIMATIONS (Simplified & Calm)
+   7. GLOW SYSTEM (GPU-only - transform & opacity)
+   ============================================================ */
+.glow-container {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* The glow layer - GPU accelerated */
+.glow-container::before {
+  content: '';
+  position: absolute;
+  inset: -30px;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 30% 40%,
+    rgba(79, 140, 255, 0.04) 0%,
+    rgba(34, 226, 255, 0.03) 30%,
+    rgba(180, 61, 255, 0.03) 60%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: scale(0.8) translateZ(0);
+  transition: opacity var(--duration-slow) var(--ease-smooth),
+              transform var(--duration-slow) var(--ease-smooth);
+  will-change: transform, opacity;
+}
+
+.glow-container:hover::before {
+  opacity: 1;
+  transform: scale(1.2) translateZ(0);
+}
+
+/* Second glow layer - slow floating */
+.glow-container::after {
+  content: '';
+  position: absolute;
+  inset: -40px;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 70% 60%,
+    rgba(79, 140, 255, 0.02) 0%,
+    rgba(34, 226, 255, 0.02) 40%,
+    rgba(180, 61, 255, 0.02) 70%,
+    transparent 100%
+  );
+  opacity: 0.3;
+  transform: translateZ(0);
+  will-change: transform;
+  animation: floatGlow 20s var(--ease-smooth) infinite alternate;
+}
+
+@keyframes floatGlow {
+  0% { transform: translate(-5%, -5%) scale(1) translateZ(0); opacity: 0.2; }
+  33% { transform: translate(5%, -10%) scale(1.1) translateZ(0); opacity: 0.35; }
+  66% { transform: translate(-10%, 5%) scale(0.9) translateZ(0); opacity: 0.25; }
+  100% { transform: translate(8%, 8%) scale(1.05) translateZ(0); opacity: 0.3; }
+}
+
+/* Content sits on top */
+.glow-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   8. ANIMATIONS (GPU-only)
    ============================================================ */
 @keyframes fadeIn {
   0% { opacity: 0; }
@@ -234,18 +269,18 @@ body {
 }
 
 @keyframes slideUp {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% { opacity: 0; transform: translateY(20px) translateZ(0); }
+  100% { opacity: 1; transform: translateY(0) translateZ(0); }
 }
 
 @keyframes slideDown {
-  0% { opacity: 0; transform: translateY(-10px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% { opacity: 0; transform: translateY(-10px) translateZ(0); }
+  100% { opacity: 1; transform: translateY(0) translateZ(0); }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% { transform: translateX(-100%) translateZ(0); }
+  100% { transform: translateX(100%) translateZ(0); }
 }
 
 @keyframes gradientShift {
@@ -254,38 +289,12 @@ body {
   100% { background-position: 0% 50%; }
 }
 
-/* ===== CALM FLOWING GLOW ANIMATIONS ===== */
-@keyframes calmFlow {
-  0% { background-position: 0% 50%; opacity: 0.3; }
-  25% { background-position: 50% 0%; opacity: 0.5; }
-  50% { background-position: 100% 50%; opacity: 0.3; }
-  75% { background-position: 50% 100%; opacity: 0.5; }
-  100% { background-position: 0% 50%; opacity: 0.3; }
-}
-
-@keyframes calmFlowReverse {
-  0% { background-position: 100% 50%; opacity: 0.2; }
-  25% { background-position: 50% 100%; opacity: 0.4; }
-  50% { background-position: 0% 50%; opacity: 0.2; }
-  75% { background-position: 50% 0%; opacity: 0.4; }
-  100% { background-position: 100% 50%; opacity: 0.2; }
-}
-
-@keyframes gentlePulse {
-  0%, 100% { opacity: 0.15; }
-  50% { opacity: 0.25; }
-}
-
-/* Animation Classes */
-.fade-in { animation: fadeIn 0.4s var(--ease-out); }
-.slide-up { animation: slideUp 0.5s var(--spring); }
-.slide-down { animation: slideDown 0.2s var(--ease-out); }
-.calm-flow { animation: calmFlow 12s var(--ease-smooth) infinite; }
-.calm-flow-reverse { animation: calmFlowReverse 15s var(--ease-smooth) infinite; }
-.gentle-pulse { animation: gentlePulse 4s var(--ease-smooth) infinite; }
+.fade-in { animation: fadeIn 0.4s var(--ease-out) forwards; }
+.slide-up { animation: slideUp 0.5s var(--spring) forwards; }
+.slide-down { animation: slideDown 0.2s var(--ease-out) forwards; }
 
 /* ============================================================
-   8. TYPOGRAPHY
+   9. TYPOGRAPHY
    ============================================================ */
 .hero-title {
   font-size: 42px;
@@ -293,6 +302,7 @@ body {
   letter-spacing: -0.03em;
   line-height: 1.1;
   background: var(--gradient-primary);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -348,7 +358,7 @@ body {
 }
 
 /* ============================================================
-   9. CONTAINER
+   10. CONTAINER
    ============================================================ */
 .container {
   max-width: 1100px;
@@ -360,47 +370,51 @@ body {
 }
 
 /* ============================================================
-   10. HEADER (Glass - No Glitching)
+   11. HEADER
    ============================================================ */
 .app-header {
+  position: relative;
+  isolation: isolate;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: var(--space-3) var(--space-5);
   margin-bottom: var(--space-6);
   border-radius: var(--radius-xl);
+  min-height: 68px;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
-  transition: all var(--duration-medium) var(--ease-out);
-  min-height: 68px;
-  position: relative;
+  transition: border var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
   overflow: hidden;
 }
 
-/* Calm flowing glow underneath header */
+/* Header glow - GPU accelerated */
 .app-header::before {
   content: '';
   position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: var(--gradient-flow);
-  background-size: 300% 300%;
-  opacity: 0;
-  z-index: -1;
+  inset: -30px;
+  z-index: 0;
   pointer-events: none;
-  animation: calmFlow 15s var(--ease-smooth) infinite;
-  transition: opacity var(--duration-slower) var(--ease-smooth);
+  background: radial-gradient(circle at 40% 50%, rgba(79, 140, 255, 0.04), transparent 70%);
+  opacity: 0;
+  transform: scale(0.8) translateZ(0);
+  transition: opacity var(--duration-slow) var(--ease-smooth),
+              transform var(--duration-slow) var(--ease-smooth);
+  will-change: transform, opacity;
 }
 
 .app-header:hover::before {
-  opacity: 0.3;
+  opacity: 1;
+  transform: scale(1.5) translateZ(0);
 }
 
 .app-header:hover {
   border-color: var(--glass-border-hover);
+  box-shadow: var(--glass-shadow-heavy);
 }
 
 .header-left {
@@ -420,7 +434,7 @@ body {
 }
 
 .logo-container:hover {
-  transform: scale(1.02);
+  transform: scale(1.02) translateZ(0);
 }
 
 .logo-svg {
@@ -431,7 +445,7 @@ body {
 }
 
 .logo-svg:hover {
-  transform: rotate(-4deg) scale(1.05);
+  transform: rotate(-4deg) scale(1.05) translateZ(0);
 }
 
 .logo-text {
@@ -473,7 +487,7 @@ body {
 }
 
 /* ============================================================
-   11. THEME TOGGLE
+   12. THEME TOGGLE
    ============================================================ */
 .theme-toggle {
   width: 40px;
@@ -488,20 +502,22 @@ body {
   justify-content: center;
   font-size: 18px;
   transition: all var(--duration-fast) var(--spring);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .theme-toggle:hover {
   border-color: var(--brand-blue);
   color: var(--brand-blue);
-  transform: scale(1.05);
+  transform: scale(1.05) translateZ(0);
 }
 
 .theme-toggle:active {
-  transform: scale(0.92);
+  transform: scale(0.92) translateZ(0);
 }
 
 /* ============================================================
-   12. CAPSULE NAV (Floating Dock - No Glitching)
+   13. CAPSULE NAV
    ============================================================ */
 .capsule-nav {
   display: flex;
@@ -510,10 +526,12 @@ body {
 }
 
 .capsule-nav-inner {
+  position: relative;
+  isolation: isolate;
   display: flex;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
   padding: 4px;
   border-radius: var(--radius-full);
   border: 1px solid var(--glass-border);
@@ -522,27 +540,21 @@ body {
   width: 100%;
   max-width: 400px;
   box-shadow: var(--glass-shadow);
-  position: relative;
   overflow: hidden;
 }
 
-/* Calm flowing glow underneath nav */
+/* Nav glow */
 .capsule-nav-inner::before {
   content: '';
   position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: var(--gradient-flow-slow);
-  background-size: 300% 300%;
-  opacity: 0;
-  z-index: -1;
+  inset: -30px;
+  z-index: 0;
   pointer-events: none;
-  animation: calmFlowReverse 18s var(--ease-smooth) infinite;
-  transition: opacity var(--duration-slower) var(--ease-smooth);
-}
-
-.capsule-nav-inner:hover::before {
-  opacity: 0.2;
+  background: radial-gradient(circle at 50% 50%, rgba(79, 140, 255, 0.03), transparent 70%);
+  opacity: 0.3;
+  transform: translateZ(0);
+  will-change: transform;
+  animation: floatGlow 25s var(--ease-smooth) infinite alternate;
 }
 
 .capsule-nav-inner button {
@@ -575,69 +587,84 @@ body {
 }
 
 .capsule-nav-inner button:active {
-  transform: scale(0.94);
+  transform: scale(0.94) translateZ(0);
 }
 
 /* ============================================================
-   13. CARDS (Premium Glass - Calm Glow Underneath)
+   14. CARDS (Apple Liquid Glass)
    ============================================================ */
 .card {
+  position: relative;
+  isolation: isolate;
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
   box-shadow: var(--glass-shadow);
-  transition: all var(--duration-medium) var(--spring);
-  position: relative;
+  transition: border var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out),
+              transform var(--duration-medium) var(--spring);
   overflow: hidden;
 }
 
-/* ===== CALM FLOWING GLOW UNDERNEATH CARDS ===== */
+/* Card glow - GPU accelerated */
 .card::before {
   content: '';
   position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: var(--gradient-flow);
-  background-size: 300% 300%;
-  opacity: 0;
-  z-index: -1;
+  inset: -30px;
+  z-index: 0;
   pointer-events: none;
-  animation: calmFlow 20s var(--ease-smooth) infinite;
-  transition: opacity var(--duration-slower) var(--ease-smooth);
+  background: radial-gradient(
+    circle at 30% 40%,
+    rgba(79, 140, 255, 0.03) 0%,
+    rgba(34, 226, 255, 0.02) 40%,
+    rgba(180, 61, 255, 0.02) 70%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: scale(0.8) translateZ(0);
+  transition: opacity var(--duration-slow) var(--ease-smooth),
+              transform var(--duration-slow) var(--ease-smooth);
+  will-change: transform, opacity;
 }
 
 .card:hover::before {
-  opacity: 0.12;
+  opacity: 1;
+  transform: scale(1.2) translateZ(0);
+}
+
+/* Card content layer */
+.card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .card:hover {
   border-color: var(--glass-border-hover);
-  transform: translateY(-2px);
+  box-shadow: var(--glass-shadow-heavy);
+  transform: translateY(-2px) translateZ(0);
 }
 
 .card:active {
-  transform: scale(0.98);
+  transform: scale(0.98) translateZ(0);
   transition-duration: var(--duration-fast);
 }
 
-/* Card Glow - Calm & Subtle */
+/* Card Glow - subtle variant */
 .card-glow {
   box-shadow: var(--glass-shadow);
-  transition: all var(--duration-medium) var(--spring);
 }
 
 .card-glow::before {
-  background: var(--gradient-flow-slow);
-  background-size: 300% 300%;
-  animation: calmFlowReverse 22s var(--ease-smooth) infinite;
-  opacity: 0;
-}
-
-.card-glow:hover::before {
-  opacity: 0.08;
+  background: radial-gradient(
+    circle at 60% 50%,
+    rgba(79, 140, 255, 0.02) 0%,
+    rgba(34, 226, 255, 0.015) 40%,
+    rgba(180, 61, 255, 0.015) 70%,
+    transparent 100%
+  );
 }
 
 .card-glow:hover {
@@ -645,9 +672,11 @@ body {
 }
 
 /* ============================================================
-   14. BUTTONS
+   15. BUTTONS
    ============================================================ */
 .btn {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -665,36 +694,44 @@ body {
   transition: all var(--duration-medium) var(--spring);
   min-width: 40px;
   white-space: nowrap;
-  position: relative;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   overflow: hidden;
 }
 
+/* Button glow */
 .btn::before {
   content: '';
   position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: var(--gradient-flow);
-  background-size: 300% 300%;
-  opacity: 0;
-  z-index: -1;
+  inset: -20px;
+  z-index: 0;
   pointer-events: none;
-  animation: calmFlow 15s var(--ease-smooth) infinite;
-  transition: opacity var(--duration-slower) var(--ease-smooth);
+  background: radial-gradient(circle at 50% 50%, rgba(79, 140, 255, 0.04), transparent 70%);
+  opacity: 0;
+  transform: scale(0.8) translateZ(0);
+  transition: opacity var(--duration-slow) var(--ease-smooth),
+              transform var(--duration-slow) var(--ease-smooth);
+  will-change: transform, opacity;
 }
 
 .btn:hover::before {
-  opacity: 0.1;
+  opacity: 1;
+  transform: scale(1.5) translateZ(0);
+}
+
+.btn > * {
+  position: relative;
+  z-index: 1;
 }
 
 .btn:hover {
   border-color: var(--glass-border-hover);
   color: var(--text-primary);
-  transform: translateY(-1px);
+  transform: translateY(-1px) translateZ(0);
 }
 
 .btn:active {
-  transform: scale(0.95);
+  transform: scale(0.95) translateZ(0);
   transition-duration: var(--duration-fast);
 }
 
@@ -706,13 +743,12 @@ body {
 }
 
 .btn-primary::before {
-  background: rgba(255, 255, 255, 0.1);
-  animation: calmFlow 20s var(--ease-smooth) infinite;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08), transparent 70%);
 }
 
 .btn-primary:hover {
   box-shadow: 0 8px 24px rgba(79, 140, 255, 0.35);
-  transform: translateY(-1px);
+  transform: translateY(-1px) translateZ(0);
   color: var(--text-inverse);
 }
 
@@ -723,7 +759,7 @@ body {
 }
 .btn-success:hover {
   background: #16A34A;
-  transform: translateY(-1px);
+  transform: translateY(-1px) translateZ(0);
   color: var(--text-inverse);
 }
 
@@ -734,13 +770,14 @@ body {
 }
 .btn-danger:hover {
   background: #DC2626;
-  transform: translateY(-1px);
+  transform: translateY(-1px) translateZ(0);
   color: var(--text-inverse);
 }
 
 .btn-ghost {
   background: transparent;
   border-color: transparent;
+  backdrop-filter: none;
 }
 .btn-ghost:hover {
   background: var(--glass-bg-hover);
@@ -765,16 +802,21 @@ body {
 }
 
 /* ============================================================
-   15. INPUTS
+   16. INPUTS (Wrapped - no ::before on inputs)
    ============================================================ */
-.input,
-.textarea,
-.select {
+.input-wrapper {
+  position: relative;
+  isolation: isolate;
+}
+
+.input-wrapper .input,
+.input-wrapper .textarea,
+.input-wrapper .select {
   width: 100%;
   padding: var(--space-3) var(--space-4);
   background: var(--glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   color: var(--text-primary);
@@ -783,57 +825,54 @@ body {
   transition: all var(--duration-medium);
   outline: none;
   position: relative;
+  z-index: 1;
 }
 
-.input::before,
-.textarea::before,
-.select::before {
+/* Input glow behind the input */
+.input-wrapper::before {
   content: '';
   position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: var(--gradient-flow);
-  background-size: 300% 300%;
+  inset: -4px;
+  z-index: 0;
+  border-radius: var(--radius-lg);
+  background: radial-gradient(circle at 50% 50%, rgba(79, 140, 255, 0.04), transparent 70%);
   opacity: 0;
-  z-index: -1;
+  transition: opacity var(--duration-slow) var(--ease-smooth);
+  will-change: opacity;
   pointer-events: none;
-  animation: calmFlow 18s var(--ease-smooth) infinite;
-  transition: opacity var(--duration-slower) var(--ease-smooth);
 }
 
-.input:focus::before,
-.textarea:focus::before,
-.select:focus::before {
-  opacity: 0.08;
+.input-wrapper:focus-within::before {
+  opacity: 1;
 }
 
-.input:hover,
-.textarea:hover,
-.select:hover {
+.input-wrapper .input:hover,
+.input-wrapper .textarea:hover,
+.input-wrapper .select:hover {
   border-color: var(--glass-border-hover);
 }
 
-.input:focus,
-.textarea:focus,
-.select:focus {
+.input-wrapper .input:focus,
+.input-wrapper .textarea:focus,
+.input-wrapper .select:focus {
   border-color: var(--brand-blue);
   box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
   background: var(--glass-bg-hover);
 }
 
-.input::placeholder,
-.textarea::placeholder {
+.input-wrapper .input::placeholder,
+.input-wrapper .textarea::placeholder {
   color: var(--text-muted);
 }
 
-.textarea {
+.input-wrapper .textarea {
   min-height: 180px;
   padding: var(--space-4);
   line-height: 1.7;
   resize: vertical;
 }
 
-.select {
+.input-wrapper .select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237A8292' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -842,7 +881,7 @@ body {
 }
 
 /* ============================================================
-   16. CHECKBOX
+   17. CHECKBOX
    ============================================================ */
 .custom-checkbox {
   width: 20px;
@@ -878,7 +917,7 @@ body {
 }
 
 /* ============================================================
-   17. CHIPS
+   18. CHIPS
    ============================================================ */
 .chip {
   display: inline-flex;
@@ -920,7 +959,7 @@ body {
 }
 
 /* ============================================================
-   18. PROGRESS BAR
+   19. PROGRESS BAR
    ============================================================ */
 .progress-bar {
   width: 100%;
@@ -937,6 +976,7 @@ body {
   border-radius: var(--radius-full);
   transition: width 0.6s var(--ease-out);
   position: relative;
+  overflow: hidden;
 }
 
 .progress-bar-fill::after {
@@ -944,41 +984,37 @@ body {
   position: absolute;
   inset: 0;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transform: translateX(-100%);
   animation: shimmer 2s ease-in-out infinite;
-  background-size: 200% 100%;
 }
 
 /* ============================================================
-   19. TOAST
+   20. TOAST
    ============================================================ */
 .toast {
   position: fixed;
   bottom: var(--space-6);
   left: 50%;
-  transform: translateX(-50%) translateY(20px);
+  transform: translateX(-50%) translateY(20px) translateZ(0);
   padding: var(--space-3) var(--space-5);
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   color: var(--text-primary);
   font-size: 14px;
   box-shadow: var(--glass-shadow-heavy);
   z-index: 9999;
-  animation: toastIn 0.4s var(--spring);
-  pointer-events: none;
   opacity: 0;
+  transition: opacity 0.4s var(--spring),
+              transform 0.4s var(--spring);
+  pointer-events: none;
 }
 
 .toast.show {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-@keyframes toastIn {
-  0% { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.95); }
-  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  transform: translateX(-50%) translateY(0) translateZ(0);
 }
 
 .toast.success {
@@ -997,7 +1033,7 @@ body {
 }
 
 /* ============================================================
-   20. HEATMAP
+   21. HEATMAP
    ============================================================ */
 .heatmap-grid {
   display: grid;
@@ -1017,7 +1053,6 @@ body {
   transition: all var(--duration-fast) var(--spring);
   cursor: default;
   background: var(--glass-bg);
-  position: relative;
 }
 
 .heatmap-cell.today {
@@ -1026,44 +1061,45 @@ body {
 }
 
 .heatmap-cell:hover {
-  transform: scale(1.08);
+  transform: scale(1.08) translateZ(0);
   border-color: var(--brand-blue);
   z-index: 1;
 }
 
 /* ============================================================
-   21. STATS DASHBOARD
+   22. STATS DASHBOARD
    ============================================================ */
 .stats-hero {
+  position: relative;
+  isolation: isolate;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-2xl);
   padding: var(--space-6);
   box-shadow: var(--glass-shadow-heavy);
-  transition: all var(--duration-medium) var(--spring);
-  position: relative;
+  transition: border var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
   overflow: hidden;
 }
 
-/* Calm flowing glow underneath stats hero */
 .stats-hero::before {
   content: '';
   position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: var(--gradient-flow);
-  background-size: 300% 300%;
-  opacity: 0;
-  z-index: -1;
+  inset: -30px;
+  z-index: 0;
   pointer-events: none;
-  animation: calmFlow 20s var(--ease-smooth) infinite;
-  transition: opacity var(--duration-slower) var(--ease-smooth);
+  background: radial-gradient(circle at 40% 50%, rgba(79, 140, 255, 0.03), transparent 70%);
+  opacity: 0.3;
+  transform: translateZ(0);
+  will-change: transform;
+  animation: floatGlow 22s var(--ease-smooth) infinite alternate;
 }
 
-.stats-hero:hover::before {
-  opacity: 0.08;
+.stats-hero > * {
+  position: relative;
+  z-index: 1;
 }
 
 .stats-hero:hover {
@@ -1078,38 +1114,42 @@ body {
 }
 
 .stat-item {
+  position: relative;
+  isolation: isolate;
   background: var(--glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   padding: var(--space-3) var(--space-4);
   text-align: center;
   transition: all var(--duration-fast) var(--spring);
-  position: relative;
   overflow: hidden;
 }
 
 .stat-item::before {
   content: '';
   position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: var(--gradient-flow-slow);
-  background-size: 300% 300%;
-  opacity: 0;
-  z-index: -1;
+  inset: -20px;
+  z-index: 0;
   pointer-events: none;
-  animation: calmFlowReverse 25s var(--ease-smooth) infinite;
-  transition: opacity var(--duration-slower) var(--ease-smooth);
+  background: radial-gradient(circle at 50% 50%, rgba(79, 140, 255, 0.02), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-smooth);
+  will-change: opacity;
 }
 
 .stat-item:hover::before {
-  opacity: 0.06;
+  opacity: 1;
+}
+
+.stat-item > * {
+  position: relative;
+  z-index: 1;
 }
 
 .stat-item:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) translateZ(0);
   border-color: var(--glass-border-hover);
 }
 
@@ -1144,25 +1184,6 @@ body {
   background: var(--gradient-primary);
   color: var(--text-inverse);
   box-shadow: 0 4px 16px rgba(79, 140, 255, 0.25);
-  position: relative;
-  overflow: hidden;
-}
-
-.discipline-badge::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: rgba(255, 255, 255, 0.08);
-  background-size: 300% 300%;
-  opacity: 0;
-  z-index: -1;
-  pointer-events: none;
-  animation: calmFlow 15s var(--ease-smooth) infinite;
-}
-
-.discipline-badge:hover::before {
-  opacity: 0.3;
 }
 
 .weekly-bar {
@@ -1185,7 +1206,6 @@ body {
   background: var(--glass-border);
   border-radius: var(--radius-full);
   overflow: hidden;
-  position: relative;
 }
 
 .weekly-bar-fill {
@@ -1194,6 +1214,7 @@ body {
   background: var(--gradient-primary);
   transition: width 0.8s var(--spring);
   position: relative;
+  overflow: hidden;
 }
 
 .weekly-bar-fill::after {
@@ -1201,8 +1222,8 @@ body {
   position: absolute;
   inset: 0;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transform: translateX(-100%);
   animation: shimmer 2s ease-in-out infinite;
-  background-size: 200% 100%;
 }
 
 .weekly-bar-percent {
@@ -1260,7 +1281,7 @@ body {
 }
 
 /* ============================================================
-   22. STATS MODAL
+   23. STATS MODAL
    ============================================================ */
 .stats-modal-overlay {
   position: fixed;
@@ -1272,7 +1293,6 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 10000;
-  animation: fadeIn 0.3s var(--ease-out);
   padding: var(--space-4);
 }
 
@@ -1287,7 +1307,6 @@ body {
   padding: var(--space-6);
   box-shadow: var(--elevation-4);
   animation: slideUp 0.4s var(--spring);
-  position: relative;
 }
 
 .stats-modal::-webkit-scrollbar {
@@ -1329,12 +1348,14 @@ body {
   align-items: center;
   justify-content: center;
   transition: all var(--duration-fast) var(--spring);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .stats-modal-close:hover {
   background: var(--glass-bg-hover);
   border-color: var(--glass-border-hover);
-  transform: rotate(90deg);
+  transform: rotate(90deg) translateZ(0);
 }
 
 .stats-section {
@@ -1360,7 +1381,7 @@ body {
 }
 
 /* ============================================================
-   23. RESPONSIVE
+   24. RESPONSIVE
    ============================================================ */
 @media (max-width: 768px) {
   .container {
@@ -1476,7 +1497,7 @@ body {
 }
 
 /* ============================================================
-   24. UTILITIES
+   25. UTILITIES
    ============================================================ */
 .flex { display: flex; }
 .flex-col { flex-direction: column; }
