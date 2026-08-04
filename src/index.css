@@ -1,46 +1,48 @@
 /* ============================================================
-   DISCYPLN - Apple Liquid Glass System
-   GPU Accelerated - No Glitching - Premium Performance
+   DISCYPLN V3 — Apple Liquid Glass System
+   GPU Accelerated · Zero Glitching · Premium Performance
    ============================================================ */
 
 /* ----- Imports ----- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* ============================================================
-   1. DESIGN TOKENS
+   PHASE 1 — DESIGN TOKENS
    ============================================================ */
 :root {
-  /* ----- Brand Colors ----- */
+  /* ----- Brand ----- */
   --brand-cyan: #22E2FF;
   --brand-blue: #4F8CFF;
   --brand-purple: #B43DFF;
-  --brand-pink: #FF6B9D;
-  --brand-gold: #F5A623;
 
   /* ----- Gradients ----- */
   --gradient-primary: linear-gradient(135deg, var(--brand-cyan) 0%, var(--brand-blue) 45%, var(--brand-purple) 100%);
 
-  /* ----- Glass System (Apple-style - Single Implementation) ----- */
+  /* ----- Glass System (Single Source of Truth) ----- */
   --glass-bg: rgba(255, 255, 255, 0.04);
   --glass-bg-hover: rgba(255, 255, 255, 0.07);
+  --glass-bg-active: rgba(255, 255, 255, 0.10);
   --glass-border: rgba(255, 255, 255, 0.06);
   --glass-border-hover: rgba(255, 255, 255, 0.12);
-  --glass-blur: blur(12px);
-  --glass-blur-heavy: blur(16px);
-  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  --glass-shadow-heavy: 0 8px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --glass-border-active: rgba(255, 255, 255, 0.16);
+  --glass-blur: 12px;
+  --glass-blur-heavy: 16px;
+  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  --glass-shadow-heavy: 0 8px 40px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  /* ----- Glow System (GPU-only) ----- */
+  --glow-color: rgba(79, 140, 255, 0.06);
+  --glow-color-strong: rgba(79, 140, 255, 0.10);
 
   /* ----- Elevation ----- */
   --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12);
   --elevation-2: 0 4px 12px rgba(0, 0, 0, 0.15);
   --elevation-3: 0 8px 24px rgba(0, 0, 0, 0.20);
-  --elevation-4: 0 16px 48px rgba(0, 0, 0, 0.25);
 
   /* ----- Colors ----- */
   --bg-primary: #080A0E;
   --bg-secondary: #0C0F15;
   --bg-surface: #11141C;
-
   --text-primary: #FFFFFF;
   --text-secondary: #B0B8C8;
   --text-tertiary: #7A8292;
@@ -54,8 +56,9 @@
   --duration-fast: 150ms;
   --duration-medium: 250ms;
   --duration-slow: 400ms;
+  --duration-slower: 600ms;
 
-  /* ----- Spacing ----- */
+  /* ----- Spacing (8px grid) ----- */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -75,24 +78,26 @@
 
   /* ----- Font ----- */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 /* ============================================================
-   2. LIGHT THEME
+   PHASE 1 — LIGHT THEME
    ============================================================ */
 [data-theme="light"] {
-  --glass-bg: rgba(255, 255, 255, 0.5);
-  --glass-bg-hover: rgba(255, 255, 255, 0.7);
+  --glass-bg: rgba(255, 255, 255, 0.50);
+  --glass-bg-hover: rgba(255, 255, 255, 0.70);
+  --glass-bg-active: rgba(255, 255, 255, 0.85);
   --glass-border: rgba(0, 0, 0, 0.06);
   --glass-border-hover: rgba(0, 0, 0, 0.10);
-  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  --glass-shadow-heavy: 0 8px 40px rgba(0, 0, 0, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-
+  --glass-border-active: rgba(0, 0, 0, 0.14);
+  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.80);
+  --glass-shadow-heavy: 0 8px 40px rgba(0, 0, 0, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.80);
+  --glow-color: rgba(79, 140, 255, 0.04);
+  --glow-color-strong: rgba(79, 140, 255, 0.08);
   --bg-primary: #F0F2F5;
   --bg-secondary: #FFFFFF;
   --bg-surface: #F8F9FA;
-
   --text-primary: #1A1D23;
   --text-secondary: #4A5263;
   --text-tertiary: #6A7282;
@@ -101,7 +106,7 @@
 }
 
 /* ============================================================
-   3. BASE & RESET
+   PHASE 1 — BASE & RESET
    ============================================================ */
 * {
   margin: 0;
@@ -126,7 +131,7 @@ body {
 }
 
 /* ============================================================
-   4. AURORA BACKGROUND (GPU-friendly)
+   PHASE 2 — AURORA BACKGROUND (GPU-only)
    ============================================================ */
 .aurora-bg {
   position: fixed;
@@ -143,7 +148,7 @@ body {
 }
 
 /* ============================================================
-   5. SCROLLBAR
+   PHASE 1 — SCROLLBAR
    ============================================================ */
 ::-webkit-scrollbar {
   width: 6px;
@@ -166,14 +171,14 @@ body {
 }
 
 /* ============================================================
-   6. GLASS SYSTEM (Single Implementation - Apple Style)
+   PHASE 2 — GLASS ENGINE (Single Implementation)
    ============================================================ */
 .glass {
   position: relative;
   isolation: isolate;
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
   transition: border var(--duration-fast) var(--ease-out),
@@ -182,8 +187,8 @@ body {
 }
 
 .glass-heavy {
-  backdrop-filter: var(--glass-blur-heavy);
-  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  backdrop-filter: blur(var(--glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
   box-shadow: var(--glass-shadow-heavy);
 }
 
@@ -192,76 +197,213 @@ body {
   border-color: var(--glass-border-hover);
 }
 
+/* ----- Glass Content Layer ----- */
+.glass > * {
+  position: relative;
+  z-index: 2;
+}
+
 /* ============================================================
-   7. GLOW SYSTEM (GPU-only - transform & opacity)
+   PHASE 3 — GLOW ENGINE (GPU-only: transform + opacity)
    ============================================================ */
-.glow-container {
+.glow {
   position: relative;
   isolation: isolate;
   overflow: hidden;
 }
 
-/* The glow layer - GPU accelerated */
-.glow-container::before {
-  content: '';
-  position: absolute;
-  inset: -30px;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    circle at 30% 40%,
-    rgba(79, 140, 255, 0.04) 0%,
-    rgba(34, 226, 255, 0.03) 30%,
-    rgba(180, 61, 255, 0.03) 60%,
-    transparent 100%
-  );
-  opacity: 0;
-  transform: scale(0.8) translateZ(0);
-  transition: opacity var(--duration-slow) var(--ease-smooth),
-              transform var(--duration-slow) var(--ease-smooth);
-  will-change: transform, opacity;
-}
-
-.glow-container:hover::before {
-  opacity: 1;
-  transform: scale(1.2) translateZ(0);
-}
-
-/* Second glow layer - slow floating */
-.glow-container::after {
+/* Primary glow - expands on hover (GPU accelerated) */
+.glow::before {
   content: '';
   position: absolute;
   inset: -40px;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(
-    circle at 70% 60%,
-    rgba(79, 140, 255, 0.02) 0%,
-    rgba(34, 226, 255, 0.02) 40%,
-    rgba(180, 61, 255, 0.02) 70%,
-    transparent 100%
-  );
+  background: radial-gradient(circle at var(--glow-x, 40%) var(--glow-y, 50%), var(--glow-color), transparent 70%);
+  opacity: 0;
+  transform: scale(0.6) translateZ(0);
+  transition: opacity var(--duration-slower) var(--ease-smooth),
+              transform var(--duration-slower) var(--ease-smooth);
+  will-change: transform, opacity;
+}
+
+.glow:hover::before {
+  opacity: 1;
+  transform: scale(1.4) translateZ(0);
+}
+
+/* Secondary glow - floating (GPU accelerated) */
+.glow::after {
+  content: '';
+  position: absolute;
+  inset: -50px;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 70% 40%, var(--glow-color-strong), transparent 70%);
   opacity: 0.3;
   transform: translateZ(0);
   will-change: transform;
   animation: floatGlow 20s var(--ease-smooth) infinite alternate;
 }
 
-@keyframes floatGlow {
-  0% { transform: translate(-5%, -5%) scale(1) translateZ(0); opacity: 0.2; }
-  33% { transform: translate(5%, -10%) scale(1.1) translateZ(0); opacity: 0.35; }
-  66% { transform: translate(-10%, 5%) scale(0.9) translateZ(0); opacity: 0.25; }
-  100% { transform: translate(8%, 8%) scale(1.05) translateZ(0); opacity: 0.3; }
+.glow > * {
+  position: relative;
+  z-index: 1;
 }
 
-/* Content sits on top */
-.glow-container > * {
+/* Glow animations - only transform + opacity */
+@keyframes floatGlow {
+  0% { transform: translate(-8%, -8%) scale(1) translateZ(0); opacity: 0.20; }
+  33% { transform: translate(8%, -12%) scale(1.15) translateZ(0); opacity: 0.35; }
+  66% { transform: translate(-12%, 8%) scale(0.85) translateZ(0); opacity: 0.25; }
+  100% { transform: translate(10%, 10%) scale(1.05) translateZ(0); opacity: 0.30; }
+}
+
+/* ============================================================
+   PHASE 4 — REFLECTION ENGINE (Apple-style shine)
+   ============================================================ */
+.reflect {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* Glass reflection - top shine */
+.reflect::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border-radius: inherit;
+}
+
+/* Light refraction - subtle bend */
+.reflect::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.015) 45%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.015) 55%,
+    transparent 60%
+  );
+  opacity: 0.6;
+  transform: translateZ(0);
+}
+
+.reflect > * {
   position: relative;
   z-index: 1;
 }
 
 /* ============================================================
-   8. ANIMATIONS (GPU-only)
+   PHASE 5 — NOISE TEXTURE (Subtle realism)
+   ============================================================ */
+.noise {
+  position: relative;
+  isolation: isolate;
+}
+
+.noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: 0.3;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.noise > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   PHASE 8 — PREMIUM GLASS COMBO (All layers together)
+   ============================================================ */
+.premium-glass {
+  position: relative;
+  isolation: isolate;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow-heavy);
+  overflow: hidden;
+  transition: border var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out),
+              transform var(--duration-medium) var(--spring);
+}
+
+/* Glow layer */
+.premium-glass::before {
+  content: '';
+  position: absolute;
+  inset: -40px;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--glow-x, 40%) var(--glow-y, 50%), var(--glow-color), transparent 70%);
+  opacity: 0;
+  transform: scale(0.6) translateZ(0);
+  transition: opacity var(--duration-slower) var(--ease-smooth),
+              transform var(--duration-slower) var(--ease-smooth);
+  will-change: transform, opacity;
+}
+
+.premium-glass:hover::before {
+  opacity: 1;
+  transform: scale(1.4) translateZ(0);
+}
+
+/* Reflection layer */
+.premium-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 25%,
+    transparent 75%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border-radius: inherit;
+}
+
+.premium-glass > * {
+  position: relative;
+  z-index: 1;
+}
+
+.premium-glass:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--glass-shadow-heavy);
+  transform: translateY(-2px) translateZ(0);
+}
+
+/* ============================================================
+   PHASE 1 — ANIMATIONS (GPU-only)
    ============================================================ */
 @keyframes fadeIn {
   0% { opacity: 0; }
@@ -289,12 +431,30 @@ body {
   100% { background-position: 0% 50%; }
 }
 
+@keyframes breathe {
+  0%, 100% { opacity: 0.6; transform: scale(1) translateZ(0); }
+  50% { opacity: 0.9; transform: scale(1.02) translateZ(0); }
+}
+
+/* Animation Classes */
 .fade-in { animation: fadeIn 0.4s var(--ease-out) forwards; }
 .slide-up { animation: slideUp 0.5s var(--spring) forwards; }
 .slide-down { animation: slideDown 0.2s var(--ease-out) forwards; }
+.breathe { animation: breathe 4s var(--ease-smooth) infinite; }
+
+/* Stagger Children */
+.stagger > * {
+  animation: slideUp 0.5s var(--spring) both;
+}
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 40ms; }
+.stagger > *:nth-child(3) { animation-delay: 80ms; }
+.stagger > *:nth-child(4) { animation-delay: 120ms; }
+.stagger > *:nth-child(5) { animation-delay: 160ms; }
+.stagger > *:nth-child(6) { animation-delay: 200ms; }
 
 /* ============================================================
-   9. TYPOGRAPHY
+   PHASE 7 — TYPOGRAPHY (Static gradient + slow shimmer)
    ============================================================ */
 .hero-title {
   font-size: 42px;
@@ -306,7 +466,7 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradientShift 6s ease infinite;
+  animation: gradientShift 15s ease infinite;
 }
 
 .page-title {
@@ -358,7 +518,7 @@ body {
 }
 
 /* ============================================================
-   10. CONTAINER
+   PHASE 1 — CONTAINER
    ============================================================ */
 .container {
   max-width: 1100px;
@@ -370,11 +530,9 @@ body {
 }
 
 /* ============================================================
-   11. HEADER
+   PHASE 6 — HEADER
    ============================================================ */
 .app-header {
-  position: relative;
-  isolation: isolate;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -382,9 +540,11 @@ body {
   margin-bottom: var(--space-6);
   border-radius: var(--radius-xl);
   min-height: 68px;
+  position: relative;
+  isolation: isolate;
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
   transition: border var(--duration-fast) var(--ease-out),
@@ -392,24 +552,46 @@ body {
   overflow: hidden;
 }
 
-/* Header glow - GPU accelerated */
+/* Header glow */
 .app-header::before {
   content: '';
   position: absolute;
-  inset: -30px;
+  inset: -40px;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 40% 50%, rgba(79, 140, 255, 0.04), transparent 70%);
+  background: radial-gradient(circle at 30% 50%, var(--glow-color), transparent 70%);
   opacity: 0;
-  transform: scale(0.8) translateZ(0);
-  transition: opacity var(--duration-slow) var(--ease-smooth),
-              transform var(--duration-slow) var(--ease-smooth);
+  transform: scale(0.6) translateZ(0);
+  transition: opacity var(--duration-slower) var(--ease-smooth),
+              transform var(--duration-slower) var(--ease-smooth);
   will-change: transform, opacity;
 }
 
 .app-header:hover::before {
   opacity: 1;
-  transform: scale(1.5) translateZ(0);
+  transform: scale(1.4) translateZ(0);
+}
+
+/* Header reflection */
+.app-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border-radius: inherit;
+}
+
+.app-header > * {
+  position: relative;
+  z-index: 1;
 }
 
 .app-header:hover {
@@ -421,8 +603,6 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  position: relative;
-  z-index: 1;
 }
 
 .logo-container {
@@ -440,7 +620,7 @@ body {
 .logo-svg {
   width: 40px;
   height: 40px;
-  filter: drop-shadow(0 2px 8px rgba(79, 140, 255, 0.2));
+  filter: drop-shadow(0 2px 8px rgba(79, 140, 255, 0.20));
   transition: transform var(--duration-medium) var(--spring);
 }
 
@@ -458,7 +638,7 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradientShift 6s ease infinite;
+  animation: gradientShift 15s ease infinite;
 }
 
 .header-center {
@@ -482,12 +662,10 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  position: relative;
-  z-index: 1;
 }
 
 /* ============================================================
-   12. THEME TOGGLE
+   PHASE 4 — THEME TOGGLE
    ============================================================ */
 .theme-toggle {
   width: 40px;
@@ -502,8 +680,8 @@ body {
   justify-content: center;
   font-size: 18px;
   transition: all var(--duration-fast) var(--spring);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
 }
 
 .theme-toggle:hover {
@@ -517,7 +695,7 @@ body {
 }
 
 /* ============================================================
-   13. CAPSULE NAV
+   PHASE 3 — CAPSULE NAV
    ============================================================ */
 .capsule-nav {
   display: flex;
@@ -530,8 +708,8 @@ body {
   isolation: isolate;
   display: flex;
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur-heavy);
-  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  backdrop-filter: blur(var(--glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
   padding: 4px;
   border-radius: var(--radius-full);
   border: 1px solid var(--glass-border);
@@ -543,18 +721,23 @@ body {
   overflow: hidden;
 }
 
-/* Nav glow */
+/* Nav glow - floating */
 .capsule-nav-inner::before {
   content: '';
   position: absolute;
-  inset: -30px;
+  inset: -50px;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 50%, rgba(79, 140, 255, 0.03), transparent 70%);
+  background: radial-gradient(circle at 50% 50%, var(--glow-color), transparent 70%);
   opacity: 0.3;
   transform: translateZ(0);
   will-change: transform;
   animation: floatGlow 25s var(--ease-smooth) infinite alternate;
+}
+
+.capsule-nav-inner > * {
+  position: relative;
+  z-index: 1;
 }
 
 .capsule-nav-inner button {
@@ -572,8 +755,6 @@ body {
   height: 100%;
   white-space: nowrap;
   text-align: center;
-  position: relative;
-  z-index: 1;
 }
 
 .capsule-nav-inner button:hover {
@@ -583,7 +764,7 @@ body {
 .capsule-nav-inner button.active {
   color: var(--text-inverse);
   background: var(--gradient-primary);
-  box-shadow: 0 4px 16px rgba(79, 140, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(79, 140, 255, 0.30);
 }
 
 .capsule-nav-inner button:active {
@@ -591,14 +772,14 @@ body {
 }
 
 /* ============================================================
-   14. CARDS (Apple Liquid Glass)
+   PHASE 5 — CARDS (Premium Glass)
    ============================================================ */
 .card {
   position: relative;
   isolation: isolate;
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
@@ -609,33 +790,43 @@ body {
   overflow: hidden;
 }
 
-/* Card glow - GPU accelerated */
+/* Card glow */
 .card::before {
   content: '';
   position: absolute;
-  inset: -30px;
+  inset: -40px;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(
-    circle at 30% 40%,
-    rgba(79, 140, 255, 0.03) 0%,
-    rgba(34, 226, 255, 0.02) 40%,
-    rgba(180, 61, 255, 0.02) 70%,
-    transparent 100%
-  );
+  background: radial-gradient(circle at 30% 40%, var(--glow-color), transparent 70%);
   opacity: 0;
-  transform: scale(0.8) translateZ(0);
-  transition: opacity var(--duration-slow) var(--ease-smooth),
-              transform var(--duration-slow) var(--ease-smooth);
+  transform: scale(0.6) translateZ(0);
+  transition: opacity var(--duration-slower) var(--ease-smooth),
+              transform var(--duration-slower) var(--ease-smooth);
   will-change: transform, opacity;
 }
 
 .card:hover::before {
   opacity: 1;
-  transform: scale(1.2) translateZ(0);
+  transform: scale(1.4) translateZ(0);
 }
 
-/* Card content layer */
+/* Card reflection */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(255, 255, 255, 0.015) 100%
+  );
+  border-radius: inherit;
+}
+
 .card > * {
   position: relative;
   z-index: 1;
@@ -652,19 +843,13 @@ body {
   transition-duration: var(--duration-fast);
 }
 
-/* Card Glow - subtle variant */
+/* Card with extra glow */
 .card-glow {
   box-shadow: var(--glass-shadow);
 }
 
 .card-glow::before {
-  background: radial-gradient(
-    circle at 60% 50%,
-    rgba(79, 140, 255, 0.02) 0%,
-    rgba(34, 226, 255, 0.015) 40%,
-    rgba(180, 61, 255, 0.015) 70%,
-    transparent 100%
-  );
+  background: radial-gradient(circle at 60% 50%, var(--glow-color-strong), transparent 70%);
 }
 
 .card-glow:hover {
@@ -672,7 +857,7 @@ body {
 }
 
 /* ============================================================
-   15. BUTTONS
+   PHASE 4 — BUTTONS
    ============================================================ */
 .btn {
   position: relative;
@@ -694,8 +879,8 @@ body {
   transition: all var(--duration-medium) var(--spring);
   min-width: 40px;
   white-space: nowrap;
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   overflow: hidden;
 }
 
@@ -703,20 +888,20 @@ body {
 .btn::before {
   content: '';
   position: absolute;
-  inset: -20px;
+  inset: -30px;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 50%, rgba(79, 140, 255, 0.04), transparent 70%);
+  background: radial-gradient(circle at 50% 50%, var(--glow-color), transparent 70%);
   opacity: 0;
-  transform: scale(0.8) translateZ(0);
-  transition: opacity var(--duration-slow) var(--ease-smooth),
-              transform var(--duration-slow) var(--ease-smooth);
+  transform: scale(0.6) translateZ(0);
+  transition: opacity var(--duration-slower) var(--ease-smooth),
+              transform var(--duration-slower) var(--ease-smooth);
   will-change: transform, opacity;
 }
 
 .btn:hover::before {
   opacity: 1;
-  transform: scale(1.5) translateZ(0);
+  transform: scale(1.4) translateZ(0);
 }
 
 .btn > * {
@@ -802,7 +987,7 @@ body {
 }
 
 /* ============================================================
-   16. INPUTS (Wrapped - no ::before on inputs)
+   PHASE 6 — INPUTS (Wrapped - no ::before on inputs)
    ============================================================ */
 .input-wrapper {
   position: relative;
@@ -815,8 +1000,8 @@ body {
   width: 100%;
   padding: var(--space-3) var(--space-4);
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   color: var(--text-primary);
@@ -828,16 +1013,16 @@ body {
   z-index: 1;
 }
 
-/* Input glow behind the input */
+/* Input glow behind */
 .input-wrapper::before {
   content: '';
   position: absolute;
   inset: -4px;
   z-index: 0;
   border-radius: var(--radius-lg);
-  background: radial-gradient(circle at 50% 50%, rgba(79, 140, 255, 0.04), transparent 70%);
+  background: radial-gradient(circle at 50% 50%, var(--glow-color), transparent 70%);
   opacity: 0;
-  transition: opacity var(--duration-slow) var(--ease-smooth);
+  transition: opacity var(--duration-slower) var(--ease-smooth);
   will-change: opacity;
   pointer-events: none;
 }
@@ -856,7 +1041,7 @@ body {
 .input-wrapper .textarea:focus,
 .input-wrapper .select:focus {
   border-color: var(--brand-blue);
-  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.10);
   background: var(--glass-bg-hover);
 }
 
@@ -881,7 +1066,7 @@ body {
 }
 
 /* ============================================================
-   17. CHECKBOX
+   PHASE 1 — CHECKBOX
    ============================================================ */
 .custom-checkbox {
   width: 20px;
@@ -917,7 +1102,7 @@ body {
 }
 
 /* ============================================================
-   18. CHIPS
+   PHASE 1 — CHIPS
    ============================================================ */
 .chip {
   display: inline-flex;
@@ -959,7 +1144,7 @@ body {
 }
 
 /* ============================================================
-   19. PROGRESS BAR
+   PHASE 1 — PROGRESS BAR
    ============================================================ */
 .progress-bar {
   width: 100%;
@@ -983,13 +1168,13 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent);
   transform: translateX(-100%);
   animation: shimmer 2s ease-in-out infinite;
 }
 
 /* ============================================================
-   20. TOAST
+   PHASE 1 — TOAST
    ============================================================ */
 .toast {
   position: fixed;
@@ -998,8 +1183,8 @@ body {
   transform: translateX(-50%) translateY(20px) translateZ(0);
   padding: var(--space-3) var(--space-5);
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur-heavy);
-  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  backdrop-filter: blur(var(--glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   color: var(--text-primary);
@@ -1033,7 +1218,7 @@ body {
 }
 
 /* ============================================================
-   21. HEATMAP
+   PHASE 1 — HEATMAP
    ============================================================ */
 .heatmap-grid {
   display: grid;
@@ -1067,14 +1252,14 @@ body {
 }
 
 /* ============================================================
-   22. STATS DASHBOARD
+   PHASE 9 — STATS DASHBOARD
    ============================================================ */
 .stats-hero {
   position: relative;
   isolation: isolate;
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur-heavy);
-  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  backdrop-filter: blur(var(--glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-2xl);
   padding: var(--space-6);
@@ -1087,10 +1272,10 @@ body {
 .stats-hero::before {
   content: '';
   position: absolute;
-  inset: -30px;
+  inset: -50px;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 40% 50%, rgba(79, 140, 255, 0.03), transparent 70%);
+  background: radial-gradient(circle at 40% 50%, var(--glow-color), transparent 70%);
   opacity: 0.3;
   transform: translateZ(0);
   will-change: transform;
@@ -1117,8 +1302,8 @@ body {
   position: relative;
   isolation: isolate;
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   padding: var(--space-3) var(--space-4);
@@ -1130,12 +1315,12 @@ body {
 .stat-item::before {
   content: '';
   position: absolute;
-  inset: -20px;
+  inset: -30px;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 50%, rgba(79, 140, 255, 0.02), transparent 70%);
+  background: radial-gradient(circle at 50% 50%, var(--glow-color), transparent 70%);
   opacity: 0;
-  transition: opacity var(--duration-slow) var(--ease-smooth);
+  transition: opacity var(--duration-slower) var(--ease-smooth);
   will-change: opacity;
 }
 
@@ -1221,7 +1406,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent);
   transform: translateX(-100%);
   animation: shimmer 2s ease-in-out infinite;
 }
@@ -1281,14 +1466,14 @@ body {
 }
 
 /* ============================================================
-   23. STATS MODAL
+   PHASE 9 — STATS MODAL
    ============================================================ */
 .stats-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(0, 0, 0, 0.60);
+  backdrop-filter: blur(var(--glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1305,7 +1490,7 @@ body {
   max-height: 90vh;
   overflow-y: auto;
   padding: var(--space-6);
-  box-shadow: var(--elevation-4);
+  box-shadow: var(--elevation-3);
   animation: slideUp 0.4s var(--spring);
 }
 
@@ -1348,8 +1533,8 @@ body {
   align-items: center;
   justify-content: center;
   transition: all var(--duration-fast) var(--spring);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
 }
 
 .stats-modal-close:hover {
@@ -1381,7 +1566,7 @@ body {
 }
 
 /* ============================================================
-   24. RESPONSIVE
+   PHASE 10 — RESPONSIVE
    ============================================================ */
 @media (max-width: 768px) {
   .container {
@@ -1497,7 +1682,7 @@ body {
 }
 
 /* ============================================================
-   25. UTILITIES
+   PHASE 10 — UTILITIES
    ============================================================ */
 .flex { display: flex; }
 .flex-col { flex-direction: column; }
@@ -1547,3 +1732,41 @@ body {
 .shadow-sm { box-shadow: var(--elevation-1); }
 .shadow-md { box-shadow: var(--elevation-2); }
 .shadow-lg { box-shadow: var(--elevation-3); }
+
+/* ============================================================
+   PHASE 10 — PREFERS REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .glow::before,
+  .glow::after,
+  .card::before,
+  .card::after,
+  .btn::before,
+  .app-header::before,
+  .app-header::after,
+  .capsule-nav-inner::before,
+  .stats-hero::before,
+  .stat-item::before {
+    opacity: 0 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  .breathe {
+    animation: none !important;
+    opacity: 0.8 !important;
+  }
+
+  .floatGlow {
+    animation: none !important;
+    opacity: 0.15 !important;
+  }
+}
