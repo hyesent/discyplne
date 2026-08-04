@@ -136,17 +136,17 @@ const ALL_LANGUAGES = [
 ]
 
 // ============================================================
-//  CUSTOM SVG ICONS (ALL CUSTOM - NO EMOJIS)
+//  SVG ICONS
 // ============================================================
 
-const IconMoon = ({ size = 20, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconMoon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
   </svg>
 )
 
-const IconSun = ({ size = 20, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconSun = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="5" />
     <line x1="12" y1="1" x2="12" y2="3" />
     <line x1="12" y1="21" x2="12" y2="23" />
@@ -159,91 +159,91 @@ const IconSun = ({ size = 20, color = 'currentColor' }) => (
   </svg>
 )
 
-const IconSearch = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconSearch = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="11" cy="11" r="8" />
     <line x1="21" y1="21" x2="16.65" y2="16.65" />
   </svg>
 )
 
-const IconPlus = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round">
+const IconPlus = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
     <line x1="12" y1="5" x2="12" y2="19" />
     <line x1="5" y1="12" x2="19" y2="12" />
   </svg>
 )
 
-const IconX = ({ size = 20, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round">
+const IconX = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
     <line x1="18" y1="6" x2="6" y2="18" />
     <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 )
 
-const IconChevronDown = ({ size = 16, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+const IconChevronDown = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="6 9 12 15 18 9" />
   </svg>
 )
 
-const IconChevronUp = ({ size = 16, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+const IconChevronUp = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="18 15 12 9 6 15" />
   </svg>
 )
 
-const IconChevronRight = ({ size = 16, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+const IconChevronRight = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="9 18 15 12 9 6" />
   </svg>
 )
 
-const IconCheck = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+const IconCheck = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="20 6 9 17 4 12" />
   </svg>
 )
 
-const IconMenuDots = ({ size = 22, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round">
+const IconMenuDots = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
     <circle cx="12" cy="5" r="1.5" />
     <circle cx="12" cy="12" r="1.5" />
     <circle cx="12" cy="19" r="1.5" />
   </svg>
 )
 
-const IconLogout = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconLogout = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
     <polyline points="16 17 21 12 16 7" />
     <line x1="21" y1="12" x2="9" y2="12" />
   </svg>
 )
 
-const IconBack = ({ size = 20, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+const IconBack = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="15 18 9 12 15 6" />
   </svg>
 )
 
-const IconTranslate = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconTranslate = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
     <line x1="2" y1="12" x2="22" y2="12" />
-    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z" />
   </svg>
 )
 
-const IconSave = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconSave = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
     <polyline points="17 21 17 13 7 13 7 21" />
     <polyline points="7 3 7 8 15 8" />
   </svg>
 )
 
-const IconMic = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconMic = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
     <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
     <line x1="12" y1="19" x2="12" y2="23" />
@@ -251,8 +251,8 @@ const IconMic = ({ size = 18, color = 'currentColor' }) => (
   </svg>
 )
 
-const IconMicOff = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconMicOff = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="1" y1="1" x2="23" y2="23" />
     <path d="M15 9.34V4a3 3 0 0 0-5.94-.6" />
     <path d="M17 10v2a5 5 0 0 1-4.46 4.96" />
@@ -262,30 +262,30 @@ const IconMicOff = ({ size = 18, color = 'currentColor' }) => (
   </svg>
 )
 
-const IconImage = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconImage = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
     <circle cx="8.5" cy="8.5" r="1.5" />
     <polyline points="21 15 16 10 5 21" />
   </svg>
 )
 
-const IconCopy = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconCopy = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
   </svg>
 )
 
-const IconTrash = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconTrash = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="3 6 5 6 21 6" />
     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
   </svg>
 )
 
-const IconShare = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconShare = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="18" cy="5" r="3" />
     <circle cx="6" cy="12" r="3" />
     <circle cx="18" cy="19" r="3" />
@@ -294,36 +294,34 @@ const IconShare = ({ size = 18, color = 'currentColor' }) => (
   </svg>
 )
 
-const IconPlay = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconPlay = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polygon points="5 3 19 12 5 21 5 3" />
   </svg>
 )
 
-const IconPause = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconPause = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="6" y="4" width="4" height="16" />
     <rect x="14" y="4" width="4" height="16" />
   </svg>
 )
 
-const IconReset = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconReset = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="23 4 23 10 17 10" />
     <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
   </svg>
 )
 
-const IconSparkle = ({ size = 16, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconSparkle = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 2l1.5 6.5L20 10l-6.5 1.5L12 18l-1.5-6.5L4 10l6.5-1.5L12 2z" />
-    <path d="M12 2v16" />
-    <path d="M4 10h16" />
   </svg>
 )
 
-const IconTrophy = ({ size = 20, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconTrophy = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
     <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
     <path d="M4 22h16" />
@@ -333,42 +331,42 @@ const IconTrophy = ({ size = 20, color = 'currentColor' }) => (
   </svg>
 )
 
-const IconTarget = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconTarget = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
     <circle cx="12" cy="12" r="6" />
     <circle cx="12" cy="12" r="2" />
   </svg>
 )
 
-const IconClock = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconClock = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
     <polyline points="12 6 12 12 16 14" />
   </svg>
 )
 
-const IconTrendingUp = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconTrendingUp = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
     <polyline points="17 6 23 6 23 12" />
   </svg>
 )
 
-const IconAlertTriangle = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-    <line x1="12" y1="9" x2="12" y2="13" />
-    <line x1="12" y1="17" x2="12.01" y2="17" />
-  </svg>
-)
-
-const IconCalendar = ({ size = 18, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconCalendar = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
     <line x1="16" y1="2" x2="16" y2="6" />
     <line x1="8" y1="2" x2="8" y2="6" />
     <line x1="3" y1="10" x2="21" y2="10" />
+  </svg>
+)
+
+const IconAlertTriangle = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+    <line x1="12" y1="9" x2="12" y2="13" />
+    <line x1="12" y1="17" x2="12.01" y2="17" />
   </svg>
 )
 
@@ -431,49 +429,6 @@ const LogoIcon = ({ className = '' }) => (
 )
 
 // ============================================================
-//  AURORA BACKGROUND
-// ============================================================
-
-const AuroraBackground = () => (
-  <div className="aurora-bg">
-    <svg viewBox="0 0 1000 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="auroraBlur">
-          <feGaussianBlur stdDeviation="80" />
-        </filter>
-        <filter id="auroraBlur2">
-          <feGaussianBlur stdDeviation="120" />
-        </filter>
-      </defs>
-      <g filter="url(#auroraBlur)">
-        <circle cx="200" cy="300" r="250" fill="#22E2FF" opacity="0.08">
-          <animate attributeName="cx" values="200;300;200" dur="12s" repeatCount="indefinite" />
-          <animate attributeName="cy" values="300;200;300" dur="10s" repeatCount="indefinite" />
-        </circle>
-        <circle cx="700" cy="400" r="300" fill="#4A8EFF" opacity="0.08">
-          <animate attributeName="cx" values="700;600;700" dur="14s" repeatCount="indefinite" />
-          <animate attributeName="cy" values="400;500;400" dur="11s" repeatCount="indefinite" />
-        </circle>
-        <circle cx="500" cy="200" r="200" fill="#B43DFF" opacity="0.06">
-          <animate attributeName="cx" values="500;600;500" dur="16s" repeatCount="indefinite" />
-          <animate attributeName="cy" values="200;300;200" dur="13s" repeatCount="indefinite" />
-        </circle>
-      </g>
-      <g filter="url(#auroraBlur2)">
-        <circle cx="300" cy="600" r="350" fill="#FF6B9D" opacity="0.04">
-          <animate attributeName="cx" values="300;400;300" dur="18s" repeatCount="indefinite" />
-          <animate attributeName="cy" values="600;500;600" dur="15s" repeatCount="indefinite" />
-        </circle>
-        <circle cx="800" cy="200" r="280" fill="#22E2FF" opacity="0.05">
-          <animate attributeName="cx" values="800;700;800" dur="20s" repeatCount="indefinite" />
-          <animate attributeName="cy" values="200;300;200" dur="17s" repeatCount="indefinite" />
-        </circle>
-      </g>
-    </svg>
-  </div>
-)
-
-// ============================================================
 //  HELPERS
 // ============================================================
 
@@ -523,14 +478,15 @@ const getGreeting = () => {
 // ============================================================
 
 export default function App() {
-  // ===== Auth State =====
+  // ===== State =====
+  // Auth
   const [user, setUser] = useState(null)
   const [session, setSession] = useState(null)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // ===== UI State =====
+  // UI
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [activeTab, setActiveTab] = useState('notes')
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -540,14 +496,14 @@ export default function App() {
   const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [expandedEntries, setExpandedEntries] = useState({})
 
-  // ===== Menu State =====
+  // Menu
   const [showUserMenu, setShowUserMenu] = useState(false)
   const userMenuRef = useRef(null)
 
-  // ===== Stats Modal =====
+  // Stats Modal
   const [showStatsModal, setShowStatsModal] = useState(false)
 
-  // ===== Notes State =====
+  // Notes
   const [notes, setNotes] = useState([])
   const [title, setTitle] = useState('')
   const [noteText, setNoteText] = useState('')
@@ -566,7 +522,7 @@ export default function App() {
   const [selectedNotes, setSelectedNotes] = useState([])
   const [selectionMode, setSelectionMode] = useState(false)
 
-  // ===== Tasks State =====
+  // Tasks
   const [tasks, setTasks] = useState([])
   const [task, setTask] = useState('')
   const [taskCategory, setTaskCategory] = useState('daily')
@@ -584,7 +540,7 @@ export default function App() {
   const [subTasksToAdd, setSubTasksToAdd] = useState([])
   const [taskSaving, setTaskSaving] = useState(false)
 
-  // ===== Journal State =====
+  // Journal
   const [journalEntries, setJournalEntries] = useState([])
   const [journalEntry, setJournalEntry] = useState('')
   const [journalMood, setJournalMood] = useState('')
@@ -593,7 +549,7 @@ export default function App() {
   const [journalTagFilter, setJournalTagFilter] = useState('')
   const [journalSaving, setJournalSaving] = useState(false)
 
-  // ===== Pomodoro State =====
+  // Pomodoro
   const [pomodoroTime, setPomodoroTime] = useState(25 * 60)
   const [pomodoroRunning, setPomodoroRunning] = useState(false)
   const [isBreak, setIsBreak] = useState(false)
@@ -604,7 +560,7 @@ export default function App() {
   const [focusDuration, setFocusDuration] = useState(25)
   const [breakDuration, setBreakDuration] = useState(5)
 
-  // ===== Stats State =====
+  // Stats
   const [statsData, setStatsData] = useState({
     disciplineScore: 0,
     disciplineLevel: 'Novice',
@@ -636,17 +592,17 @@ export default function App() {
     nextMilestone: 0
   })
 
-  // ===== Voice State =====
+  // Voice
   const recognitionRef = useRef(null)
   const [isListening, setIsListening] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const fileInputRef = useRef(null)
 
-  // ===== Export State =====
+  // Export
   const [showExport, setShowExport] = useState(false)
   const [targetLang, setTargetLang] = useState('fr')
 
-  // ===== Toast State =====
+  // Toast
   const [toast, setToast] = useState({ show: false, message: '', type: 'success', undo: null })
   const toastTimeout = useRef(null)
 
@@ -766,17 +722,13 @@ export default function App() {
   // ============================================================
 
   const calculateAllStats = useCallback(() => {
-    if (!tasks.length && !journalEntries.length) {
-      return
-    }
+    if (!tasks.length && !journalEntries.length) return
 
     const now = new Date()
     const today = now.toISOString().split('T')[0]
     
-    // 1. Streak
     const streak = getStreak()
     
-    // 2. Longest Streak
     let maxStreak = 0
     let currentStreak = 0
     for (let i = 0; i < 365; i++) {
@@ -792,11 +744,9 @@ export default function App() {
       }
     }
     
-    // 3. Daily Average
     const doneTasks = tasks.filter(t => t.done).length
     const dailyAverage = (doneTasks / 30).toFixed(1)
     
-    // 4. Best Day
     const dayCounts = {}
     tasks.filter(t => t.done).forEach(t => {
       const day = new Date(t.updated_at || t.due_date).toLocaleDateString()
@@ -811,29 +761,23 @@ export default function App() {
       }
     })
     
-    // 5. Commitment Rate
     const totalTasks = tasks.length
     const doneTasksCount = tasks.filter(t => t.done).length
     const commitmentRate = totalTasks > 0 ? Math.round((doneTasksCount / totalTasks) * 100) : 0
     
-    // 6. Focus Score
     const focusScore = totalMinutes > 0 ? Math.min(Math.round((totalMinutes / 6000) * 100), 100) : 0
     
-    // 7. Monthly Progress
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
     const monthTasks = tasks.filter(t => new Date(t.due_date) >= monthStart)
     const monthDone = monthTasks.filter(t => t.done).length
     const monthlyProgress = monthTasks.length > 0 ? Math.round((monthDone / monthTasks.length) * 100) : 0
     
-    // 8. Habit Completion
     const habits = tasks.filter(t => t.type === 'habit')
     const habitsDone = habits.filter(t => t.done).length
     const habitCompletion = habits.length > 0 ? Math.round((habitsDone / habits.length) * 100) : 0
     
-    // 9. Task Velocity
     const taskVelocity = totalMinutes > 0 ? Number((doneTasksCount / (totalMinutes / 60)).toFixed(1)) : 0
     
-    // 10. Weekly Breakdown
     const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     const weeklyBreakdown = weekDays.map((day, index) => {
       const dayNum = index + 1
@@ -851,7 +795,6 @@ export default function App() {
       }
     })
     
-    // 11. Habit Tracker Rings
     const dailyHabits = tasks.filter(t => t.type === 'habit' && t.category === 'daily')
     const dailyHabitsDone = dailyHabits.filter(t => t.done).length
     const dailyHabitsTotal = dailyHabits.length
@@ -864,7 +807,6 @@ export default function App() {
     const monthlyHabitsDone = monthlyHabits.filter(t => t.done).length
     const monthlyHabitsTotal = monthlyHabits.length
     
-    // 12. Focus Analysis
     const todayFocus = tasks
       .filter(t => t.done && t.estimated_minutes)
       .filter(t => new Date(t.updated_at || t.due_date).toISOString().split('T')[0] === today)
@@ -884,7 +826,6 @@ export default function App() {
       .filter(t => new Date(t.updated_at || t.due_date) >= monthAgo)
       .reduce((sum, t) => sum + t.estimated_minutes, 0)
     
-    // 13. Best Focus Day
     const focusDayCounts = {}
     tasks
       .filter(t => t.done && t.estimated_minutes)
@@ -903,13 +844,11 @@ export default function App() {
     
     const avgFocusPerDay = 30 > 0 ? Math.round(monthFocus / 30) : 0
     
-    // 14. Discipline Score
     const streakWeight = Math.min(streak / 100, 1) * 35
     const completionWeight = commitmentRate / 100 * 35
     const focusWeight = Math.min(totalMinutes / 6000, 1) * 30
     const disciplineScore = Math.round(streakWeight + completionWeight + focusWeight)
     
-    // 15. Discipline Level
     let disciplineLevel = 'Novice'
     let disciplineBadge = '🌱'
     if (disciplineScore >= 90) { disciplineLevel = 'Legend'; disciplineBadge = '👑' }
@@ -918,7 +857,6 @@ export default function App() {
     else if (disciplineScore >= 40) { disciplineLevel = 'Disciplined'; disciplineBadge = '⚡' }
     else if (disciplineScore >= 20) { disciplineLevel = 'Apprentice'; disciplineBadge = '📚' }
     
-    // 16. Streak Protection
     let daysUntilStreakLoss = 0
     let streakEndangered = false
     if (streak > 0) {
@@ -938,7 +876,6 @@ export default function App() {
       }
     }
     
-    // 17. Next Milestone
     const milestones = [10, 25, 50, 75, 100, 150, 200, 365]
     let nextMilestone = 0
     for (const m of milestones) {
@@ -978,7 +915,6 @@ export default function App() {
       daysUntilStreakLoss,
       nextMilestone
     })
-    
   }, [tasks, totalMinutes, journalEntries])
 
   // ============================================================
@@ -2199,12 +2135,12 @@ export default function App() {
   if (!user) {
     return (
       <>
-        <AuroraBackground />
+        <div className="bg-glow" />
         <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', position: 'relative', zIndex: 1 }}>
-          <div className="glass-heavy" style={{ maxWidth: '400px', width: '100%', padding: '32px', borderRadius: 'var(--radius-2xl)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '12px' }}>
+          <div className="glass glass-heavy" style={{ maxWidth: '400px', width: '100%', padding: '32px', borderRadius: 'var(--radius-2xl)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px', marginBottom: '12px' }}>
               <LogoIcon className="logo-svg" style={{ width: '48px', height: '48px' }} />
-              <span className="hero-title" style={{ fontSize: '32px' }}>Discypln</span>
+              <span className="hero-title" style={{ fontSize: '32px' }}>iscypln</span>
             </div>
             <p className="text-secondary text-center" style={{ marginBottom: '24px', fontSize: '14px' }}>Stay focused. Stay disciplined.</p>
             <input
@@ -2213,7 +2149,7 @@ export default function App() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="input"
-              style={{ marginBottom: '12px' }}
+              style={{ marginBottom: '12px', width: '100%', padding: '12px 16px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', fontSize: '15px', outline: 'none' }}
             />
             <input
               type="password"
@@ -2221,7 +2157,7 @@ export default function App() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="input"
-              style={{ marginBottom: '16px' }}
+              style={{ marginBottom: '16px', width: '100%', padding: '12px 16px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', fontSize: '15px', outline: 'none' }}
             />
             <div className="flex gap-3">
               <button onClick={signIn} disabled={loading} className="btn btn-primary" style={{ flex: 1 }}>
@@ -2232,7 +2168,7 @@ export default function App() {
               </button>
             </div>
             {message && (
-              <p className="text-center" style={{ marginTop: '16px', color: 'var(--md-error)', fontSize: '13px' }}>
+              <p className="text-center" style={{ marginTop: '16px', color: 'var(--brand-blue)', fontSize: '13px' }}>
                 {message}
               </p>
             )}
@@ -2242,11 +2178,10 @@ export default function App() {
     )
   }
 
-  // ===== EDITOR VIEW =====
   if (viewMode === 'add' || viewMode === 'edit') {
     return (
       <>
-        <AuroraBackground />
+        <div className="bg-glow" />
         <div className="container" style={{ maxWidth: '900px', position: 'relative', zIndex: 1 }}>
           <header className="app-header">
             <div className="header-left">
@@ -2260,7 +2195,7 @@ export default function App() {
                   value={targetLang}
                   onChange={(e) => setTargetLang(e.target.value)}
                   className="select"
-                  style={{ padding: '8px 12px', fontSize: '12px', width: 'auto', minWidth: '100px' }}
+                  style={{ padding: '8px 12px', fontSize: '12px', width: 'auto', minWidth: '100px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)' }}
                 >
                   {ALL_LANGUAGES.map((lang) => (
                     <option key={lang.code} value={lang.code}>
@@ -2280,7 +2215,7 @@ export default function App() {
                   <IconSave /> {isSaving ? 'Saving...' : 'Save'}
                 </button>
                 {saveStatus && (
-                  <span className="tiny-label" style={{ color: 'var(--md-success)' }}>
+                  <span className="tiny-label" style={{ color: 'var(--brand-blue)' }}>
                     {saveStatus}
                   </span>
                 )}
@@ -2295,7 +2230,7 @@ export default function App() {
                   value={titleFont}
                   onChange={(e) => setTitleFont(e.target.value)}
                   className="select"
-                  style={{ marginBottom: '10px' }}
+                  style={{ marginBottom: '10px', width: '100%', padding: '12px 16px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)' }}
                 >
                   <option value="Inter">Inter - Clean</option>
                   <option value="Georgia">Georgia - Book</option>
@@ -2312,10 +2247,18 @@ export default function App() {
                   placeholder="Title"
                   className="input"
                   style={{
+                    width: '100%',
+                    padding: '12px 16px',
                     fontSize: '24px',
                     fontWeight: 600,
                     fontFamily: titleFont.includes(' ') ? `'${titleFont}', serif` : titleFont,
-                    marginBottom: '10px'
+                    marginBottom: '10px',
+                    background: 'var(--glass-bg)',
+                    backdropFilter: 'var(--glass-blur)',
+                    border: '1px solid var(--glass-border)',
+                    borderRadius: 'var(--radius-lg)',
+                    color: 'var(--text-primary)',
+                    outline: 'none'
                   }}
                 />
                 <input
@@ -2323,7 +2266,18 @@ export default function App() {
                   onChange={(e) => setCategory(e.target.value)}
                   placeholder="Add a category"
                   className="input"
-                  style={{ fontSize: '14px', marginBottom: '12px' }}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    fontSize: '14px',
+                    marginBottom: '12px',
+                    background: 'var(--glass-bg)',
+                    backdropFilter: 'var(--glass-blur)',
+                    border: '1px solid var(--glass-border)',
+                    borderRadius: 'var(--radius-lg)',
+                    color: 'var(--text-primary)',
+                    outline: 'none'
+                  }}
                 />
               </>
             )}
@@ -2335,7 +2289,18 @@ export default function App() {
                   onChange={(e) => setCategory(e.target.value)}
                   placeholder="Add a category"
                   className="input"
-                  style={{ fontSize: '14px', marginBottom: '12px' }}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    fontSize: '14px',
+                    marginBottom: '12px',
+                    background: 'var(--glass-bg)',
+                    backdropFilter: 'var(--glass-blur)',
+                    border: '1px solid var(--glass-border)',
+                    borderRadius: 'var(--radius-lg)',
+                    color: 'var(--text-primary)',
+                    outline: 'none'
+                  }}
                 />
               </>
             )}
@@ -2345,10 +2310,19 @@ export default function App() {
               placeholder="Start typing..."
               className="textarea"
               style={{
+                width: '100%',
                 minHeight: '320px',
+                padding: '16px',
                 fontFamily: detectedCode ? "'JetBrains Mono', monospace" : fontFamily.includes(' ') ? `'${fontFamily}', serif` : fontFamily,
                 fontSize: fontSize + 'px',
-                background: detectedCode ? '#0d1117' : undefined
+                background: detectedCode ? '#0d1117' : 'var(--glass-bg)',
+                backdropFilter: 'var(--glass-blur)',
+                border: '1px solid var(--glass-border)',
+                borderRadius: 'var(--radius-lg)',
+                color: 'var(--text-primary)',
+                outline: 'none',
+                resize: 'vertical',
+                lineHeight: '1.7'
               }}
               autoFocus
             />
@@ -2379,7 +2353,7 @@ export default function App() {
               value={fontFamily}
               onChange={(e) => setFontFamily(e.target.value)}
               className="select"
-              style={{ padding: '6px 12px', fontSize: '12px', width: 'auto', minWidth: '100px' }}
+              style={{ padding: '6px 12px', fontSize: '12px', width: 'auto', minWidth: '100px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)' }}
             >
               <option value="Inter">Inter</option>
               <option value="Georgia">Georgia</option>
@@ -2400,7 +2374,7 @@ export default function App() {
               value={fontSize}
               onChange={(e) => setFontSize(e.target.value)}
               className="select"
-              style={{ padding: '6px 12px', fontSize: '12px', width: 'auto', minWidth: '70px' }}
+              style={{ padding: '6px 12px', fontSize: '12px', width: 'auto', minWidth: '70px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)' }}
             >
               <option value="14">14px</option>
               <option value="16">16px</option>
@@ -2446,7 +2420,7 @@ export default function App() {
               className="text-center"
               style={{
                 marginTop: '16px',
-                color: message.includes('✅') ? 'var(--md-success)' : 'var(--md-error)',
+                color: message.includes('✅') ? 'var(--brand-blue)' : 'var(--text-muted)',
                 fontSize: '13px'
               }}
             >
@@ -2466,48 +2440,46 @@ export default function App() {
 
   return (
     <>
-      <AuroraBackground />
+      <div className="bg-glow" />
       <div className="container fade-in" style={{ position: 'relative', zIndex: 1 }}>
-      
-      {/* ===== HEADER ===== */}
-<header className="app-header">
-  <div className="header-left">
-    <div className="logo-container" style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-      {/* Custom D Logo - acts as the "D" */}
-      <LogoIcon className="logo-svg" style={{ width: '44px', height: '44px' }} />
-      {/* "iscypln" next to it */}
-      <span className="logo-text" style={{ 
-        fontSize: '28px', 
-        fontWeight: 900, 
-        letterSpacing: '-0.03em',
-        background: 'var(--gradient-primary)',
-        backgroundSize: '200% auto',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-        animation: 'gradientShift 6s ease infinite',
-        marginLeft: '-2px'
-      }}>
-        iscypln
-      </span>
-    </div>
-    <div className="header-center">
-      <span className="greeting-text">
-        {greeting}{' '}
-        <span style={{ color: 'var(--text-tertiary)' }}>
-          {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </span>
-      </span>
-      <span className="date-text">
-        {currentTime.toLocaleDateString('en-US', {
-          weekday: 'long',
-          month: 'long',
-          day: 'numeric',
-          year: 'numeric'
-        })}
-      </span>
-    </div>
-  </div>
+        
+        {/* ===== HEADER ===== */}
+        <header className="app-header">
+          <div className="header-left">
+            <div className="logo-container" style={{ display: 'flex', alignItems: 'center', gap: '0px' }}>
+              <LogoIcon className="logo-svg" style={{ width: '40px', height: '40px' }} />
+              <span className="logo-text" style={{ 
+                fontSize: '26px', 
+                fontWeight: 900, 
+                letterSpacing: '-0.03em',
+                marginLeft: '-4px',
+                background: 'var(--gradient-primary)',
+                backgroundSize: '200% auto',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                animation: 'gradientShift 15s ease infinite'
+              }}>
+                iscypln
+              </span>
+            </div>
+            <div className="header-center">
+              <span className="greeting-text">
+                {greeting}{' '}
+                <span style={{ color: 'var(--text-tertiary)' }}>
+                  {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </span>
+              <span className="date-text">
+                {currentTime.toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </span>
+            </div>
+          </div>
           <div className="header-right">
             <button onClick={() => setIsDarkMode(!isDarkMode)} className="theme-toggle" aria-label="Toggle theme">
               {isDarkMode ? <IconMoon /> : <IconSun />}
@@ -2522,7 +2494,7 @@ export default function App() {
               </button>
               {showUserMenu && (
                 <div
-                  className="glass-heavy"
+                  className="glass glass-heavy"
                   style={{
                     position: 'absolute',
                     top: 'calc(100% + 8px)',
@@ -2565,7 +2537,7 @@ export default function App() {
                       width: '100%',
                       justifyContent: 'flex-start',
                       gap: '10px',
-                      color: 'var(--md-error)',
+                      color: 'var(--text-muted)',
                       borderTop: '1px solid var(--glass-border)',
                       marginTop: '4px',
                       padding: '10px 14px'
@@ -2579,7 +2551,7 @@ export default function App() {
           </div>
         </header>
 
-        {/* ===== CAPSULE NAV ===== */}
+        {/* ===== CAPSULE NAV (DeepSeek style) ===== */}
         <nav className="capsule-nav">
           <div className="capsule-nav-inner">
             {['notes', 'tasks', 'journal'].map((tab) => (
@@ -2597,7 +2569,7 @@ export default function App() {
           </div>
         </nav>
 
-        {/* ===== HERO CARD WITH STATS ===== */}
+        {/* ===== HERO CARD WITH STATS (ONLY THIS HAS GLOW) ===== */}
         <div className="stats-hero" style={{ marginBottom: '24px' }}>
           <div style={{ 
             display: 'flex', 
@@ -2626,7 +2598,7 @@ export default function App() {
             
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <div className="discipline-badge">
-                <IconTrophy size={16} color="#fff" style={{ marginRight: '4px' }} />
+                <IconTrophy size={16} style={{ marginRight: '4px' }} />
                 {statsData.disciplineBadge} {statsData.disciplineLevel}
                 <span style={{ fontSize: '12px', opacity: 0.7, marginLeft: '4px' }}>
                   {statsData.disciplineScore}/100
@@ -2658,8 +2630,8 @@ export default function App() {
               <div className="stat-label">Streak</div>
             </div>
             <div className="stat-item">
-              <div className="stat-value" style={{ color: 'var(--md-primary)' }}>
-                <IconTrendingUp size={16} color="var(--md-primary)" style={{ marginRight: '4px' }} />
+              <div className="stat-value" style={{ color: 'var(--brand-blue)' }}>
+                <IconTrendingUp size={16} color="var(--brand-blue)" style={{ marginRight: '4px' }} />
                 {statsData.commitmentRate}%
               </div>
               <div className="stat-label">Commitment</div>
@@ -2672,8 +2644,8 @@ export default function App() {
               <div className="stat-label">Focus</div>
             </div>
             <div className="stat-item">
-              <div className="stat-value" style={{ color: 'var(--md-secondary)' }}>
-                <IconCheck size={16} color="var(--md-secondary)" style={{ marginRight: '4px' }} />
+              <div className="stat-value" style={{ color: 'var(--brand-purple)' }}>
+                <IconCheck size={16} color="var(--brand-purple)" style={{ marginRight: '4px' }} />
                 {tasks.filter(t => t.done).length}
               </div>
               <div className="stat-label">Tasks Done</div>
@@ -2708,8 +2680,8 @@ export default function App() {
               position: 'relative',
               zIndex: 1
             }}>
-              <IconAlertTriangle size={18} color="var(--md-error)" />
-              <span style={{ fontSize: '13px', color: 'var(--md-error)' }}>
+              <IconAlertTriangle size={18} color="var(--text-muted)" />
+              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
                 {statsData.daysUntilStreakLoss} day{statsData.daysUntilStreakLoss > 1 ? 's' : ''} until streak loss!
                 {statsData.nextMilestone > 0 && ` Complete today to reach ${statsData.nextMilestone} days`}
               </span>
@@ -2719,7 +2691,7 @@ export default function App() {
 
         {/* ===== POMODORO ===== */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px' }}>
-          <div className="card card-glow" style={{ textAlign: 'center', padding: '32px 24px' }}>
+          <div className="card" style={{ textAlign: 'center', padding: '32px 24px' }}>
             <div style={{ position: 'relative', display: 'inline-block' }}>
               <div
                 style={{
@@ -2740,8 +2712,8 @@ export default function App() {
                   inset: '-8px',
                   borderRadius: '50%',
                   border: '2px solid transparent',
-                  borderColor: pomodoroRunning ? 'var(--md-primary)' : pomodoroState === 'paused' ? 'var(--md-warning)' : 'transparent',
-                  opacity: pomodoroRunning ? 0.4 : 0.1,
+                  borderColor: pomodoroRunning ? 'var(--brand-blue)' : pomodoroState === 'paused' ? '#F59E0B' : 'transparent',
+                  opacity: pomodoroRunning ? 0.3 : 0.1,
                   transition: 'all 0.3s ease'
                 }}
               />
@@ -2763,7 +2735,7 @@ export default function App() {
                     }
                   }}
                   className="input"
-                  style={{ width: '60px', padding: '4px 6px', fontSize: '14px', textAlign: 'center' }}
+                  style={{ width: '60px', padding: '4px 6px', fontSize: '14px', textAlign: 'center', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none' }}
                 />
                 <span className="tiny-label">min</span>
               </div>
@@ -2782,7 +2754,7 @@ export default function App() {
                     }
                   }}
                   className="input"
-                  style={{ width: '60px', padding: '4px 6px', fontSize: '14px', textAlign: 'center' }}
+                  style={{ width: '60px', padding: '4px 6px', fontSize: '14px', textAlign: 'center', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none' }}
                 />
                 <span className="tiny-label">min</span>
               </div>
@@ -2826,9 +2798,9 @@ export default function App() {
                 style={{
                   marginTop: '12px',
                   padding: '8px 16px',
-                  background: 'rgba(34, 197, 94, 0.15)',
+                  background: 'rgba(34, 197, 94, 0.10)',
                   borderRadius: 'var(--radius-md)',
-                  color: 'var(--md-success)',
+                  color: '#22C55E',
                   fontSize: '14px',
                   fontWeight: 600,
                   animation: 'fadeIn 0.5s ease'
@@ -2841,7 +2813,7 @@ export default function App() {
         </div>
 
         {/* ===== HEATMAP ===== */}
-        <div className="card card-glow" style={{ marginBottom: '16px' }}>
+        <div className="card" style={{ marginBottom: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <div>
               <div className="card-title" style={{ marginBottom: '0' }}>Heatmap</div>
@@ -2874,7 +2846,7 @@ export default function App() {
                   title={`${dateStr}: ${dayTasks.length} tasks, ${formatMinutes(minutes)}`}
                   style={{
                     background: colors[intensity],
-                    borderColor: isToday ? 'var(--md-primary)' : 'var(--glass-border)',
+                    borderColor: isToday ? 'var(--brand-blue)' : 'var(--glass-border)',
                     borderWidth: isToday ? '2px' : '1px'
                   }}
                 >
@@ -2915,12 +2887,12 @@ export default function App() {
           <div
             className="card"
             style={{
-              borderColor: 'var(--md-error)',
+              borderColor: 'rgba(239, 68, 68, 0.3)',
               marginBottom: '16px',
               padding: '16px 20px'
             }}
           >
-            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--md-error)', marginBottom: '4px' }}>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '4px' }}>
               Failed Days This Week
             </div>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -2934,7 +2906,7 @@ export default function App() {
         )}
 
         {/* ===== CONTENT AREA ===== */}
-        <div className="card card-glow" style={{ minHeight: '400px', padding: '24px' }}>
+        <div className="card" style={{ minHeight: '400px', padding: '24px' }}>
           
           {/* ===== NOTES TAB ===== */}
           {activeTab === 'notes' && (
@@ -3095,8 +3067,8 @@ export default function App() {
                     transition: 'all 0.2s'
                   }}
                   onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--md-primary)'
-                    e.target.style.boxShadow = '0 0 0 4px rgba(79, 140, 255, 0.1)'
+                    e.target.style.borderColor = 'var(--brand-blue)'
+                    e.target.style.boxShadow = '0 0 0 3px rgba(79, 140, 255, 0.10)'
                   }}
                   onBlur={(e) => {
                     e.target.style.borderColor = 'var(--glass-border)'
@@ -3170,7 +3142,7 @@ export default function App() {
                     return (
                       <div
                         key={note.id}
-                        className="card card-glow"
+                        className="card"
                         onClick={() => {
                           if (selectionMode) {
                             toggleSelect(note.id)
@@ -3183,23 +3155,23 @@ export default function App() {
                           padding: '20px',
                           transition: 'all 0.2s ease',
                           border: selectionMode && isSelected 
-                            ? '2px solid var(--md-primary)' 
+                            ? '2px solid var(--brand-blue)' 
                             : selectionMode 
                               ? '2px solid var(--glass-border)' 
                               : '1px solid var(--glass-border)',
                           borderRadius: 'var(--radius-xl)',
                           background: selectionMode && isSelected 
-                            ? 'rgba(79, 140, 255, 0.08)' 
+                            ? 'rgba(79, 140, 255, 0.06)' 
                             : 'var(--glass-bg)',
                           transform: selectionMode && isSelected ? 'scale(0.98)' : 'scale(1)',
                           position: 'relative',
-                          animation: `slideUp 0.4s var(--spring) both`,
+                          animation: `slideUp 0.5s var(--spring) both`,
                           animationDelay: `${index * 40}ms`
                         }}
                         onMouseEnter={(e) => {
                           if (!selectionMode) {
                             e.currentTarget.style.borderColor = 'var(--glass-border-hover)'
-                            e.currentTarget.style.transform = 'translateY(-4px)'
+                            e.currentTarget.style.transform = 'translateY(-2px)'
                           }
                         }}
                         onMouseLeave={(e) => {
@@ -3218,8 +3190,8 @@ export default function App() {
                               width: '22px',
                               height: '22px',
                               borderRadius: '50%',
-                              border: isSelected ? '2px solid var(--md-primary)' : '2px solid var(--text-muted)',
-                              background: isSelected ? 'var(--md-primary)' : 'transparent',
+                              border: isSelected ? '2px solid var(--brand-blue)' : '2px solid var(--text-muted)',
+                              background: isSelected ? 'var(--brand-blue)' : 'transparent',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -3359,7 +3331,7 @@ export default function App() {
                   onChange={(e) => setTask(e.target.value)}
                   placeholder="Add a task..."
                   className="input"
-                  style={{ marginBottom: '12px' }}
+                  style={{ marginBottom: '12px', width: '100%', padding: '12px 16px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none' }}
                   onKeyDown={(e) => e.key === 'Enter' && addTask()}
                 />
 
@@ -3368,7 +3340,7 @@ export default function App() {
                     value={taskCategory}
                     onChange={(e) => setTaskCategory(e.target.value)}
                     className="select"
-                    style={{ flex: 1, minWidth: '120px' }}
+                    style={{ flex: 1, minWidth: '120px', padding: '10px 12px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none' }}
                   >
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
@@ -3381,7 +3353,7 @@ export default function App() {
                       value={taskTime}
                       onChange={(e) => setTaskTime(e.target.value)}
                       className="input"
-                      style={{ width: '140px' }}
+                      style={{ width: '140px', padding: '10px 12px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none' }}
                     />
                   )}
 
@@ -3390,7 +3362,7 @@ export default function App() {
                       value={taskWeekDay}
                       onChange={(e) => setTaskWeekDay(e.target.value)}
                       className="select"
-                      style={{ width: '140px' }}
+                      style={{ width: '140px', padding: '10px 12px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none' }}
                     >
                       <option value="monday">Monday</option>
                       <option value="tuesday">Tuesday</option>
@@ -3408,7 +3380,7 @@ export default function App() {
                       value={taskDueDate}
                       onChange={(e) => setTaskDueDate(e.target.value)}
                       className="input"
-                      style={{ width: '160px' }}
+                      style={{ width: '160px', padding: '10px 12px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none' }}
                     />
                   )}
                 </div>
@@ -3420,7 +3392,7 @@ export default function App() {
                       value={taskDifficulty}
                       onChange={(e) => setTaskDifficulty(e.target.value)}
                       className="select"
-                      style={{ width: '140px' }}
+                      style={{ width: '140px', padding: '8px 12px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none' }}
                     >
                       <option value="easy">Easy</option>
                       <option value="medium">Medium</option>
@@ -3434,7 +3406,7 @@ export default function App() {
                       onChange={(e) => setTaskMinutes(Number(e.target.value))}
                       placeholder="30"
                       className="input"
-                      style={{ width: '80px' }}
+                      style={{ width: '80px', padding: '8px 12px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none' }}
                     />
 
                     <span className="tiny-label" style={{ minWidth: '30px' }}>Tag</span>
@@ -3442,7 +3414,7 @@ export default function App() {
                       value={taskTag}
                       onChange={(e) => setTaskTag(e.target.value)}
                       className="select"
-                      style={{ width: '140px' }}
+                      style={{ width: '140px', padding: '8px 12px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none' }}
                     >
                       <option value="general">General</option>
                       <option value="school">School</option>
@@ -3458,7 +3430,7 @@ export default function App() {
                       onChange={(e) => setNewSubTask(e.target.value)}
                       placeholder="Add a subtask"
                       className="input"
-                      style={{ flex: 1, maxWidth: '260px', fontSize: '13px', padding: '6px 12px' }}
+                      style={{ flex: 1, maxWidth: '260px', fontSize: '13px', padding: '6px 12px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none' }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && newSubTask.trim()) {
                           setSubTasksToAdd([
@@ -3497,7 +3469,7 @@ export default function App() {
                             alignItems: 'center',
                             gap: '8px',
                             padding: '4px 10px',
-                            background: 'rgba(79, 140, 255, 0.08)',
+                            background: 'rgba(79, 140, 255, 0.06)',
                             borderRadius: '6px',
                             width: 'fit-content'
                           }}
@@ -3540,13 +3512,13 @@ export default function App() {
                     return (
                       <div
                         key={t.id}
-                        className="card card-glow"
+                        className="card"
                         style={{
                           padding: '14px 16px',
                           overflow: 'hidden',
-                          border: isExpanded ? '1px solid var(--md-primary)' : '1px solid var(--glass-border)',
+                          border: isExpanded ? '1px solid var(--brand-blue)' : '1px solid var(--glass-border)',
                           transition: 'all 0.2s ease',
-                          animation: `slideUp 0.4s var(--spring) both`,
+                          animation: `slideUp 0.5s var(--spring) both`,
                           animationDelay: `${index * 30}ms`
                         }}
                       >
@@ -3610,8 +3582,8 @@ export default function App() {
                                 <span
                                   className="chip"
                                   style={{
-                                    background: 'rgba(239, 68, 68, 0.15)',
-                                    color: 'var(--md-error)',
+                                    background: 'rgba(239, 68, 68, 0.10)',
+                                    color: 'var(--text-muted)',
                                     height: '28px',
                                     fontSize: '11px'
                                   }}
@@ -3649,7 +3621,7 @@ export default function App() {
                                 display: 'flex',
                                 alignItems: 'center'
                               }}
-                              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--md-error)')}
+                              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
                               onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
                             >
                               <IconX />
@@ -3672,7 +3644,7 @@ export default function App() {
                                 onChange={(e) => setNewSubTask(e.target.value)}
                                 placeholder="Add subtask..."
                                 className="input"
-                                style={{ flex: 1, fontSize: '13px', padding: '6px 12px' }}
+                                style={{ flex: 1, fontSize: '13px', padding: '6px 12px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none' }}
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
                                     addSubTask(t.id)
@@ -3701,7 +3673,7 @@ export default function App() {
                                     style={{
                                       width: '16px',
                                       height: '16px',
-                                      accentColor: 'var(--md-primary)',
+                                      accentColor: 'var(--brand-blue)',
                                       cursor: 'pointer'
                                     }}
                                   />
@@ -3727,7 +3699,7 @@ export default function App() {
                                       display: 'flex',
                                       alignItems: 'center'
                                     }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--md-error)')}
+                                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
                                     onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
                                   >
                                     <IconX />
@@ -3796,7 +3768,7 @@ export default function App() {
                     fetchJournal()
                   }}
                   className="input"
-                  style={{ width: '160px', padding: '6px 12px', fontSize: '12px' }}
+                  style={{ width: '160px', padding: '6px 12px', fontSize: '12px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none' }}
                 />
                 {journalDateFilter && (
                   <button
@@ -3818,7 +3790,7 @@ export default function App() {
                   value={journalTagFilter}
                   onChange={(e) => setJournalTagFilter(e.target.value)}
                   className="select"
-                  style={{ width: '140px', padding: '6px 12px', fontSize: '12px' }}
+                  style={{ width: '140px', padding: '6px 12px', fontSize: '12px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none' }}
                 >
                   <option value="">All Tags</option>
                   {[...new Set(journalEntries.map((e) => e.tags || '').filter((t) => t.trim()))].map((tag) => (
@@ -3853,10 +3825,18 @@ export default function App() {
                   placeholder="What's on your mind today?"
                   className="textarea"
                   style={{
+                    width: '100%',
                     minHeight: '200px',
+                    padding: '16px',
                     fontSize: '16px',
                     lineHeight: 1.8,
-                    maxWidth: '100%'
+                    background: 'var(--glass-bg)',
+                    backdropFilter: 'var(--glass-blur)',
+                    border: '1px solid var(--glass-border)',
+                    borderRadius: 'var(--radius-lg)',
+                    color: 'var(--text-primary)',
+                    outline: 'none',
+                    resize: 'vertical'
                   }}
                 />
                 <div
@@ -3877,7 +3857,7 @@ export default function App() {
                       onChange={(e) => setJournalMood(e.target.value)}
                       placeholder="e.g., happy, stressed, calm"
                       className="input"
-                      style={{ padding: '6px 12px', fontSize: '12px' }}
+                      style={{ padding: '6px 12px', fontSize: '12px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none', width: '100%' }}
                     />
                   </div>
                   <div style={{ flex: 2, minWidth: '180px' }}>
@@ -3889,7 +3869,7 @@ export default function App() {
                       onChange={(e) => setJournalTags(e.target.value)}
                       placeholder="e.g., work, personal, ideas"
                       className="input"
-                      style={{ padding: '6px 12px', fontSize: '12px' }}
+                      style={{ padding: '6px 12px', fontSize: '12px', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', outline: 'none', width: '100%' }}
                     />
                   </div>
                   <button
@@ -3942,13 +3922,13 @@ export default function App() {
                             return (
                               <div
                                 key={entry.id}
-                                className="card card-glow"
+                                className="card"
                                 style={{
                                   padding: '16px',
                                   marginBottom: '10px',
                                   cursor: 'pointer',
                                   transition: 'all 0.2s ease',
-                                  animation: `slideUp 0.4s var(--spring) both`,
+                                  animation: `slideUp 0.5s var(--spring) both`,
                                   animationDelay: `${index * 30}ms`
                                 }}
                                 onClick={() =>
@@ -3977,8 +3957,8 @@ export default function App() {
                                           height: '24px',
                                           fontSize: '10px',
                                           padding: '0 10px',
-                                          background: 'rgba(79, 140, 255, 0.12)',
-                                          color: 'var(--md-primary)'
+                                          background: 'rgba(79, 140, 255, 0.10)',
+                                          color: 'var(--brand-blue)'
                                         }}
                                       >
                                         {entry.mood}
@@ -4014,7 +3994,7 @@ export default function App() {
                                       display: 'flex',
                                       alignItems: 'center'
                                     }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--md-error)')}
+                                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
                                     onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
                                   >
                                     <IconX />
@@ -4106,7 +4086,7 @@ export default function App() {
                     gap: '16px' 
                   }}>
                     <div className="stat-item">
-                      <div className="stat-value" style={{ color: 'var(--md-primary)' }}>
+                      <div className="stat-value" style={{ color: 'var(--brand-blue)' }}>
                         {statsData.disciplineScore}/100
                       </div>
                       <div className="stat-label">Discipline Score</div>
@@ -4127,7 +4107,7 @@ export default function App() {
                       <div className="stat-label">Current Streak</div>
                     </div>
                     <div className="stat-item">
-                      <div className="stat-value" style={{ color: '#A855F7' }}>{statsData.longestStreak}</div>
+                      <div className="stat-value" style={{ color: 'var(--brand-purple)' }}>{statsData.longestStreak}</div>
                       <div className="stat-label">Longest Streak</div>
                     </div>
                   </div>
@@ -4170,15 +4150,15 @@ export default function App() {
                   }}>
                     <div style={{ textAlign: 'center' }}>
                       <div className="habit-ring" style={{ margin: '0 auto' }}>
-                        <svg width="80" height="80" viewBox="0 0 80 80">
-                          <circle cx="40" cy="40" r="36" className="habit-ring-circle habit-ring-bg" />
+                        <svg width="70" height="70" viewBox="0 0 70 70">
+                          <circle cx="35" cy="35" r="30" className="habit-ring-circle habit-ring-bg" />
                           <circle 
-                            cx="40" 
-                            cy="40" 
-                            r="36" 
+                            cx="35" 
+                            cy="35" 
+                            r="30" 
                             className="habit-ring-circle habit-ring-progress"
                             style={{
-                              strokeDashoffset: 251.2 * (1 - (statsData.dailyHabitsTotal > 0 
+                              strokeDashoffset: 188.5 * (1 - (statsData.dailyHabitsTotal > 0 
                                 ? statsData.dailyHabitsDone / statsData.dailyHabitsTotal 
                                 : 0))
                             }}
@@ -4197,15 +4177,15 @@ export default function App() {
 
                     <div style={{ textAlign: 'center' }}>
                       <div className="habit-ring" style={{ margin: '0 auto' }}>
-                        <svg width="80" height="80" viewBox="0 0 80 80">
-                          <circle cx="40" cy="40" r="36" className="habit-ring-circle habit-ring-bg" />
+                        <svg width="70" height="70" viewBox="0 0 70 70">
+                          <circle cx="35" cy="35" r="30" className="habit-ring-circle habit-ring-bg" />
                           <circle 
-                            cx="40" 
-                            cy="40" 
-                            r="36" 
+                            cx="35" 
+                            cy="35" 
+                            r="30" 
                             className="habit-ring-circle habit-ring-progress"
                             style={{
-                              strokeDashoffset: 251.2 * (1 - (statsData.weeklyHabitsTotal > 0 
+                              strokeDashoffset: 188.5 * (1 - (statsData.weeklyHabitsTotal > 0 
                                 ? statsData.weeklyHabitsDone / statsData.weeklyHabitsTotal 
                                 : 0))
                             }}
@@ -4224,15 +4204,15 @@ export default function App() {
 
                     <div style={{ textAlign: 'center' }}>
                       <div className="habit-ring" style={{ margin: '0 auto' }}>
-                        <svg width="80" height="80" viewBox="0 0 80 80">
-                          <circle cx="40" cy="40" r="36" className="habit-ring-circle habit-ring-bg" />
+                        <svg width="70" height="70" viewBox="0 0 70 70">
+                          <circle cx="35" cy="35" r="30" className="habit-ring-circle habit-ring-bg" />
                           <circle 
-                            cx="40" 
-                            cy="40" 
-                            r="36" 
+                            cx="35" 
+                            cy="35" 
+                            r="30" 
                             className="habit-ring-circle habit-ring-progress"
                             style={{
-                              strokeDashoffset: 251.2 * (1 - (statsData.monthlyHabitsTotal > 0 
+                              strokeDashoffset: 188.5 * (1 - (statsData.monthlyHabitsTotal > 0 
                                 ? statsData.monthlyHabitsDone / statsData.monthlyHabitsTotal 
                                 : 0))
                             }}
@@ -4261,7 +4241,7 @@ export default function App() {
                     gap: '12px' 
                   }}>
                     <div className="stat-item">
-                      <div className="stat-value" style={{ color: 'var(--md-primary)' }}>
+                      <div className="stat-value" style={{ color: 'var(--brand-blue)' }}>
                         {formatMinutes(statsData.todayFocus)}
                       </div>
                       <div className="stat-label">Today</div>
@@ -4273,7 +4253,7 @@ export default function App() {
                       <div className="stat-label">This Week</div>
                     </div>
                     <div className="stat-item">
-                      <div className="stat-value" style={{ color: '#A855F7' }}>
+                      <div className="stat-value" style={{ color: 'var(--brand-purple)' }}>
                         {formatMinutes(statsData.monthFocus)}
                       </div>
                       <div className="stat-label">This Month</div>
@@ -4311,13 +4291,13 @@ export default function App() {
                       <div className="stat-label">Commitment Rate</div>
                     </div>
                     <div className="stat-item">
-                      <div className="stat-value" style={{ color: 'var(--md-primary)' }}>
+                      <div className="stat-value" style={{ color: 'var(--brand-blue)' }}>
                         {statsData.monthlyProgress}%
                       </div>
                       <div className="stat-label">Monthly Progress</div>
                     </div>
                     <div className="stat-item">
-                      <div className="stat-value" style={{ color: '#A855F7' }}>
+                      <div className="stat-value" style={{ color: 'var(--brand-purple)' }}>
                         {statsData.habitCompletion}%
                       </div>
                       <div className="stat-label">Habit Completion</div>
@@ -4351,16 +4331,16 @@ export default function App() {
                     <div style={{
                       padding: '16px',
                       borderRadius: 'var(--radius-lg)',
-                      background: 'rgba(239, 68, 68, 0.08)',
-                      border: '1px solid rgba(239, 68, 68, 0.2)',
+                      background: 'rgba(239, 68, 68, 0.06)',
+                      border: '1px solid rgba(239, 68, 68, 0.15)',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '12px',
                       flexWrap: 'wrap'
                     }}>
-                      <IconAlertTriangle size={24} color="var(--md-error)" />
+                      <IconAlertTriangle size={24} color="var(--text-muted)" />
                       <div>
-                        <div style={{ fontWeight: 600, color: 'var(--md-error)' }}>
+                        <div style={{ fontWeight: 600, color: 'var(--text-muted)' }}>
                           You're {statsData.daysUntilStreakLoss} day{statsData.daysUntilStreakLoss > 1 ? 's' : ''} from losing your {streak}-day streak!
                         </div>
                         <div style={{ fontSize: '13px', color: 'var(--text-tertiary)' }}>
@@ -4377,12 +4357,12 @@ export default function App() {
                     <div style={{
                       padding: '16px',
                       borderRadius: 'var(--radius-lg)',
-                      background: 'rgba(34, 197, 94, 0.08)',
-                      border: '1px solid rgba(34, 197, 94, 0.2)',
+                      background: 'rgba(34, 197, 94, 0.06)',
+                      border: '1px solid rgba(34, 197, 94, 0.15)',
                       textAlign: 'center'
                     }}>
                       <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-                        Next Milestone: <strong style={{ color: 'var(--md-success)' }}>{statsData.nextMilestone} days</strong>
+                        Next Milestone: <strong style={{ color: '#22C55E' }}>{statsData.nextMilestone} days</strong>
                         <span style={{ marginLeft: '12px', color: 'var(--text-tertiary)' }}>
                           ({statsData.nextMilestone - streak} days to go!)
                         </span>
@@ -4435,20 +4415,20 @@ export default function App() {
             100% { opacity: 1; }
           }
           @keyframes slideUp {
-            0% { opacity: 0; transform: translateY(24px) scale(0.96); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
+            0% { opacity: 0; transform: translateY(20px) translateZ(0); }
+            100% { opacity: 1; transform: translateY(0) translateZ(0); }
           }
           @keyframes slideDown {
-            0% { opacity: 0; transform: translateY(-16px); }
-            100% { opacity: 1; transform: translateY(0); }
+            0% { opacity: 0; transform: translateY(-10px) translateZ(0); }
+            100% { opacity: 1; transform: translateY(0) translateZ(0); }
           }
           @keyframes gradientShift {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
           }
-          .fade-in { animation: fadeIn 0.5s var(--ease-out); }
-          .slide-up { animation: slideUp 0.6s var(--spring); }
+          .fade-in { animation: fadeIn 0.4s var(--ease-out) forwards; }
+          .slide-up { animation: slideUp 0.5s var(--spring) forwards; }
         `}</style>
       </div>
     </>
