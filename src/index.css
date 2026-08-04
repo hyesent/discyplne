@@ -1,53 +1,60 @@
 /* ============================================================
-   DISCYPLN V3 — Apple Liquid Glass System
-   Glow ONLY on Stats Hero Card
+   DISCYPLN — Pure Black + Glass UI (DeepSeek/Netflix Style)
+   Version: Final
    ============================================================ */
 
-/* ----- Imports ----- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* ============================================================
-   PHASE 1 — DESIGN TOKENS
+   1. DESIGN TOKENS
    ============================================================ */
 :root {
   /* ----- Brand ----- */
   --brand-cyan: #22E2FF;
   --brand-blue: #4F8CFF;
   --brand-purple: #B43DFF;
-
-  /* ----- Gradients ----- */
   --gradient-primary: linear-gradient(135deg, var(--brand-cyan) 0%, var(--brand-blue) 45%, var(--brand-purple) 100%);
 
   /* ----- Glass System ----- */
   --glass-bg: rgba(255, 255, 255, 0.04);
   --glass-bg-hover: rgba(255, 255, 255, 0.07);
+  --glass-bg-active: rgba(255, 255, 255, 0.10);
   --glass-border: rgba(255, 255, 255, 0.06);
   --glass-border-hover: rgba(255, 255, 255, 0.10);
-  --glass-blur: 12px;
-  --glass-blur-heavy: 16px;
-  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  --glass-shadow-heavy: 0 8px 40px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --glass-border-active: rgba(255, 255, 255, 0.14);
+  --glass-blur: 16px;
+  --glass-blur-heavy: 24px;
+  --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.30);
+  --glass-shadow-heavy: 0 8px 50px rgba(0, 0, 0, 0.40);
 
-  /* ----- Glow System (ONLY for Stats Hero) ----- */
-  --glow-color: rgba(79, 140, 255, 0.08);
-  --glow-color-strong: rgba(79, 140, 255, 0.12);
+  /* ----- Nav Glass (DeepSeek style) ----- */
+  --nav-glass-bg: rgba(38, 38, 38, 0.82);
+  --nav-glass-border: rgba(255, 255, 255, 0.08);
+  --nav-glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 30px rgba(0, 0, 0, 0.35);
+  --nav-active-bg: rgba(255, 255, 255, 0.06);
+  --nav-active-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 6px 18px rgba(0, 0, 0, 0.25);
+
+  /* ----- Colors (Pure Black) ----- */
+  --bg-primary: #000000;
+  --bg-secondary: #0A0A0A;
+  --bg-surface: #111111;
+  --bg-surface-dim: #080808;
+  --text-primary: #FFFFFF;
+  --text-secondary: #B0B8C8;
+  --text-tertiary: #6A7282;
+  --text-muted: #4A5263;
+  --text-inverse: #000000;
+
+  /* ----- Glow (Only for Stats Hero) ----- */
+  --glow-color: rgba(79, 140, 255, 0.06);
+  --glow-color-strong: rgba(79, 140, 255, 0.10);
 
   /* ----- Elevation ----- */
   --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12);
   --elevation-2: 0 4px 12px rgba(0, 0, 0, 0.15);
   --elevation-3: 0 8px 24px rgba(0, 0, 0, 0.20);
 
-  /* ----- Colors ----- */
-  --bg-primary: #080A0E;
-  --bg-secondary: #0C0F15;
-  --bg-surface: #11141C;
-  --text-primary: #FFFFFF;
-  --text-secondary: #B0B8C8;
-  --text-tertiary: #7A8292;
-  --text-muted: #5A6272;
-  --text-inverse: #080A0E;
-
-  /* ----- Transitions ----- */
+  /* ----- Transitions (GPU-friendly) ----- */
   --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
@@ -56,7 +63,7 @@
   --duration-slow: 400ms;
   --duration-slower: 600ms;
 
-  /* ----- Spacing ----- */
+  /* ----- Spacing (8px grid) ----- */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -65,6 +72,8 @@
   --space-6: 24px;
   --space-7: 32px;
   --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 56px;
 
   /* ----- Radius ----- */
   --radius-sm: 8px;
@@ -72,6 +81,7 @@
   --radius-lg: 16px;
   --radius-xl: 20px;
   --radius-2xl: 24px;
+  --radius-3xl: 32px;
   --radius-full: 9999px;
 
   /* ----- Font ----- */
@@ -80,29 +90,38 @@
 }
 
 /* ============================================================
-   PHASE 1 — LIGHT THEME
+   2. LIGHT THEME
    ============================================================ */
 [data-theme="light"] {
   --glass-bg: rgba(255, 255, 255, 0.50);
   --glass-bg-hover: rgba(255, 255, 255, 0.70);
+  --glass-bg-active: rgba(255, 255, 255, 0.85);
   --glass-border: rgba(0, 0, 0, 0.06);
   --glass-border-hover: rgba(0, 0, 0, 0.10);
-  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.80);
-  --glass-shadow-heavy: 0 8px 40px rgba(0, 0, 0, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.80);
-  --glow-color: rgba(79, 140, 255, 0.06);
-  --glow-color-strong: rgba(79, 140, 255, 0.10);
-  --bg-primary: #F0F2F5;
+  --glass-border-active: rgba(0, 0, 0, 0.14);
+  --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
+  --glass-shadow-heavy: 0 8px 50px rgba(0, 0, 0, 0.10);
+
+  --nav-glass-bg: rgba(255, 255, 255, 0.70);
+  --nav-glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 12px 30px rgba(0, 0, 0, 0.06);
+  --nav-active-bg: rgba(0, 0, 0, 0.04);
+
+  --bg-primary: #E8EAED;
   --bg-secondary: #FFFFFF;
   --bg-surface: #F8F9FA;
+  --bg-surface-dim: #F0F2F5;
   --text-primary: #1A1D23;
   --text-secondary: #4A5263;
   --text-tertiary: #6A7282;
   --text-muted: #8E96A3;
   --text-inverse: #FFFFFF;
+
+  --glow-color: rgba(79, 140, 255, 0.04);
+  --glow-color-strong: rgba(79, 140, 255, 0.08);
 }
 
 /* ============================================================
-   PHASE 1 — BASE & RESET
+   3. BASE & RESET
    ============================================================ */
 * {
   margin: 0;
@@ -127,38 +146,36 @@ body {
 }
 
 /* ============================================================
-   PHASE 2 — AURORA BACKGROUND
+   4. BACKGROUND GLOW (Fixed - Like a bulb behind glass)
    ============================================================ */
-.aurora-bg {
+.bg-glow {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-}
-
-.aurora-bg svg {
-  width: 100%;
-  height: 100%;
-  display: block;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(79, 140, 255, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 30% 70%, rgba(34, 226, 255, 0.03) 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 60%, rgba(180, 61, 255, 0.03) 0%, transparent 40%);
 }
 
 /* ============================================================
-   PHASE 1 — SCROLLBAR
+   5. SCROLLBAR
    ============================================================ */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--glass-border);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--glass-border-hover);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 ::selection {
@@ -167,7 +184,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 2 — GLASS ENGINE
+   6. GLASS SYSTEM
    ============================================================ */
 .glass {
   position: relative;
@@ -177,6 +194,7 @@ body {
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-xl);
   transition: border var(--duration-fast) var(--ease-out),
               box-shadow var(--duration-fast) var(--ease-out),
               transform var(--duration-medium) var(--spring);
@@ -199,7 +217,25 @@ body {
 }
 
 /* ============================================================
-   PHASE 3 — STATS HERO GLOW (ONLY THIS CARD)
+   7. NAVIGATION GLASS (DeepSeek style)
+   ============================================================ */
+.nav-glass {
+  background: var(--nav-glass-bg);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid var(--nav-glass-border);
+  border-radius: var(--radius-full);
+  box-shadow: var(--nav-glass-shadow);
+}
+
+.nav-glass .active {
+  background: var(--nav-active-bg);
+  border-radius: var(--radius-full);
+  box-shadow: var(--nav-active-shadow);
+}
+
+/* ============================================================
+   8. STATS HERO GLOW (Intentional - Only this card)
    ============================================================ */
 .stats-hero {
   position: relative;
@@ -216,32 +252,16 @@ body {
   overflow: hidden;
 }
 
-/* ===== GLOW ONLY ON STATS HERO ===== */
+/* Fixed glow behind stats hero - like a bulb */
 .stats-hero::before {
   content: '';
   position: absolute;
-  inset: -50px;
+  inset: -60px;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(circle at var(--glow-x, 40%) var(--glow-y, 50%), var(--glow-color), transparent 70%);
-  opacity: 0.4;
+  background: radial-gradient(circle at 50% 40%, rgba(79, 140, 255, 0.08), transparent 60%);
+  opacity: 1;
   transform: translateZ(0);
-  will-change: transform;
-  animation: floatGlow 20s var(--ease-smooth) infinite alternate;
-}
-
-/* Second glow layer - slower, different angle */
-.stats-hero::after {
-  content: '';
-  position: absolute;
-  inset: -50px;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at var(--glow-x2, 60%) var(--glow-y2, 40%), var(--glow-color-strong), transparent 70%);
-  opacity: 0.2;
-  transform: translateZ(0);
-  will-change: transform;
-  animation: floatGlowReverse 25s var(--ease-smooth) infinite alternate;
 }
 
 .stats-hero > * {
@@ -253,21 +273,8 @@ body {
   border-color: var(--glass-border-hover);
 }
 
-@keyframes floatGlow {
-  0% { transform: translate(-10%, -10%) scale(1) translateZ(0); opacity: 0.3; }
-  33% { transform: translate(10%, -15%) scale(1.2) translateZ(0); opacity: 0.5; }
-  66% { transform: translate(-15%, 10%) scale(0.8) translateZ(0); opacity: 0.35; }
-  100% { transform: translate(12%, 12%) scale(1.1) translateZ(0); opacity: 0.4; }
-}
-
-@keyframes floatGlowReverse {
-  0% { transform: translate(10%, 10%) scale(1) translateZ(0); opacity: 0.15; }
-  50% { transform: translate(-10%, -10%) scale(1.3) translateZ(0); opacity: 0.3; }
-  100% { transform: translate(10%, 10%) scale(0.9) translateZ(0); opacity: 0.2; }
-}
-
 /* ============================================================
-   PHASE 1 — ANIMATIONS
+   9. ANIMATIONS (GPU-only)
    ============================================================ */
 @keyframes fadeIn {
   0% { opacity: 0; }
@@ -295,9 +302,15 @@ body {
   100% { background-position: 0% 50%; }
 }
 
+@keyframes breath {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.9; }
+}
+
 .fade-in { animation: fadeIn 0.4s var(--ease-out) forwards; }
 .slide-up { animation: slideUp 0.5s var(--spring) forwards; }
 .slide-down { animation: slideDown 0.2s var(--ease-out) forwards; }
+.breath { animation: breath 3s var(--ease-smooth) infinite; }
 
 /* Stagger */
 .stagger > * {
@@ -311,7 +324,7 @@ body {
 .stagger > *:nth-child(6) { animation-delay: 200ms; }
 
 /* ============================================================
-   PHASE 7 — TYPOGRAPHY
+   10. TYPOGRAPHY
    ============================================================ */
 .hero-title {
   font-size: 42px;
@@ -375,7 +388,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 1 — CONTAINER
+   11. CONTAINER
    ============================================================ */
 .container {
   max-width: 1100px;
@@ -387,7 +400,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 6 — HEADER (No Glow)
+   12. HEADER
    ============================================================ */
 .app-header {
   display: flex;
@@ -477,7 +490,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 4 — THEME TOGGLE
+   13. THEME TOGGLE
    ============================================================ */
 .theme-toggle {
   width: 40px;
@@ -507,7 +520,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 3 — CAPSULE NAV (No Glow)
+   14. CAPSULE NAV (DeepSeek style)
    ============================================================ */
 .capsule-nav {
   display: flex;
@@ -517,17 +530,17 @@ body {
 
 .capsule-nav-inner {
   display: flex;
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur-heavy));
-  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+  background: var(--nav-glass-bg);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
   padding: 4px;
   border-radius: var(--radius-full);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--nav-glass-border);
   gap: 4px;
   height: 48px;
   width: 100%;
   max-width: 400px;
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--nav-glass-shadow);
 }
 
 .capsule-nav-inner button {
@@ -552,9 +565,10 @@ body {
 }
 
 .capsule-nav-inner button.active {
-  color: var(--text-inverse);
-  background: var(--gradient-primary);
-  box-shadow: 0 4px 16px rgba(79, 140, 255, 0.30);
+  background: var(--nav-active-bg);
+  color: var(--text-primary);
+  border-radius: var(--radius-full);
+  box-shadow: var(--nav-active-shadow);
 }
 
 .capsule-nav-inner button:active {
@@ -562,7 +576,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 5 — CARDS (No Glow)
+   15. CARDS
    ============================================================ */
 .card {
   background: var(--glass-bg);
@@ -588,17 +602,8 @@ body {
   transition-duration: var(--duration-fast);
 }
 
-/* Card with extra shadow - still no glow */
-.card-glow {
-  box-shadow: var(--glass-shadow);
-}
-
-.card-glow:hover {
-  box-shadow: var(--glass-shadow-heavy);
-}
-
 /* ============================================================
-   PHASE 4 — BUTTONS (No Glow)
+   16. BUTTONS
    ============================================================ */
 .btn {
   display: inline-flex;
@@ -696,10 +701,11 @@ body {
 }
 
 /* ============================================================
-   PHASE 6 — INPUTS
+   17. INPUTS (Wrapped - no ::before on inputs)
    ============================================================ */
 .input-wrapper {
   position: relative;
+  isolation: isolate;
 }
 
 .input-wrapper .input,
@@ -717,6 +723,8 @@ body {
   font-family: var(--font-family);
   transition: all var(--duration-medium);
   outline: none;
+  position: relative;
+  z-index: 1;
 }
 
 .input-wrapper .input:hover,
@@ -753,8 +761,60 @@ body {
   padding-right: 36px;
 }
 
+/* Direct input styles (for non-wrapped inputs) */
+.input,
+.textarea,
+.select {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  font-size: 15px;
+  font-family: var(--font-family);
+  transition: all var(--duration-medium);
+  outline: none;
+}
+
+.input:hover,
+.textarea:hover,
+.select:hover {
+  border-color: var(--glass-border-hover);
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.10);
+  background: var(--glass-bg-hover);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.textarea {
+  min-height: 180px;
+  padding: var(--space-4);
+  line-height: 1.7;
+  resize: vertical;
+}
+
+.select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237A8292' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
 /* ============================================================
-   PHASE 1 — CHECKBOX
+   18. CHECKBOX
    ============================================================ */
 .custom-checkbox {
   width: 20px;
@@ -790,7 +850,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 1 — CHIPS
+   19. CHIPS
    ============================================================ */
 .chip {
   display: inline-flex;
@@ -807,32 +867,32 @@ body {
 }
 
 .chip-easy {
-  background: rgba(34, 197, 94, 0.15);
+  background: rgba(34, 197, 94, 0.12);
   color: #22C55E;
 }
 .chip-medium {
-  background: rgba(245, 158, 11, 0.15);
+  background: rgba(245, 158, 11, 0.12);
   color: #F59E0B;
 }
 .chip-hard {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(239, 68, 68, 0.12);
   color: #EF4444;
 }
 .chip-tag {
-  background: rgba(79, 140, 255, 0.12);
+  background: rgba(79, 140, 255, 0.10);
   color: var(--brand-blue);
 }
 .chip-minutes {
-  background: rgba(180, 61, 255, 0.15);
+  background: rgba(180, 61, 255, 0.12);
   color: var(--brand-purple);
 }
 .chip-progress {
-  background: rgba(34, 197, 94, 0.15);
+  background: rgba(34, 197, 94, 0.12);
   color: #22C55E;
 }
 
 /* ============================================================
-   PHASE 1 — PROGRESS BAR
+   20. PROGRESS BAR
    ============================================================ */
 .progress-bar {
   width: 100%;
@@ -856,13 +916,13 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
   transform: translateX(-100%);
   animation: shimmer 2s ease-in-out infinite;
 }
 
 /* ============================================================
-   PHASE 1 — TOAST
+   21. TOAST
    ============================================================ */
 .toast {
   position: fixed;
@@ -906,7 +966,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 1 — HEATMAP
+   22. HEATMAP
    ============================================================ */
 .heatmap-grid {
   display: grid;
@@ -940,7 +1000,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 9 — STATS DASHBOARD
+   23. STATS DASHBOARD
    ============================================================ */
 .stats-grid {
   display: grid;
@@ -1033,7 +1093,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
   transform: translateX(-100%);
   animation: shimmer 2s ease-in-out infinite;
 }
@@ -1093,19 +1153,20 @@ body {
 }
 
 /* ============================================================
-   PHASE 9 — STATS MODAL (No Glow - Clean)
+   24. STATS MODAL
    ============================================================ */
 .stats-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.60);
-  backdrop-filter: blur(var(--glass-blur-heavy));
-  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+  background: rgba(0, 0, 0, 0.70);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10000;
   padding: var(--space-4);
+  animation: fadeIn 0.3s var(--ease-out);
 }
 
 .stats-modal {
@@ -1193,7 +1254,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 10 — RESPONSIVE
+   25. RESPONSIVE
    ============================================================ */
 @media (max-width: 768px) {
   .container {
@@ -1309,7 +1370,7 @@ body {
 }
 
 /* ============================================================
-   PHASE 10 — UTILITIES
+   26. UTILITIES
    ============================================================ */
 .flex { display: flex; }
 .flex-col { flex-direction: column; }
@@ -1361,7 +1422,7 @@ body {
 .shadow-lg { box-shadow: var(--elevation-3); }
 
 /* ============================================================
-   PHASE 10 — PREFERS REDUCED MOTION
+   27. PREFERS REDUCED MOTION
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -1372,9 +1433,22 @@ body {
     transition-duration: 0.01ms !important;
   }
 
-  .stats-hero::before,
-  .stats-hero::after {
-    opacity: 0.15 !important;
+  .stats-hero::before {
+    opacity: 0.4 !important;
+  }
+
+  .gradientShift,
+  .shimmer,
+  .breath {
     animation: none !important;
   }
+}
+
+/* ============================================================
+   28. RING GRADIENT (for habit rings)
+   ============================================================ */
+#ringGrad {
+  --brand-cyan: #22E2FF;
+  --brand-blue: #4F8CFF;
+  --brand-purple: #B43DFF;
 }
